@@ -12,7 +12,13 @@
                 </div>
                 <div class="card-body">
                     <div class="alert alert-danger">
-                        {{ error }}
+                        {% if error %}
+                            {{ error }}
+                        {% elif error_message %}
+                            {{ error_message }}
+                        {% else %}
+                            Bilinmeyen bir hata oluştu.
+                        {% endif %}
                     </div>
                     <p>Bu hata kaydedildi ve en kısa sürede çözülecektir.</p>
                     <div class="mt-4">

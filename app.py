@@ -50,8 +50,14 @@ class HTTPSRedirectMiddleware:
 if os.environ.get('FLASK_ENV', 'development') == 'production':
     app.wsgi_app = HTTPSRedirectMiddleware(app.wsgi_app)
 
-# Initialize database
-init_db()
+# Initialize database with error handling
+try:
+    logger.info("Veritabanı başlatılıyor...")
+    init_db()
+    logger.info("Veritabanı başlatma tamamlandı")
+except Exception as e:
+    logger.error(f"Veritabanı başlatma hatası: {e}")
+    logger.error("Uygulama devam ediyor ancak veritabanı işlevselliği sınırlı olabilir.")
 
 # Authentication decorator
 def login_required(f):
@@ -79,13 +85,27 @@ def admin_required(f):
 # Route for home page
 @app.route('/')
 def index():
-    user = None
-    is_user_admin = False
-    if 'user_id' in session:
-        user = get_user_by_id(session['user_id'])
-        is_user_admin = is_admin(session['user_id'])
-    top_contributors = get_top_contributors(5)
-    return render_template('index.html', user=user, top_contributors=top_contributors, is_admin=is_user_admin)
+    try:
+        user = None
+        is_user_admin = False
+        if 'user_id' in session:
+            try:
+                user = get_user_by_id(session['user_id'])
+                is_user_admin = is_admin(session['user_id']) if user else False
+            except Exception as e:
+                logger.error(f"Kullanıcı bilgileri alınırken hata: {e}")
+                session.clear()  # Geçersiz oturumu temizle
+        
+        try:
+            top_contributors = get_top_contributors(5)
+        except Exception as e:
+            logger.error(f"En iyi katkıda bulunanlar alınırken hata: {e}")
+            top_contributors = []
+            
+        return render_template('index.html', user=user, top_contributors=top_contributors, is_admin=is_user_admin)
+    except Exception as e:
+        logger.error(f"Ana sayfa yüklenirken beklenmeyen hata: {e}")
+        return render_template('error.html', error_message="Üzgünüz, bir hata oluştu. Lütfen daha sonra tekrar deneyiniz."), 500
 
 @app.route('/popular', methods=['GET'])
 def popular_words():

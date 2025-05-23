@@ -107,7 +107,11 @@
                 <a href="{{ url_for('privacy') }}">Gizlilik</a>
                 <a href="{{ url_for('contact') }}">İletişim</a>
             </div>
-            <p>&copy; {% now year %} Z Kuşağı Çevirici. Tüm hakları saklıdır.</p>
+            <p>&copy; <span id="current-year"></span> Z Kuşağı Çevirici. Tüm hakları saklıdır.</p>
+            <script>
+                // Set current year in footer
+                document.getElementById('current-year').textContent = new Date().getFullYear();
+            </script>
         </footer>
     </div>
     
