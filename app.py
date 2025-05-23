@@ -407,5 +407,25 @@ def edit_request(word_id):
             'message': f'Bir hata oluştu: {result}'
         })
 
+# SSL için context oluşturma fonksiyonu
+def create_ssl_context():
+    # SSL sertifikalarının varlığını kontrol et
+    cert_path = os.path.join(os.path.dirname(__file__), 'ssl/cert.pem')
+    key_path = os.path.join(os.path.dirname(__file__), 'ssl/key.pem')
+    
+    if os.path.exists(cert_path) and os.path.exists(key_path):
+        return (cert_path, key_path)
+    else:
+        print("SSL sertifikası bulunamadı. 'python create_ssl_cert.py' çalıştırın.")
+        return None
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    ssl_context = create_ssl_context()
+    debug_mode = os.environ.get('FLASK_DEBUG', 'True') == 'True'
+    
+    if ssl_context:
+        app.run(host='0.0.0.0', port=5000, debug=debug_mode, ssl_context=ssl_context)
+    else:
+        # Eğer SSL context yoksa, normal HTTP ile çalıştır
+        print("SSL sertifikası olmadan çalışılıyor. Güvenli bağlantı için sertifika oluşturun.")
+        app.run(host='0.0.0.0', port=5000, debug=debug_mode)
