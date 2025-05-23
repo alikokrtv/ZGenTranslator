@@ -16,27 +16,15 @@ from models import (init_db, get_word, add_word, add_suggestion, get_popular_wor
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "z-kusagi-translator-secret")
 
-# HTTP'den HTTPS'ye yönlendirme middleware'i
+# HTTP'den HTTPS'ye yönlendirme middleware'i - Cloudflare kullanıldığı için devre dışı bırakıldı
 class HTTPSRedirectMiddleware:
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
-        # HTTPS kontrol - Natro hosting için yapılandırma
-        is_secure = environ.get('HTTPS', 'off') == 'on' or \
-                   environ.get('HTTP_X_FORWARDED_PROTO', 'http') == 'https'
-        
-        # Prodüksiyon ortamında mıyız?
-        is_production = os.environ.get('FLASK_ENV', 'development') == 'production'
-        
-        # Eğer prodüksiyon ortamındaysak ve bağlantı güvenli değilse, HTTPS'ye yönlendir
-        if is_production and not is_secure and environ['PATH_INFO'] != '/health':
-            url = 'https://' + environ.get('HTTP_HOST', 'zgentranslator.com') + environ['PATH_INFO']
-            status = '301 Moved Permanently'
-            headers = [('Location', url), ('Content-Length', '0')]
-            start_response(status, headers)
-            return [b'']
-        
+        # Cloudflare zaten HTTP'den HTTPS'ye yönlendirme işlemini yapıyor
+        # Bu nedenle kendi yönlendirme kodumuz devre dışı bırakıldı
+        # Sadece uygulamayı normal şekilde çalıştır
         return self.app(environ, start_response)
 
 # Middleware'i sadece prodüksiyonda etkinleştir
@@ -434,17 +422,11 @@ def edit_request(word_id):
             'message': f'Bir hata oluştu: {result}'
         })
 
-# SSL için context oluşturma fonksiyonu
+# SSL için context oluşturma fonksiyonu - Cloudflare kullanıldığı için devre dışı
 def create_ssl_context():
-    # SSL sertifikalarının varlığını kontrol et
-    cert_path = os.path.join(os.path.dirname(__file__), 'ssl/cert.pem')
-    key_path = os.path.join(os.path.dirname(__file__), 'ssl/key.pem')
-    
-    if os.path.exists(cert_path) and os.path.exists(key_path):
-        return (cert_path, key_path)
-    else:
-        print("SSL sertifikası bulunamadı. 'python create_ssl_cert.py' çalıştırın.")
-        return None
+    # Cloudflare SSL yönettiği için kendi SSL'imizi kullanmıyoruz
+    print("Cloudflare SSL kullanıldığı için yerel SSL devre dışı.")
+    return None
 
 if __name__ == '__main__':
     ssl_context = create_ssl_context()

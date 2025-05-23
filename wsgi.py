@@ -14,5 +14,5 @@ from app import app as application
 
 # Bu bir WSGI dosyasıdır - Flask uygulamasını application olarak dışa aktarır
 if __name__ == '__main__':
-    # Geliştirme ortamında doğrudan çalışıyorsa SSL kullan
+    # Cloudflare SSL yönettiği için SSL kullanmadan çalıştır
     application.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
