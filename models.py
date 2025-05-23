@@ -633,13 +633,25 @@ def get_pending_suggestions(limit=50):
         LEFT JOIN users u ON s.suggested_by = u.id
         WHERE s.status = 'pending'
         ORDER BY s.created_at ASC
-        LIMIT %s
+        LIMIT ?
     """, (limit,))
     
     results = cur.fetchall()
     conn.close()
     
-    return [dict(result) for result in results]
+    # Convert row objects to dictionaries and ensure created_at is a datetime object
+    suggestions = []
+    for result in results:
+        suggestion_dict = dict(result)
+        if isinstance(suggestion_dict['created_at'], str):
+            try:
+                suggestion_dict['created_at'] = datetime.strptime(suggestion_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                # If parsing fails, just keep the string
+                pass
+        suggestions.append(suggestion_dict)
+    
+    return suggestions
 
 def request_edit(word_id, new_meaning, reason, user_id):
     """Request an edit to a word's meaning"""
@@ -677,6 +689,22 @@ def get_pending_edit_requests(limit=50):
         LIMIT ?
     """, (limit,))
     
+    results = cur.fetchall()
+    conn.close()
+    
+    # Convert row objects to dictionaries and ensure created_at is a datetime object
+    edit_requests = []
+    for result in results:
+        request_dict = dict(result)
+        if isinstance(request_dict['created_at'], str):
+            try:
+                request_dict['created_at'] = datetime.strptime(request_dict['created_at'], '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                # If parsing fails, just keep the string
+                pass
+        edit_requests.append(request_dict)
+    
+    return edit_requests
 
 def approve_edit_request(request_id, admin_id):
     """Approve an edit request and update the word's meaning"""
@@ -723,8 +751,8 @@ def reject_edit_request(request_id, admin_id, admin_notes=None):
         # Update request status
         cur.execute("""
             UPDATE edit_requests 
-            SET status = 'rejected', admin_notes = %s 
-            WHERE id = %s
+            SET status = 'rejected', admin_notes = ? 
+            WHERE id = ?
         """, (admin_notes, request_id))
         
         conn.commit()

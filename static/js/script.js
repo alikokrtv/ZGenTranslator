@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         // Create content for the meaning
                         meaningItem.innerHTML = `
+                            <div class="edit-button-wrapper"></div>
                             <p class="meaning-content">${meaning.meaning}</p>
                             <div class="meaning-meta">
                                 <div class="meaning-contributor">
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             editButton.innerHTML = '<i class="fas fa-edit"></i> Düzenleme Öner';
                             editButton.dataset.wordId = meaning.id;
                             editButton.addEventListener('click', () => openEditRequestModal(meaning.id, meaning.meaning));
-                            meaningItem.appendChild(editButton);
+                            meaningItem.querySelector('.edit-button-wrapper').appendChild(editButton);
                         }
                         
                         meaningsContainer.appendChild(meaningItem);

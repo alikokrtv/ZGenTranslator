@@ -47,7 +47,7 @@
                             Anonim
                         {% endif %}
                     </div>
-                    <div class="col-date">{{ request.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                    <div class="col-date">{{ request.created_at|safe_date }}</div>
                     <div class="col-actions">
                         <div class="action-buttons">
                             <form action="{{ url_for('admin_approve_edit_request', request_id=request.id) }}" method="post">

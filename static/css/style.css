@@ -709,12 +709,17 @@ footer {
     background-color: hsla(var(--primary-light), 0.1);
     border-radius: var(--radius-md);
     padding: var(--space-md);
+    padding-top: calc(var(--space-xl) + var(--space-sm));  /* More space at top for the edit button */
     position: relative;
+    border: 1px solid hsla(var(--primary), 0.1);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .meaning-content {
     font-size: var(--font-size-lg);
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-lg);  /* Increased bottom margin */
+    line-height: 1.5;
 }
 
 .meaning-meta {
@@ -757,19 +762,55 @@ footer {
     color: hsl(var(--danger));
 }
 
+.edit-button-wrapper {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    margin-bottom: var(--space-md);
+}
+
 .edit-request-btn {
     position: absolute;
-    top: var(--space-md);
-    right: var(--space-md);
-    background: none;
-    border: none;
+    top: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid hsl(var(--primary));
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
     cursor: pointer;
     color: hsl(var(--primary));
     font-size: var(--font-size-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    z-index: 5;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
 }
 
 .edit-request-btn:hover {
-    text-decoration: underline;
+    background-color: hsl(var(--primary));
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Fix for mobile view */
+@media (max-width: 768px) {
+    .meaning-item {
+        padding-top: var(--space-md);
+    }
+    
+    .edit-button-wrapper {
+        height: 45px;
+        margin-bottom: var(--space-lg);
+    }
+    
+    .edit-request-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Admin link styles */

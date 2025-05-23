@@ -241,6 +241,9 @@ def translate():
     
     # Check if user is logged in for the edit request feature
     user_logged_in = 'user_id' in session
+    user = None
+    if user_logged_in:
+        user = get_user_by_id(session['user_id'])
     
     if results:
         # Format results for the frontend
@@ -248,9 +251,9 @@ def translate():
         for result in results:
             contributor = None
             if result.get('suggested_by'):
-                user = get_user_by_id(result['suggested_by'])
-                if user:
-                    contributor = user['username']
+                user_data = get_user_by_id(result['suggested_by'])
+                if user_data:
+                    contributor = user_data['username']
             
             formatted_results.append({
                 'id': result['id'],
@@ -270,7 +273,7 @@ def translate():
         return jsonify({
             'success': False,
             'message': 'Bu kelimeyi bilmiyorum 😢 Ama sen öğretebilirsin!',
-            'user': user_info['username'] if user_info else None
+            'user': user['username'] if user else None
         })
 
 # API endpoint to suggest new word
@@ -298,10 +301,10 @@ def suggest():
         new_word_suggestion_notification(word, meaning, user['username'])
     else:
         # Anonim öneriler için user_id None
-        success, result = add_suggestion(word, meaning, None, submitter_name)
+        success, result = add_suggestion(word, meaning, None)
         
         # Yöneticiye anonim öneri için e-posta bildirimi gönder
-        new_word_suggestion_notification(word, meaning, submitter_name)
+        new_word_suggestion_notification(word, meaning, name if name else "Anonim Kullanıcı")
     
     if success:
         return jsonify({
@@ -448,8 +451,9 @@ def edit_request(word_id):
     if success:
         # Değişiklik talebi için yöneticiye e-posta gönder
         word_info = get_word(word_id)
-        if word_info:
-            edit_request_notification(word_info['word'], word_info['meaning'], new_meaning, reason, user['username'])
+        user = get_user_by_id(session['user_id'])
+        if word_info and user:
+            edit_request_notification(word_info[0]['word'], word_info[0]['meaning'], new_meaning, reason, user['username'])
         
         return jsonify({
             'success': True,
@@ -466,6 +470,28 @@ def create_ssl_context():
     # Cloudflare SSL yönettiği için kendi SSL'imizi kullanmıyoruz
     print("Cloudflare SSL kullanıldığı için yerel SSL devre dışı.")
     return None
+
+# Custom template filter for safe date formatting
+@app.template_filter('safe_date')
+def safe_date_filter(value, format='%d/%m/%Y %H:%M'):
+    """Safely format a date value, handling both datetime objects and strings."""
+    if value is None:
+        return "Belirtilmemiş"
+    
+    if isinstance(value, datetime):
+        return value.strftime(format)
+    
+    if isinstance(value, str):
+        try:
+            # Try to parse the string as a datetime
+            date_obj = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+            return date_obj.strftime(format)
+        except (ValueError, TypeError):
+            # If parsing fails, return the original string
+            return value
+    
+    # For any other type, return as string
+    return str(value)
 
 if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_DEBUG', 'False') == 'True'
