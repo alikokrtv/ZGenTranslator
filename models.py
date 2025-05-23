@@ -1,11 +1,6 @@
-import sqlite3
 import os
 from datetime import datetime
-
-# Database setup
-# Railway ya da başka bir hosting için esnek veritabanı yolu
-# Bir çevre değişkeni ayarlanmışsa onu kullan, yoksa yerel dosyayı kullan
-DB_PATH = os.environ.get('DATABASE_URL', os.path.join(os.path.dirname(__file__), 'zgen_translator.db'))
+from db_config import get_db_connection
 
 # Initial Z Generation words dictionary - başlangıç sözlüğü
 INITIAL_Z_WORDS = {
@@ -31,106 +26,215 @@ INITIAL_Z_WORDS = {
     "based": "Kendinden emin, korkmadan fikrini söyleyen"
 }
 
-def get_db_connection():
-    """Create a connection to the SQLite database"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-    return conn
+# get_db_connection fonksiyonu artık db_config.py'de
 
 def init_db():
     """Initialize the database with tables if they don't exist"""
+    import logging
+    logger = logging.getLogger('models')
+    
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Create words table - artık kelimelerin benzersiz olması gerekmiyor, çünkü çoklu anlam destekliyoruz
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS words (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word TEXT NOT NULL,
-        meaning TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        suggested_by INTEGER,
-        votes_up INTEGER DEFAULT 0,
-        votes_down INTEGER DEFAULT 0,
-        is_approved INTEGER DEFAULT 0,
-        approved_by INTEGER,
-        approved_at TIMESTAMP,
-        FOREIGN KEY (suggested_by) REFERENCES users(id),
-        FOREIGN KEY (approved_by) REFERENCES users(id)
-    )
-    ''')
-    
-    # Create suggestions table for pending words
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS suggestions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word TEXT NOT NULL,
-        meaning TEXT NOT NULL,
-        suggested_by INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        status TEXT DEFAULT 'pending',
-        admin_notes TEXT,
-        FOREIGN KEY (suggested_by) REFERENCES users(id)
-    )
-    ''')
-    
-    # Create edit requests table
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS edit_requests (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word_id INTEGER NOT NULL,
-        new_meaning TEXT NOT NULL,
-        reason TEXT,
-        requested_by INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        status TEXT DEFAULT 'pending',
-        admin_notes TEXT,
-        FOREIGN KEY (word_id) REFERENCES words(id),
-        FOREIGN KEY (requested_by) REFERENCES users(id)
-    )
-    ''')
-    
-    # Create users table
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        contribution_count INTEGER DEFAULT 0,
-        bio TEXT,
-        is_admin INTEGER DEFAULT 0
-    )
-    ''')
-    
-    # Create achievements table
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS achievements (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        description TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        requirement_count INTEGER NOT NULL
-    )
-    ''')
-    
-    # Create user achievements junction table
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS user_achievements (
-        user_id INTEGER NOT NULL,
-        achievement_id INTEGER NOT NULL,
-        earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (user_id, achievement_id),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (achievement_id) REFERENCES achievements(id)
-    )
-    ''')
-    
-    conn.commit()
-    conn.close()
+    try:
+        logger.info("Veritabanı tablolarını oluşturma başlatılıyor...")
+        
+        # PostgreSQL için farklı PRIMARY KEY sözdizimi gerekebilir
+        is_postgres = hasattr(conn, 'cursor_factory')
+        
+        if is_postgres:
+            # PostgreSQL için tablo oluşturma
+            # PostgreSQL'de AUTOINCREMENT yerine SERIAL kullanılır
+            logger.info("PostgreSQL için tablolar oluşturuluyor...")
+            
+            # Create words table
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS words (
+                id SERIAL PRIMARY KEY,
+                word TEXT NOT NULL,
+                meaning TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                suggested_by INTEGER,
+                votes_up INTEGER DEFAULT 0,
+                votes_down INTEGER DEFAULT 0,
+                is_approved INTEGER DEFAULT 0,
+                approved_by INTEGER,
+                approved_at TIMESTAMP,
+                FOREIGN KEY (suggested_by) REFERENCES users(id) ON DELETE SET NULL,
+                FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
+            )
+            """)
+            
+            # Create suggestions table for pending words
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS suggestions (
+                id SERIAL PRIMARY KEY,
+                word TEXT NOT NULL,
+                meaning TEXT NOT NULL,
+                suggested_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'pending',
+                admin_notes TEXT,
+                FOREIGN KEY (suggested_by) REFERENCES users(id) ON DELETE SET NULL
+            )
+            """)
+            
+            # Create edit requests table
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS edit_requests (
+                id SERIAL PRIMARY KEY,
+                word_id INTEGER NOT NULL,
+                new_meaning TEXT NOT NULL,
+                reason TEXT,
+                requested_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'pending',
+                admin_notes TEXT,
+                FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE,
+                FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE SET NULL
+            )
+            """)
+            
+            # Create users table
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                contribution_count INTEGER DEFAULT 0,
+                bio TEXT,
+                is_admin INTEGER DEFAULT 0
+            )
+            """)
+            
+            # Create achievements table
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS achievements (
+                id SERIAL PRIMARY KEY,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT NOT NULL,
+                icon TEXT NOT NULL,
+                requirement_count INTEGER NOT NULL
+            )
+            """)
+            
+            # Create user achievements junction table
+            cur.execute("""
+            CREATE TABLE IF NOT EXISTS user_achievements (
+                user_id INTEGER,
+                achievement_id INTEGER,
+                earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, achievement_id),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE
+            )
+            """)
+            
+        else:
+            # SQLite için tablo oluşturma
+            logger.info("SQLite için tablolar oluşturuluyor...")
+            
+            # Create words table
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS words (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                word TEXT NOT NULL,
+                meaning TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                suggested_by INTEGER,
+                votes_up INTEGER DEFAULT 0,
+                votes_down INTEGER DEFAULT 0,
+                is_approved INTEGER DEFAULT 0,
+                approved_by INTEGER,
+                approved_at TIMESTAMP,
+                FOREIGN KEY (suggested_by) REFERENCES users(id),
+                FOREIGN KEY (approved_by) REFERENCES users(id)
+            )
+            ''')
+            
+            # Create suggestions table for pending words
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS suggestions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                word TEXT NOT NULL,
+                meaning TEXT NOT NULL,
+                suggested_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'pending',
+                admin_notes TEXT,
+                FOREIGN KEY (suggested_by) REFERENCES users(id)
+            )
+            ''')
+            
+            # Create edit requests table
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS edit_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                word_id INTEGER NOT NULL,
+                new_meaning TEXT NOT NULL,
+                reason TEXT,
+                requested_by INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'pending',
+                admin_notes TEXT,
+                FOREIGN KEY (word_id) REFERENCES words(id),
+                FOREIGN KEY (requested_by) REFERENCES users(id)
+            )
+            ''')
+            
+            # Create users table
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                contribution_count INTEGER DEFAULT 0,
+                bio TEXT,
+                is_admin INTEGER DEFAULT 0
+            )
+            ''')
+            
+            # Create achievements table
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS achievements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                description TEXT NOT NULL,
+                icon TEXT NOT NULL,
+                requirement_count INTEGER NOT NULL
+            )
+            ''')
+            
+            # Create user achievements junction table
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS user_achievements (
+                user_id INTEGER,
+                achievement_id INTEGER,
+                earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, achievement_id),
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (achievement_id) REFERENCES achievements(id)
+            )
+            ''')
+        
+        conn.commit()
+        logger.info("Veritabanı tabloları başarıyla oluşturuldu.")
+        
+    except Exception as e:
+        conn.rollback() if hasattr(conn, 'rollback') else None
+        logger.error(f"Veritabanı oluşturma hatası: {str(e)}")
+        print(f"Veritabanı oluşturma hatası: {str(e)}")
+        raise
+    finally:
+        conn.close()
     
     # Seed initial words after creating tables
     # Veritabanı tabloları oluşturulduktan sonra başlangıç kelimelerini ekle

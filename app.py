@@ -324,12 +324,19 @@ def admin_dashboard():
 @app.route('/admin/suggestions')
 @admin_required
 def admin_suggestions():
-    user = get_user_by_id(session['user_id'])
-    pending_suggestions = get_pending_suggestions(limit=50)
-    
-    return render_template('admin/suggestions.html', 
-                           user=user, 
-                           suggestions=pending_suggestions)
+    try:
+        user = get_user_by_id(session['user_id'])
+        pending_suggestions = get_pending_suggestions(limit=50)
+        
+        return render_template('admin/suggestions.html', 
+                               user=user, 
+                               suggestions=pending_suggestions)
+    except Exception as e:
+        # Hata logla
+        print(f"Admin suggestions error: {str(e)}")
+        # Hata sayfası göster
+        flash(f'Bir hata oluştu: {str(e)}', 'error')
+        return render_template('error.html', error=str(e))
 
 @app.route('/admin/suggestion/approve/<int:suggestion_id>', methods=['POST'])
 @admin_required
