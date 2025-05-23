@@ -1,10 +1,21 @@
 import os
 import logging
+import sqlite3
 from datetime import datetime
 from db_config import get_db_connection
 
 # Logging ayarları
 logger = logging.getLogger('models')
+
+# Veritabanı tipi kontrolü ve parametre işaretleyici belirleme
+def get_param_placeholder(conn):
+    """
+    Veritabanı bağlantı tipine göre doğru parametre işaretleyicisini döndür
+    SQLite için ? ve PostgreSQL için %s
+    """
+    if hasattr(conn, 'cursor_factory'):  # PostgreSQL bağlantısı
+        return '%s'
+    return '?'  # SQLite bağlantısı
 
 # get_db_connection fonksiyonu artık db_config.py'de
 
