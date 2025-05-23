@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const suggestMeaningInput = document.getElementById('suggest-meaning');
     const suggestNameInput = document.getElementById('suggest-name');
     const notification = document.getElementById('notification');
-    const notificationMessage = document.querySelector('.notification-message');
-    const notificationClose = document.querySelector('.notification-close');
+    const notificationMessage = notification ? notification.querySelector('.notification-message') : null;
+    const notificationClose = notification ? notification.querySelector('.notification-close') : null;
     const wordChipsContainer = document.getElementById('word-chips');
     
     // Kullanıcının giriş yapıp yapmadığını kontrol et
@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize word chips
     function initializeWordChips() {
+        // Only run if the word chips container exists
+        if (!wordChipsContainer) return;
+        
         // Clear existing chips
         wordChipsContainer.innerHTML = '';
         
@@ -49,157 +52,187 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Translation form submission
-    translateForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const word = wordInput.value.trim();
-        
-        if (!word) {
-            showNotification('Lütfen bir kelime girin! 🙏', 'error');
-            return;
-        }
-        
-        // Create form data
-        const formData = new FormData();
-        formData.append('word', word);
-        
-        // Send request to translate endpoint
-        fetch('/translate', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show translation result with multiple meanings
-                document.getElementById('translation-result').style.display = 'block';
-                document.getElementById('result-word').textContent = `"${data.word}" kelimesinin anlamları:`;
-                
-                const meaningsContainer = document.getElementById('translation-meanings');
-                meaningsContainer.innerHTML = ''; // Clear previous meanings
-                
-                if (data.meanings.length === 0) {
-                    // No meanings found
-                    meaningsContainer.innerHTML = `
-                        <div class="meaning-item">
-                            <p class="meaning-content">Bu kelime için henüz onaylanmış bir anlam bulunmuyor.</p>
-                        </div>
-                    `;
-                } else {
-                    // Display each meaning
-                    data.meanings.forEach(meaning => {
-                        const meaningItem = document.createElement('div');
-                        meaningItem.className = 'meaning-item';
+    if (translateForm) {
+        translateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const word = wordInput.value.trim();
+            
+            if (!word) {
+                showNotification('Lütfen bir kelime girin! 🙏', 'error');
+                return;
+            }
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('word', word);
+            
+            // Send request to translate endpoint
+            fetch('/translate', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show translation result with multiple meanings
+                    const translationResult = document.getElementById('translation-result');
+                    if (translationResult) {
+                        translationResult.style.display = 'block';
                         
-                        // Create content for the meaning
-                        meaningItem.innerHTML = `
-                            <div class="edit-button-wrapper"></div>
-                            <p class="meaning-content">${meaning.meaning}</p>
-                            <div class="meaning-meta">
-                                <div class="meaning-contributor">
-                                    <i class="fas fa-user"></i>
-                                    <span>${meaning.contributor || 'Anonim'}</span>
-                                </div>
-                                <div class="meaning-votes">
-                                    <button class="vote-btn vote-up" data-word-id="${meaning.id}" data-vote-type="up">
-                                        <i class="fas fa-thumbs-up"></i> ${meaning.votes_up || 0}
-                                    </button>
-                                    <button class="vote-btn vote-down" data-word-id="${meaning.id}" data-vote-type="down">
-                                        <i class="fas fa-thumbs-down"></i> ${meaning.votes_down || 0}
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Add edit request button if user is logged in
-                        if (data.user_logged_in) {
-                            const editButton = document.createElement('button');
-                            editButton.className = 'edit-request-btn';
-                            editButton.innerHTML = '<i class="fas fa-edit"></i> Düzenleme Öner';
-                            editButton.dataset.wordId = meaning.id;
-                            editButton.addEventListener('click', () => openEditRequestModal(meaning.id, meaning.meaning));
-                            meaningItem.querySelector('.edit-button-wrapper').appendChild(editButton);
+                        const resultWord = document.getElementById('result-word');
+                        if (resultWord) {
+                            resultWord.textContent = `"${data.word}" kelimesinin anlamları:`;
                         }
                         
-                        meaningsContainer.appendChild(meaningItem);
-                    });
+                        const meaningsContainer = document.getElementById('translation-meanings');
+                        if (meaningsContainer) {
+                            meaningsContainer.innerHTML = ''; // Clear previous meanings
+                            
+                            if (data.meanings.length === 0) {
+                                // No meanings found
+                                meaningsContainer.innerHTML = `
+                                    <div class="meaning-item">
+                                        <p class="meaning-content">Bu kelime için henüz onaylanmış bir anlam bulunmuyor.</p>
+                                    </div>
+                                `;
+                            } else {
+                                // Display each meaning
+                                data.meanings.forEach(meaning => {
+                                    const meaningItem = document.createElement('div');
+                                    meaningItem.className = 'meaning-item';
+                                    
+                                    // Create content for the meaning
+                                    meaningItem.innerHTML = `
+                                        <div class="edit-button-wrapper"></div>
+                                        <p class="meaning-content">${meaning.meaning}</p>
+                                        <div class="meaning-meta">
+                                            <div class="meaning-contributor">
+                                                <i class="fas fa-user"></i>
+                                                <span>${meaning.contributor || 'Anonim'}</span>
+                                            </div>
+                                            <div class="meaning-votes">
+                                                <button class="vote-btn vote-up" data-word-id="${meaning.id}" data-vote-type="up">
+                                                    <i class="fas fa-thumbs-up"></i> ${meaning.votes_up || 0}
+                                                </button>
+                                                <button class="vote-btn vote-down" data-word-id="${meaning.id}" data-vote-type="down">
+                                                    <i class="fas fa-thumbs-down"></i> ${meaning.votes_down || 0}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `;
+                                    
+                                    // Add edit request button if user is logged in
+                                    if (data.user_logged_in) {
+                                        const editButton = document.createElement('button');
+                                        editButton.className = 'edit-request-btn';
+                                        editButton.innerHTML = '<i class="fas fa-edit"></i> Düzenleme Öner';
+                                        editButton.dataset.wordId = meaning.id;
+                                        editButton.addEventListener('click', () => openEditRequestModal(meaning.id, meaning.meaning));
+                                        meaningItem.querySelector('.edit-button-wrapper').appendChild(editButton);
+                                    }
+                                    
+                                    meaningsContainer.appendChild(meaningItem);
+                                });
+                                
+                                // Add event listeners for voting buttons
+                                document.querySelectorAll('.vote-btn').forEach(button => {
+                                    button.addEventListener('click', handleVote);
+                                });
+                            }
+                        }
+                    }
                     
-                    // Add event listeners for voting buttons
-                    document.querySelectorAll('.vote-btn').forEach(button => {
-                        button.addEventListener('click', handleVote);
-                    });
+                    // Show the result container
+                    if (resultContainer) {
+                        const placeholder = resultContainer.querySelector('.result-placeholder');
+                        if (placeholder) {
+                            placeholder.style.display = 'none';
+                        }
+                    }
+                } else {
+                    // Show error message
+                    const translationResult = document.getElementById('translation-result');
+                    if (translationResult) {
+                        translationResult.style.display = 'none';
+                    }
+                    
+                    if (resultContainer) {
+                        const placeholder = resultContainer.querySelector('.result-placeholder');
+                        if (placeholder) {
+                            placeholder.style.display = 'block';
+                            placeholder.innerHTML = `
+                                <h3>${data.message}</h3>
+                                <p>Aşağıdaki formdan yeni kelime önerebilirsin.</p>
+                                <div class="result-emoji">👇</div>
+                            `;
+                        }
+                    }
+                    
+                    // Auto-fill the suggestion form
+                    if (suggestWordInput) {
+                        suggestWordInput.value = word;
+                        suggestWordInput.focus();
+                    }
                 }
-                
-                // Show the result container
-                resultContainer.querySelector('.result-placeholder').style.display = 'none';
-            } else {
-                // Show error message
-                document.getElementById('translation-result').style.display = 'none';
-                resultContainer.querySelector('.result-placeholder').style.display = 'block';
-                
-                resultContainer.querySelector('.result-placeholder').innerHTML = `
-                    <h3>${data.message}</h3>
-                    <p>Aşağıdaki formdan yeni kelime önerebilirsin.</p>
-                    <div class="result-emoji">👇</div>
-                `;
-                
-                // Auto-fill the suggestion form
-                suggestWordInput.value = word;
-                suggestWordInput.focus();
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+            });
         });
-    });
+    }
     
     // Suggestion form submission
-    suggestionForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const word = suggestWordInput.value.trim();
-        const meaning = suggestMeaningInput.value.trim();
-        const name = suggestNameInput.value.trim();
-        
-        if (!word || !meaning) {
-            showNotification('Kelime ve anlamı zorunludur!', 'error');
-            return;
-        }
-        
-        // Create form data
-        const formData = new FormData();
-        formData.append('word', word);
-        formData.append('meaning', meaning);
-        formData.append('name', name);
-        
-        // Send request to suggest endpoint
-        fetch('/suggest', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                
-                // Clear form
-                suggestionForm.reset();
-                
-                // If user searched for this word, show the translation now
-                if (wordInput.value.toLowerCase().trim() === word.toLowerCase()) {
-                    translateForm.dispatchEvent(new Event('submit'));
-                }
-            } else {
-                showNotification(data.message, 'error');
+    if (suggestionForm) {
+        suggestionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const word = suggestWordInput.value.trim();
+            const meaning = suggestMeaningInput.value.trim();
+            const name = suggestNameInput.value.trim();
+            
+            if (!word || !meaning) {
+                showNotification('Kelime ve anlamı zorunludur!', 'error');
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('word', word);
+            formData.append('meaning', meaning);
+            formData.append('name', name);
+            
+            // Send request to suggest endpoint
+            fetch('/suggest', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    
+                    // Clear form
+                    suggestionForm.reset();
+                    
+                    // If user searched for this word, show the translation now
+                    if (translateForm && wordInput && wordInput.value.toLowerCase().trim() === word.toLowerCase()) {
+                        translateForm.dispatchEvent(new Event('submit'));
+                    }
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+            });
         });
-    });
+    }
     
     // Show notification
     function showNotification(message, type) {
+        if (!notification || !notificationMessage) return;
+        
         notificationMessage.textContent = message;
         notification.className = 'notification show ' + type;
         
@@ -211,11 +244,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Hide notification
     function hideNotification() {
+        if (!notification) return;
         notification.className = 'notification';
     }
     
     // Close notification on click
-    notificationClose.addEventListener('click', hideNotification);
+    if (notificationClose) {
+        notificationClose.addEventListener('click', hideNotification);
+    }
     
     // Initialize word chips
     initializeWordChips();
@@ -311,6 +347,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Modal elementlerine olay dinleyicileri ekle
         const modal = document.getElementById('editRequestModal');
+        if (!modal) return null;
+        
         const closeBtn = modal.querySelector('.close');
         const cancelBtn = document.getElementById('cancel-edit');
         const editForm = document.getElementById('editRequestForm');
@@ -321,8 +359,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Kapatma düğmesi tıklandığında modal'ı kapat
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeModal);
+        }
         
         // Modal dışına tıklandığında kapat
         window.addEventListener('click', (event) => {
@@ -332,42 +375,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Form gönderildiğinde işle
-        editForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const wordId = document.getElementById('edit-word-id').value;
-            const newMeaning = document.getElementById('new-meaning').value.trim();
-            const reason = document.getElementById('edit-reason').value.trim();
-            
-            if (!newMeaning) {
-                showNotification('Yeni anlam zorunludur!', 'error');
-                return;
-            }
-            
-            // Form verilerini oluştur
-            const formData = new FormData();
-            formData.append('new_meaning', newMeaning);
-            formData.append('reason', reason);
-            
-            // Düzenleme talebi gönder
-            fetch(`/request-edit/${wordId}`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    closeModal();
-                } else {
-                    showNotification(data.message, 'error');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const wordId = document.getElementById('edit-word-id').value;
+                const newMeaning = document.getElementById('new-meaning').value.trim();
+                const reason = document.getElementById('edit-reason').value.trim();
+                
+                if (!newMeaning) {
+                    showNotification('Yeni anlam zorunludur!', 'error');
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Düzenleme talebi hatası:', error);
-                showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+                
+                // Form verilerini oluştur
+                const formData = new FormData();
+                formData.append('new_meaning', newMeaning);
+                formData.append('reason', reason);
+                
+                // Düzenleme talebi gönder
+                fetch(`/request-edit/${wordId}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        closeModal();
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Düzenleme talebi hatası:', error);
+                    showNotification('Bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+                });
             });
-        });
+        }
         
         return modal;
     }
@@ -379,13 +424,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Eğer modal henüz oluşturulmadıysa oluştur
         if (!editRequestModal) {
             editRequestModal = createEditRequestModal();
+            if (!editRequestModal) return;
         }
         
         // Modal alanlarını doldur
-        document.getElementById('edit-word-id').value = wordId;
-        document.getElementById('current-meaning').textContent = currentMeaning;
-        document.getElementById('new-meaning').value = currentMeaning;
-        document.getElementById('edit-reason').value = '';
+        const editWordId = document.getElementById('edit-word-id');
+        const currentMeaningElem = document.getElementById('current-meaning');
+        const newMeaningElem = document.getElementById('new-meaning');
+        const reasonElem = document.getElementById('edit-reason');
+        
+        if (editWordId) editWordId.value = wordId;
+        if (currentMeaningElem) currentMeaningElem.textContent = currentMeaning;
+        if (newMeaningElem) newMeaningElem.value = currentMeaning;
+        if (reasonElem) reasonElem.value = '';
         
         // Modal'ı göster
         editRequestModal.style.display = 'block';
