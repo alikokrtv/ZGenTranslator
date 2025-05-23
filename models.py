@@ -3,7 +3,9 @@ import os
 from datetime import datetime
 
 # Database setup
-DB_PATH = os.path.join(os.path.dirname(__file__), 'zgen_translator.db')
+# Railway ya da başka bir hosting için esnek veritabanı yolu
+# Bir çevre değişkeni ayarlanmışsa onu kullan, yoksa yerel dosyayı kullan
+DB_PATH = os.environ.get('DATABASE_URL', os.path.join(os.path.dirname(__file__), 'zgen_translator.db'))
 
 # Initial Z Generation words dictionary - başlangıç sözlüğü
 INITIAL_Z_WORDS = {

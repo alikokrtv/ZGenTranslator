@@ -446,12 +446,9 @@ def create_ssl_context():
     return None
 
 if __name__ == '__main__':
-    ssl_context = create_ssl_context()
-    debug_mode = os.environ.get('FLASK_DEBUG', 'True') == 'True'
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False') == 'True'
+    port = int(os.environ.get('PORT', 5000))
     
-    if ssl_context:
-        app.run(host='0.0.0.0', port=5000, debug=debug_mode, ssl_context=ssl_context)
-    else:
-        # Eğer SSL context yoksa, normal HTTP ile çalıştır
-        print("SSL sertifikası olmadan çalışılıyor. Güvenli bağlantı için sertifika oluşturun.")
-        app.run(host='0.0.0.0', port=5000, debug=debug_mode)
+    # Railway için host ve port ayarı
+    print(f"Uygulama {port} numaralı portta başlatılıyor...")
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
