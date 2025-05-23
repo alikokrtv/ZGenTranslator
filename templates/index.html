@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z Kuşağı Translator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Z Kuşağı Translator Logo">
+                <h1>Z Kuşağı <span>Translator</span></h1>
+            </div>
+            <p class="motto">Z kuşağı terimlerini anlayamayan boomerlar için 😎🔍</p>
+        </header>
+
+        <main>
+            <section class="translator-section">
+                <div class="search-container">
+                    <form id="translate-form">
+                        <div class="input-group">
+                            <input type="text" id="word-input" placeholder="Bir Z kuşağı kelimesi yazın... (örn: vibe, sus, fr)" autocomplete="off">
+                            <button type="submit" class="primary-btn">
+                                <i class="fas fa-language"></i> Çevir
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="result-container" id="result-container">
+                    <div class="result-placeholder">
+                        <i class="fas fa-arrow-up"></i>
+                        <p>Yukarıdan bir kelime aratın!</p>
+                    </div>
+                </div>
+
+                <div class="popular-words">
+                    <h3>Popüler Terimler 🔥</h3>
+                    <div class="word-chips" id="word-chips">
+                        <!-- Popular words will be dynamically inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <section class="suggestion-section">
+                <h2>Yeni Kelime Öner 🚀</h2>
+                <p>Sözlükte bulamadığın bir Z kuşağı kelimesi mi var? Bizimle paylaş!</p>
+                
+                <form id="suggestion-form">
+                    <div class="form-group">
+                        <label for="suggest-word">Z Kuşağı Kelimesi <span class="required">*</span></label>
+                        <input type="text" id="suggest-word" placeholder="Eklemek istediğin kelimeyi yaz" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="suggest-meaning">Türkçe Karşılığı <span class="required">*</span></label>
+                        <textarea id="suggest-meaning" placeholder="Kelimenin anlamını anlat" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="suggest-name">Adın (Opsiyonel)</label>
+                        <input type="text" id="suggest-name" placeholder="İsmini yazabilirsin (zorunlu değil)">
+                    </div>
+                    
+                    <button type="submit" class="secondary-btn">
+                        <i class="fas fa-paper-plane"></i> Gönder
+                    </button>
+                </form>
+            </section>
+        </main>
+
+        <footer>
+            <p>Z Kuşağı Translator &copy; 2023 | Tüm hakları saklıdır.</p>
+            <p>Geliştiren: Ali Kök</p>
+        </footer>
+    </div>
+
+    <!-- Notification component -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <p class="notification-message"></p>
+        </div>
+        <button class="notification-close">&times;</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
