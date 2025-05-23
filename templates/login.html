@@ -17,7 +17,7 @@
         {% endfor %}
     {% endif %}
     
-    <form method="post" action="{{ url_for('login') }}">
+    <form id="login-form" method="post" action="{{ url_for('login') }}" novalidate>
         <div class="form-group">
             <label for="username">Kullanıcı Adı <span class="required">*</span></label>
             <input type="text" id="username" name="username" required>
@@ -32,10 +32,37 @@
             <div class="auth-links">
                 <p>Hesabın yok mu? <a href="{{ url_for('register') }}">Kayıt Ol</a></p>
             </div>
-            <button type="submit" class="primary-btn">
+            <button type="submit" class="primary-btn" id="login-submit-btn">
                 <i class="fas fa-sign-in-alt"></i> Giriş Yap
             </button>
         </div>
     </form>
 </div>
+
+<script>
+// Ensure the form submits correctly
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-submit-btn');
+    
+    if (loginForm && loginBtn) {
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginForm.submit();
+        });
+        
+        loginForm.addEventListener('submit', function(e) {
+            // Let the normal form submission occur, but ensure proper form data is sent
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                e.preventDefault();
+                alert('Kullanıcı adı ve şifre gereklidir.');
+                return false;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

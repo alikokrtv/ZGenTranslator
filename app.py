@@ -149,14 +149,22 @@ def register():
 # User login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Log for debugging
+    logger.info(f"Login route called with method: {request.method}")
+    logger.info(f"Form data: {request.form if request.method == 'POST' else 'N/A'}")
+    
     if 'user_id' in session:
+        logger.info("User already logged in, redirecting to profile")
         return redirect(url_for('profile'))
         
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         
+        logger.info(f"Login attempt for username: {username}")
+        
         if not username or not password:
+            logger.warning("Missing username or password")
             flash('Kullanıcı adı ve şifre gereklidir.', 'error')
             return render_template('login.html')
             
@@ -164,17 +172,21 @@ def login():
         user = get_user_by_username(username)
         
         if not user:
+            logger.warning(f"User not found: {username}")
             flash('Kullanıcı adı veya şifre hatalı.', 'error')
             return render_template('login.html')
             
         # Check password
         password_hash = hashlib.sha256(password.encode()).hexdigest()
+        logger.info(f"Password check for user {username}: {'success' if user['password_hash'] == password_hash else 'failed'}")
         
         if user['password_hash'] != password_hash:
+            logger.warning(f"Password mismatch for user: {username}")
             flash('Kullanıcı adı veya şifre hatalı.', 'error')
             return render_template('login.html')
             
         # Login successful
+        logger.info(f"Login successful for user: {username}")
         session['user_id'] = user['id']
         flash('Giriş başarılı! Hoş geldiniz.', 'success')
         
