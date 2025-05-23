@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ user.username }} Profili - Z Kuşağı Translator{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.username }}</h1>
+            <p class="profile-stats">
+                <span><i class="fas fa-award"></i> {{ achievements|length }} Başarım</span>
+                <span><i class="fas fa-language"></i> {{ user.contribution_count }} Kelime Katkısı</span>
+                <span><i class="fas fa-calendar-alt"></i> Üyelik: {{ user.created_at.strftime('%d/%m/%Y') }}</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="profile-sections">
+        <section class="profile-section">
+            <h2><i class="fas fa-award"></i> Başarımlar</h2>
+            <div class="achievements-container">
+                {% if achievements %}
+                    {% for achievement in achievements %}
+                    <div class="achievement-card">
+                        <div class="achievement-icon">{{ achievement.icon }}</div>
+                        <div class="achievement-details">
+                            <h3>{{ achievement.name }}</h3>
+                            <p>{{ achievement.description }}</p>
+                            <p class="achievement-date">{{ achievement.earned_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-state">Henüz hiç başarım kazanmadınız. Kelime ekleyerek başarımlar kazanabilirsiniz!</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="profile-section">
+            <h2><i class="fas fa-language"></i> Eklediğiniz Kelimeler</h2>
+            <div class="words-container">
+                {% if words %}
+                    <div class="words-table">
+                        <div class="words-header">
+                            <div class="word-cell">Kelime</div>
+                            <div class="meaning-cell">Anlamı</div>
+                            <div class="date-cell">Eklenme Tarihi</div>
+                        </div>
+                        {% for word in words %}
+                        <div class="word-row">
+                            <div class="word-cell">{{ word.word }}</div>
+                            <div class="meaning-cell">{{ word.meaning }}</div>
+                            <div class="date-cell">{{ word.created_at.strftime('%d/%m/%Y') }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">Henüz kelime eklemediniz. Ana sayfaya dönüp kelime ekleyebilirsiniz!</p>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <div class="profile-actions">
+        <a href="{{ url_for('index') }}" class="secondary-btn">
+            <i class="fas fa-language"></i> Yeni Kelime Ekle
+        </a>
+    </div>
+</div>
+{% endblock %}

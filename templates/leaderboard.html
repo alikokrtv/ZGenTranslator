@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block title %}Lider Tablosu - Z Kuşağı Translator{% endblock %}
+
+{% block content %}
+<div class="leaderboard-container">
+    <h1><i class="fas fa-trophy"></i> Lider Tablosu</h1>
+    <p class="leaderboard-intro">En çok katkıda bulunan Z Kuşağı Translator üyeleri</p>
+
+    <div class="leaderboard-table">
+        <div class="leaderboard-header">
+            <div class="rank-cell">Sıra</div>
+            <div class="user-cell">Kullanıcı</div>
+            <div class="count-cell">Kelime Sayısı</div>
+        </div>
+        
+        {% if contributors %}
+            {% for contributor in contributors %}
+                <div class="leaderboard-row {% if loop.index <= 3 %}top-{{ loop.index }}{% endif %}">
+                    <div class="rank-cell">
+                        {% if loop.index == 1 %}
+                            <i class="fas fa-medal gold"></i>
+                        {% elif loop.index == 2 %}
+                            <i class="fas fa-medal silver"></i>
+                        {% elif loop.index == 3 %}
+                            <i class="fas fa-medal bronze"></i>
+                        {% else %}
+                            {{ loop.index }}
+                        {% endif %}
+                    </div>
+                    <div class="user-cell">{{ contributor.username }}</div>
+                    <div class="count-cell">{{ contributor.contribution_count }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>Henüz katkıda bulunan kullanıcı yok.</p>
+                <p>İlk katkıda bulunan sen olmak ister misin?</p>
+                <a href="{{ url_for('register') }}" class="primary-btn">Hemen Kayıt Ol</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="leaderboard-info">
+        <h2>Nasıl Lider Olunur?</h2>
+        <p>Z Kuşağı Translator'a kelime ekleyerek katkıda bulunabilir ve lider tablosunda yer alabilirsiniz. Ne kadar çok kelime eklerseniz, lider tablosunda o kadar yükseğe çıkarsınız.</p>
+        
+        <h2>Başarımlar</h2>
+        <p>Katkıda bulundukça başarımlar kazanırsınız:</p>
+        <div class="achievements-list">
+            <div class="achievement-item">
+                <span class="achievement-icon">📝</span>
+                <span class="achievement-name">Yeni Çevirmen</span>
+                <span class="achievement-req">1 kelime ekle</span>
+            </div>
+            <div class="achievement-item">
+                <span class="achievement-icon">🔤</span>
+                <span class="achievement-name">Kelime Ustası</span>
+                <span class="achievement-req">10 kelime ekle</span>
+            </div>
+            <div class="achievement-item">
+                <span class="achievement-icon">💬</span>
+                <span class="achievement-name">Z Kuşağı Çevirmeni</span>
+                <span class="achievement-req">25 kelime ekle</span>
+            </div>
+            <div class="achievement-item">
+                <span class="achievement-icon">🏆</span>
+                <span class="achievement-name">Dil Dehası</span>
+                <span class="achievement-req">50 kelime ekle</span>
+            </div>
+            <div class="achievement-item">
+                <span class="achievement-icon">👑</span>
+                <span class="achievement-name">Z-Sözlük Oluşturucu</span>
+                <span class="achievement-req">100 kelime ekle</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

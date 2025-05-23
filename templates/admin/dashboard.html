@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Paneli - Z Kuşağı Translator{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Admin Paneli</h1>
+    <p class="admin-welcome">Hoş geldiniz, {{ user.username }}! Bu panelden kelime önerilerini onaylayabilir ve değişiklik taleplerini yönetebilirsiniz.</p>
+
+    <div class="admin-cards">
+        <div class="admin-card">
+            <div class="admin-card-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="admin-card-content">
+                <h2>Kelime Önerileri</h2>
+                <p>{{ pending_suggestions }} bekleyen öneri</p>
+                <a href="{{ url_for('admin_suggestions') }}" class="primary-btn">Önerileri Yönet</a>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-icon">
+                <i class="fas fa-edit"></i>
+            </div>
+            <div class="admin-card-content">
+                <h2>Değişiklik Talepleri</h2>
+                <p>{{ pending_edits }} bekleyen değişiklik talebi</p>
+                <a href="{{ url_for('admin_edit_requests') }}" class="primary-btn">Değişiklikleri Yönet</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-quick-stats">
+        <h2>Hızlı İstatistikler</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Toplam Kelime</div>
+                <div class="stat-value">{{ total_words|default('--') }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Toplam Kullanıcı</div>
+                <div class="stat-value">{{ total_users|default('--') }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Bugün Eklenen</div>
+                <div class="stat-value">{{ today_words|default('--') }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Bu Ay Eklenen</div>
+                <div class="stat-value">{{ month_words|default('--') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

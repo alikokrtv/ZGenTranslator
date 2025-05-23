@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}Kelime Önerileri - Admin Paneli{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Kelime Önerileri</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Admin Paneline Dön
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="notification show {{ message.category }}">
+                <div class="notification-content">
+                    <p class="notification-message">{{ message }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="admin-content">
+        {% if suggestions and suggestions|length > 0 %}
+            <div class="suggestions-table">
+                <div class="table-header">
+                    <div class="col-word">Kelime</div>
+                    <div class="col-meaning">Anlamı</div>
+                    <div class="col-user">Öneren</div>
+                    <div class="col-date">Tarih</div>
+                    <div class="col-actions">İşlemler</div>
+                </div>
+
+                {% for suggestion in suggestions %}
+                <div class="table-row">
+                    <div class="col-word">{{ suggestion.word }}</div>
+                    <div class="col-meaning">{{ suggestion.meaning }}</div>
+                    <div class="col-user">
+                        {% if suggestion.suggested_by_username %}
+                            {{ suggestion.suggested_by_username }}
+                        {% else %}
+                            Anonim
+                        {% endif %}
+                    </div>
+                    <div class="col-date">{{ suggestion.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                    <div class="col-actions">
+                        <div class="action-buttons">
+                            <form action="{{ url_for('admin_approve_suggestion', suggestion_id=suggestion.id) }}" method="post">
+                                <button type="submit" class="approve-btn">
+                                    <i class="fas fa-check"></i> Onayla
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="reject-btn" onclick="openRejectModal({{ suggestion.id }})">
+                                <i class="fas fa-times"></i> Reddet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <p>Bekleyen kelime önerisi bulunmuyor.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Red Modal -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Kelime Önerisini Reddet</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="rejectForm" action="" method="post">
+                <div class="form-group">
+                    <label for="admin_notes">Red Sebebi (Opsiyonel):</label>
+                    <textarea id="admin_notes" name="admin_notes" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="closeRejectModal()">İptal</button>
+                    <button type="submit" class="primary-btn">Reddet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Modal işlemleri
+    const modal = document.getElementById('rejectModal');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const rejectForm = document.getElementById('rejectForm');
+    
+    function openRejectModal(suggestionId) {
+        rejectForm.action = '/admin/suggestion/reject/' + suggestionId;
+        modal.style.display = 'block';
+    }
+    
+    function closeRejectModal() {
+        modal.style.display = 'none';
+    }
+    
+    closeBtn.onclick = closeRejectModal;
+    
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            closeRejectModal();
+        }
+    }
+</script>
+{% endblock %}

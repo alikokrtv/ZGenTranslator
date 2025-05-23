@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+
+{% block title %}Değişiklik Talepleri - Admin Paneli{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Değişiklik Talepleri</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Admin Paneline Dön
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="notification show {{ message.category }}">
+                <div class="notification-content">
+                    <p class="notification-message">{{ message }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="admin-content">
+        {% if edit_requests and edit_requests|length > 0 %}
+            <div class="requests-table">
+                <div class="table-header">
+                    <div class="col-word">Kelime</div>
+                    <div class="col-current">Mevcut Anlam</div>
+                    <div class="col-new">Önerilen Anlam</div>
+                    <div class="col-reason">Gerekçe</div>
+                    <div class="col-user">Talep Eden</div>
+                    <div class="col-date">Tarih</div>
+                    <div class="col-actions">İşlemler</div>
+                </div>
+
+                {% for request in edit_requests %}
+                <div class="table-row">
+                    <div class="col-word">{{ request.word }}</div>
+                    <div class="col-current">{{ request.current_meaning }}</div>
+                    <div class="col-new">{{ request.new_meaning }}</div>
+                    <div class="col-reason">{{ request.reason or 'Belirtilmemiş' }}</div>
+                    <div class="col-user">
+                        {% if request.requested_by_username %}
+                            {{ request.requested_by_username }}
+                        {% else %}
+                            Anonim
+                        {% endif %}
+                    </div>
+                    <div class="col-date">{{ request.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                    <div class="col-actions">
+                        <div class="action-buttons">
+                            <form action="{{ url_for('admin_approve_edit_request', request_id=request.id) }}" method="post">
+                                <button type="submit" class="approve-btn">
+                                    <i class="fas fa-check"></i> Onayla
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="reject-btn" onclick="openRejectModal({{ request.id }})">
+                                <i class="fas fa-times"></i> Reddet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <p>Bekleyen değişiklik talebi bulunmuyor.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Red Modal -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Değişiklik Talebini Reddet</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="rejectForm" action="" method="post">
+                <div class="form-group">
+                    <label for="admin_notes">Red Sebebi (Opsiyonel):</label>
+                    <textarea id="admin_notes" name="admin_notes" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" onclick="closeRejectModal()">İptal</button>
+                    <button type="submit" class="primary-btn">Reddet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Modal işlemleri
+    const modal = document.getElementById('rejectModal');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const rejectForm = document.getElementById('rejectForm');
+    
+    function openRejectModal(requestId) {
+        rejectForm.action = '/admin/edit-request/reject/' + requestId;
+        modal.style.display = 'block';
+    }
+    
+    function closeRejectModal() {
+        modal.style.display = 'none';
+    }
+    
+    closeBtn.onclick = closeRejectModal;
+    
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            closeRejectModal();
+        }
+    }
+</script>
+{% endblock %}

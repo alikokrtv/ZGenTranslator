@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Z Kuşağı Translator{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-user-logged-in="{{ 'true' if session.get('user_id') else 'false' }}">
+    <div class="container">
+        <header>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Z Kuşağı Translator Logo">
+                    <h1>Z Kuşağı <span>Translator</span></h1>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+                    <li><a href="{{ url_for('leaderboard') }}">Lider Tablosu</a></li>
+                    {% if session.get('user_id') %}
+                        {% if is_admin %}
+                            <li><a href="{{ url_for('admin_dashboard') }}" class="admin-link"><i class="fas fa-user-shield"></i> Admin</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('profile') }}">Profilim</a></li>
+                        <li><a href="{{ url_for('logout') }}">Çıkış Yap</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">Giriş Yap</a></li>
+                        <li><a href="{{ url_for('register') }}" class="highlight">Kayıt Ol</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer>
+            <div class="footer-links">
+                <a href="{{ url_for('terms_of_service') }}">Kullanım Koşulları</a>
+                <a href="{{ url_for('privacy_policy') }}">Gizlilik Politikası</a>
+                <a href="{{ url_for('cookie_policy') }}">Çerez Politikası</a>
+            </div>
+            <p>Z Kuşağı Translator &copy; 2023 | Tüm hakları saklıdır.</p>
+            <p>Geliştiren: Ali Kök</p>
+        </footer>
+    </div>
+
+    <!-- Notification component -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <p class="notification-message"></p>
+        </div>
+        <button class="notification-close">&times;</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,24 +1,8 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z Kuşağı Translator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Z Kuşağı Translator Logo">
-                <h1>Z Kuşağı <span>Translator</span></h1>
-            </div>
-            <p class="motto">Z kuşağı terimlerini anlayamayan boomerlar için 😎🔍</p>
-        </header>
+{% extends "layout.html" %}
+
+{% block title %}Z Kuşağı Translator - Z Kuşağı Terimlerini Anlama Rehberi{% endblock %}
+
+{% block content %}
 
         <main>
             <section class="translator-section">
@@ -37,6 +21,12 @@
                     <div class="result-placeholder">
                         <i class="fas fa-arrow-up"></i>
                         <p>Yukarıdan bir kelime aratın!</p>
+                    </div>
+                    <div id="translation-result" style="display: none;">
+                        <h2 id="result-word"></h2>
+                        <div class="translation-meanings" id="translation-meanings">
+                            <!-- Multiple meanings will be displayed here -->
+                        </div>
                     </div>
                 </div>
 
@@ -73,23 +63,29 @@
                     </button>
                 </form>
             </section>
+            <section class="contributors-section">
+                <h2>En Çok Katkıda Bulunanlar 👑</h2>
+                <p>Z Kuşağı sözlüğümüze en çok kelime ekleyen kullanıcılar</p>
+                
+                <div class="contributors-list">
+                    {% if top_contributors %}
+                        {% for contributor in top_contributors %}
+                            <div class="contributor-card">
+                                <div class="contributor-rank">{{ loop.index }}</div>
+                                <div class="contributor-info">
+                                    <h3>{{ contributor.username }}</h3>
+                                    <p><i class="fas fa-language"></i> {{ contributor.contribution_count }} Kelime</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <a href="{{ url_for('leaderboard') }}" class="see-more-link">Tüm sıralamayı gör <i class="fas fa-arrow-right"></i></a>
+                    {% else %}
+                        <div class="empty-contributors">
+                            <p>Henüz katkıda bulunan yok. İlk sen ol!</p>
+                            <a href="{{ url_for('register') }}" class="primary-btn">Kayıt Ol</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
         </main>
-
-        <footer>
-            <p>Z Kuşağı Translator &copy; 2023 | Tüm hakları saklıdır.</p>
-            <p>Geliştiren: Ali Kök</p>
-        </footer>
-    </div>
-
-    <!-- Notification component -->
-    <div class="notification" id="notification">
-        <div class="notification-content">
-            <i class="notification-icon"></i>
-            <p class="notification-message"></p>
-        </div>
-        <button class="notification-close">&times;</button>
-    </div>
-
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
-</html>
+{% endblock %}
