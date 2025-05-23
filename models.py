@@ -1,30 +1,10 @@
 import os
+import logging
 from datetime import datetime
 from db_config import get_db_connection
 
-# Initial Z Generation words dictionary - başlangıç sözlüğü
-INITIAL_Z_WORDS = {
-    "güno": "Günaydın",
-    "ajg": "Aynen ya, çok iyi",
-    "vibe": "Ortam, hava, enerji",
-    "sus": "Şüpheli, güvenilmez",
-    "fr": "Cidden, gerçekten (for real)",
-    "no cap": "Yalan değil, cidden",
-    "cringe": "Utanç verici, rahatsız edici",
-    "yeet": "Bir şeyi güçlü atmak veya reddetmek",
-    "flex": "Hava atmak, gösteriş yapmak",
-    "slay": "Çok iyi yapmak, başarılı olmak",
-    "ok boomer": "Eski kafalı düşüncelere karşı bir ifade",
-    "lit": "Harika, mükemmel",
-    "savage": "Acımasız, sert ama havalı",
-    "stan": "Fanatik hayran olmak",
-    "rizz": "Karşı cinsi etkileme yeteneği",
-    "npc": "Sıradan, düşünemeyen insan (non-player character)",
-    "gg": "İyi oyun, tebrikler (good game)",
-    "bruh": "Abi, dostum (şaşkınlık ifadesi)",
-    "ship": "İki kişinin ilişkide olmasını istemek",
-    "based": "Kendinden emin, korkmadan fikrini söyleyen"
-}
+# Logging ayarları
+logger = logging.getLogger('models')
 
 # get_db_connection fonksiyonu artık db_config.py'de
 
@@ -238,84 +218,79 @@ def init_db():
     
     # Seed initial words after creating tables
     # Veritabanı tabloları oluşturulduktan sonra başlangıç kelimelerini ekle
-    seed_initial_words(INITIAL_Z_WORDS)
+    seed_initial_words()
     
     # Seed initial achievements
     seed_initial_achievements()
 
-def seed_initial_words(words_dict):
-    """Seed the database with initial words if not already present"""
+def seed_initial_words():
+    """Veritabanına başlangıç Z kuşağı kelimelerini ekle"""
+    # Z kuşağı için başlangıç kelime listesi
+    initial_words = {
+        "güno": "Günaydın",
+        "ajg": "Aynen ya, çok iyi",
+        "vibe": "Ortam, hava, enerji",
+        "sus": "Şüpheli, güvenilmez",
+        "fr": "Cidden, gerçekten (for real)",
+        "no cap": "Yalan değil, cidden",
+        "cringe": "Utanç verici, rahatsız edici",
+        "yeet": "Bir şeyi güçlü atmak veya reddetmek",
+        "flex": "Hava atmak, gösteriş yapmak",
+        "slay": "Çok iyi yapmak, başarılı olmak",
+        "ok boomer": "Eski kafalı düşüncelere karşı bir ifade",
+        "lit": "Harika, mükemmel",
+        "savage": "Acımasız, sert ama havalı",
+        "stan": "Fanatik hayran olmak",
+        "rizz": "Karşı cinsi etkileme yeteneği",
+        "npc": "Sıradan, düşünemeyen insan (non-player character)",
+        "gg": "İyi oyun, tebrikler (good game)",
+        "bruh": "Abi, dostum (şaşkınlık ifadesi)",
+        "ship": "İki kişinin ilişkide olmasını istemek",
+        "based": "Kendinden emin, korkmadan fikrini söyleyen"
+    }
+    
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Önce tablodaki sütunları kontrol et ve gerekirse eksik sütunları ekle
     try:
-        # Sütun bilgilerini al
-        cur.execute("PRAGMA table_info(words)")
-        columns = {col[1]: col for col in cur.fetchall()}
+        # Veritabanında kelime olup olmadığını kontrol et
+        cur.execute("SELECT COUNT(*) FROM words")
+        count = cur.fetchone()[0]
         
-        # Gerekli sütunları ekle
-        if 'votes_up' not in columns:
-            print("'votes_up' sütunu ekleniyor...")
-            cur.execute("ALTER TABLE words ADD COLUMN votes_up INTEGER DEFAULT 0")
+        # Eğer veritabanı boş ise, başlangıç kelimelerini ekle
+        if count == 0:
+            logger.info("Veritabanı boş, başlangıç Z kuşağı kelimelerini ekliyorum...")
             
-        if 'votes_down' not in columns:
-            print("'votes_down' sütunu ekleniyor...")
-            cur.execute("ALTER TABLE words ADD COLUMN votes_down INTEGER DEFAULT 0")
+            # PostgreSQL için parametre yerleştirici %s kullan
+            for word, meaning in initial_words.items():
+                current_time = datetime.now()
+                try:
+                    cur.execute(
+                        "INSERT INTO words (word, meaning, is_approved, approved_at) VALUES (%s, %s, 1, %s)",
+                        (word, meaning, current_time)
+                    )
+                except Exception as e:
+                    logger.error(f"Kelime eklerken hata: {e}")
             
-        if 'is_approved' not in columns:
-            print("'is_approved' sütunu ekleniyor...")
-            cur.execute("ALTER TABLE words ADD COLUMN is_approved INTEGER DEFAULT 0")
+            conn.commit()
+            logger.info(f"{len(initial_words)} kelime veritabanına eklendi.")
+        else:
+            logger.info(f"Veritabanında zaten {count} kelime var, yeni kelime eklemiyorum.")
             
-        if 'approved_by' not in columns:
-            print("'approved_by' sütunu ekleniyor...")
-            cur.execute("ALTER TABLE words ADD COLUMN approved_by INTEGER")
-            
-        if 'approved_at' not in columns:
-            print("'approved_at' sütunu ekleniyor...")
-            cur.execute("ALTER TABLE words ADD COLUMN approved_at TIMESTAMP")
-        
-        conn.commit()
-    except Exception as e:
-        print(f"Sütun eklerken hata oluştu: {e}")
-    
-    # Veritabanında kayıt sayısını kontrol et
-    cur.execute("SELECT COUNT(*) FROM words")
-    count = cur.fetchone()[0]
-    
-    # Eğer veritabanı boş ise, başlangıç kelimelerini ekle
-    if count == 0:
-        print("Veritabanı boş, başlangıç kelimelerini ekliyorum...")
-        for word, meaning in words_dict.items():
-            # Kelimeleri doğrudan onaylı olarak ekle
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Mevcut kelimelerin onaylı olduğundan emin ol
             try:
-                cur.execute(
-                    "INSERT INTO words (word, meaning, is_approved, approved_at) VALUES (?, ?, 1, ?)",
-                    (word, meaning, current_time)
-                )
+                cur.execute("UPDATE words SET is_approved = 1, approved_at = CURRENT_TIMESTAMP WHERE is_approved = 0 OR is_approved IS NULL")
+                updated_count = cur.rowcount
+                if updated_count > 0:
+                    logger.info(f"{updated_count} kelime onaylı olarak işaretlendi.")
             except Exception as e:
-                print(f"Kelime eklerken hata: {e}")
-                # Geriye dönük uyumluluk için 
-                cur.execute(
-                    "INSERT INTO words (word, meaning) VALUES (?, ?)",
-                    (word, meaning)
-                )
-        print(f"{len(words_dict)} kelime veritabanına eklendi.")
-    else:
-        print(f"Veritabanında zaten {count} kelime var, yeni kelime eklemiyorum.")
+                logger.error(f"Kelimeleri onaylı olarak işaretlerken hata: {e}")
         
-        # Mevcut kelimelerin onaylı olduğundan emin ol
-        try:
-            cur.execute("UPDATE words SET is_approved = 1, approved_at = CURRENT_TIMESTAMP WHERE is_approved = 0 OR is_approved IS NULL")
-            updated_count = cur.rowcount
-            if updated_count > 0:
-                print(f"{updated_count} kelime onaylı olarak işaretlendi.")
-        except Exception as e:
-            print(f"Kelimeleri onaylı olarak işaretlerken hata: {e}")
-    
-    conn.commit()
-    conn.close()
+    except Exception as e:
+        logger.error(f"seed_initial_words fonksiyonunda hata: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
 
 def get_word(word):
     """Get a word's meanings from the database (can return multiple)"""
@@ -647,7 +622,7 @@ def get_pending_suggestions(limit=50):
         LEFT JOIN users u ON s.suggested_by = u.id
         WHERE s.status = 'pending'
         ORDER BY s.created_at ASC
-        LIMIT ?
+        LIMIT %s
     """, (limit,))
     
     results = cur.fetchall()
@@ -691,10 +666,6 @@ def get_pending_edit_requests(limit=50):
         LIMIT ?
     """, (limit,))
     
-    results = cur.fetchall()
-    conn.close()
-    
-    return [dict(result) for result in results]
 
 def approve_edit_request(request_id, admin_id):
     """Approve an edit request and update the word's meaning"""
@@ -741,15 +712,15 @@ def reject_edit_request(request_id, admin_id, admin_notes=None):
         # Update request status
         cur.execute("""
             UPDATE edit_requests 
-            SET status = 'rejected', admin_notes = ? 
-            WHERE id = ?
+            SET status = 'rejected', admin_notes = %s 
+            WHERE id = %s
         """, (admin_notes, request_id))
         
         conn.commit()
         conn.close()
         return True, "Değişiklik talebi reddedildi"
     except Exception as e:
-        print(f"Error rejecting edit request: {e}")
+        logger.error(f"Edit isteğini reddetme hatası: {e}")
         conn.close()
         return False, str(e)
 

@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+import logging
 from datetime import datetime
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort, request
@@ -13,12 +14,26 @@ from models import (init_db, get_word, add_word, add_suggestion, get_popular_wor
                   get_total_users_count, get_words_added_today, get_words_added_this_month,
                   get_pending_counts)
 
+# Logging ayarı
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('app')
+
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "z-kusagi-translator-secret")
 
 # E-posta sistemini başlat
 mail = init_mail(app)
+
+# Veritabanı tablolarını oluştur
+try:
+    logger.info("Veritabanı tablolarını oluşturmaya başlıyor...")
+    init_db()
+    logger.info("Veritabanı tabloları başarıyla oluşturuldu")
+except Exception as e:
+    logger.error(f"Veritabanı tabloları oluşturulurken hata: {e}")
+    print(f"Veritabanı hata: {e}")
+
 
 # HTTP'den HTTPS'ye yönlendirme middleware'i - Cloudflare kullanıldığı için devre dışı bırakıldı
 class HTTPSRedirectMiddleware:
