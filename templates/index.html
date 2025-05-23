@@ -1,97 +1,462 @@
-{% extends "layout.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Z Kuşağı Translator - Z Kuşağı Terimlerini Anlama Rehberi{% endblock %}
+{% block title %}Ana Sayfa - Z Kuşağı Çevirici{% endblock %}
 
 {% block content %}
+<section class="translator-section">
+    <div class="section-header">
+        <h2><i class="fas fa-language"></i> Z Kuşağı Çevirici</h2>
+        <p class="section-intro">Anlaşılmayan Z kuşağı terimlerini çevirin. Modern gençliğin dilini keşfedin!</p>
+    </div>
+    
+    <div class="search-container">
+        <form id="translator-form" action="{{ url_for('translate') }}" method="post">
+            <label for="term">Çevirmek istediğiniz Z kuşağı terimini yazın:</label>
+            <div class="input-group">
+                <input type="text" id="term" name="term" placeholder="Örn: cringe, based, no cap..." required>
+                <button type="submit" class="primary-btn">
+                    <i class="fas fa-search"></i> Çevir
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="result-container" id="result-container">
+        <div class="result-placeholder" id="result-placeholder">
+            <i class="fas fa-arrow-up-long"></i>
+            <p>Yukarıdaki kutucuğa bir terim yazarak çevirisini alabilirsiniz</p>
+        </div>
+        <div class="translation-result" id="translation-result" style="display: none;">
+            <!-- Burada JavaScript tarafından çeviri sonucu gösterilecek -->
+        </div>
+    </div>
+    
+    <div class="popular-words">
+        <h3>Popüler Terimler</h3>
+        <div class="word-chips">
+            {% for word in popular_words %}
+                <span class="word-chip" data-term="{{ word.term }}">{{ word.term }}</span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
-        <main>
-            <section class="translator-section">
-                <div class="search-container">
-                    <form id="translate-form">
-                        <div class="input-group">
-                            <input type="text" id="word-input" placeholder="Bir Z kuşağı kelimesi yazın... (örn: vibe, sus, fr)" autocomplete="off">
-                            <button type="submit" class="primary-btn">
-                                <i class="fas fa-language"></i> Çevir
-                            </button>
-                        </div>
-                    </form>
-                </div>
+<section class="suggestion-section">
+    <div class="section-header">
+        <h2><i class="fas fa-lightbulb"></i> Yeni Terim Öner</h2>
+        <p class="section-intro">Veritabanımızda bulunmayan bir terim mi var? Önerin, herkes faydalansın!</p>
+    </div>
+    
+    <form id="suggestion-form" action="{{ url_for('suggest') }}" method="post">
+        <div class="form-group">
+            <label for="new_term">Yeni Terim <span class="required">*</span></label>
+            <input type="text" id="new_term" name="new_term" placeholder="Eklemek istediğiniz terimi yazın" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="meaning">Anlamı <span class="required">*</span></label>
+            <textarea id="meaning" name="meaning" placeholder="Bu terimin ne anlama geldiğini açıklayın" required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="example">Kullanım Örneği</label>
+            <textarea id="example" name="example" placeholder="Bu terimin nasıl kullanıldığına dair bir örnek verebilirsiniz"></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="secondary-btn">
+                <i class="fas fa-paper-plane"></i> Gönder
+            </button>
+        </div>
+    </form>
+</section>
 
-                <div class="result-container" id="result-container">
-                    <div class="result-placeholder">
-                        <i class="fas fa-arrow-up"></i>
-                        <p>Yukarıdan bir kelime aratın!</p>
-                    </div>
-                    <div id="translation-result" style="display: none;">
-                        <h2 id="result-word"></h2>
-                        <div class="translation-meanings" id="translation-meanings">
-                            <!-- Multiple meanings will be displayed here -->
-                        </div>
-                    </div>
-                </div>
+<!-- Animasyonlu özellikler kartları -->
+<section class="features-section">
+    <div class="section-header">
+        <h2><i class="fas fa-star"></i> Z Kuşağı Çevirici Özellikleri</h2>
+        <p class="section-intro">Gençlerle daha iyi iletişim kurmak için modern dili anlayın</p>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3>Hızlı Çeviri</h3>
+            <p>Saniyeler içinde Z kuşağı terimlerinin anlamını öğrenin. Kalabalık bir veritabanı sayesinde birçok terimi anında çevirebiliriz.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>Topluluk Katkıları</h3>
+            <p>Siz de katkıda bulunun! Bildiğiniz terimleri ekleyerek topluluğa destek olabilir, profilinizde ödüller kazanabilirsiniz.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-vote-yea"></i>
+            </div>
+            <h3>Oylama Sistemi</h3>
+            <p>En doğru çevirileri bulmak için diğer kullanıcıların çevirilerini oylayabilir, düzeltme önerilerinde bulunabilirsiniz.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h3>Başarımlar</h3>
+            <p>Katkılarınız ve etkileşimlerinizle özel başarımlar kazanın. Sıralama tablosunda yerinizi alın!</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
 
-                <div class="popular-words">
-                    <h3>Popüler Terimler 🔥</h3>
-                    <div class="word-chips" id="word-chips">
-                        <!-- Popular words will be dynamically inserted here -->
-                    </div>
-                </div>
-            </section>
-
-            <section class="suggestion-section">
-                <h2>Yeni Kelime Öner 🚀</h2>
-                <p>Sözlükte bulamadığın bir Z kuşağı kelimesi mi var? Bizimle paylaş!</p>
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Arama formu gönderim işlevi
+    const translatorForm = document.getElementById('translator-form');
+    const resultContainer = document.getElementById('result-container');
+    const resultPlaceholder = document.getElementById('result-placeholder');
+    const translationResult = document.getElementById('translation-result');
+    
+    if (translatorForm) {
+        translatorForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const term = document.getElementById('term').value.trim();
+            if (!term) return;
+            
+            // Sonuç alanını temizle ve yükleniyor animasyonu göster
+            resultPlaceholder.innerHTML = '<div class="loading-spinner"></div><p>Çeviriliyor...</p>';
+            resultPlaceholder.style.display = 'flex';
+            translationResult.style.display = 'none';
+            
+            // API'ye istek at
+            fetch('/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'term': term
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultPlaceholder.style.display = 'none';
+                translationResult.style.display = 'block';
                 
-                <form id="suggestion-form">
-                    <div class="form-group">
-                        <label for="suggest-word">Z Kuşağı Kelimesi <span class="required">*</span></label>
-                        <input type="text" id="suggest-word" placeholder="Eklemek istediğin kelimeyi yaz" required>
-                    </div>
+                if (data.exists) {
+                    // Sonuçları göster
+                    let resultHTML = `
+                        <h2>${data.term}</h2>
+                        <div class="translation-meanings">
+                    `;
                     
-                    <div class="form-group">
-                        <label for="suggest-meaning">Türkçe Karşılığı <span class="required">*</span></label>
-                        <textarea id="suggest-meaning" placeholder="Kelimenin anlamını anlat" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="suggest-name">Adın (Opsiyonel)</label>
-                        <input type="text" id="suggest-name" placeholder="İsmini yazabilirsin (zorunlu değil)">
-                    </div>
-                    
-                    <button type="submit" class="secondary-btn">
-                        <i class="fas fa-paper-plane"></i> Gönder
-                    </button>
-                </form>
-            </section>
-            <section class="contributors-section">
-                <h2><i class="fas fa-crown"></i> En Çok Katkıda Bulunanlar</h2>
-                <p>Z Kuşağı sözlüğümüze en çok kelime ekleyen süper kullanıcılarımız</p>
-                
-                <div class="contributors-list">
-                    {% if top_contributors %}
-                        {% for contributor in top_contributors %}
-                            <div class="contributor-card">
-                                <div class="contributor-rank">
-                                    {% if loop.index == 1 %}
-                                        <i class="fas fa-trophy"></i>
-                                    {% else %}
-                                        {{ loop.index }}
-                                    {% endif %}
+                    data.meanings.forEach(meaning => {
+                        resultHTML += `
+                            <div class="meaning-item">
+                                <div class="edit-button-wrapper">
+                                    <button class="edit-request-btn" onclick="location.href='/edit-request/${meaning.id}'">
+                                        <i class="fas fa-pen"></i> Düzenleme öner
+                                    </button>
                                 </div>
-                                <div class="contributor-info">
-                                    <h3>{{ contributor.username }}</h3>
-                                    <p><i class="fas fa-language"></i> {{ contributor.contribution_count }} Kelime</p>
+                                <div class="meaning-content">${meaning.meaning}</div>
+                                <div class="meaning-meta">
+                                    <div class="meaning-contributor">
+                                        <i class="fas fa-user-edit"></i> ${meaning.added_by || 'Anonim'}
+                                    </div>
+                                    <div class="meaning-votes">
+                                        <button class="vote-btn vote-up" onclick="voteForMeaning(${meaning.id}, 'up')">
+                                            <i class="fas fa-thumbs-up"></i> <span class="vote-count">${meaning.upvotes || 0}</span>
+                                        </button>
+                                        <button class="vote-btn vote-down" onclick="voteForMeaning(${meaning.id}, 'down')">
+                                            <i class="fas fa-thumbs-down"></i> <span class="vote-count">${meaning.downvotes || 0}</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        {% endfor %}
-                        <a href="{{ url_for('leaderboard') }}" class="see-more-link">Tüm sıralamayı gör <i class="fas fa-arrow-right"></i></a>
-                    {% else %}
-                        <div class="empty-contributors">
-                            <p>Henüz katkıda bulunan yok. İlk sen ol!</p>
-                            <a href="{{ url_for('register') }}" class="primary-btn">Kayıt Ol</a>
+                        `;
+                    });
+                    
+                    resultHTML += `</div>`;
+                    translationResult.innerHTML = resultHTML;
+                } else {
+                    // Sonuç yoksa öneri yapmaya yönlendir
+                    translationResult.innerHTML = `
+                        <div class="no-results">
+                            <i class="fas fa-search-minus"></i>
+                            <h3>Oops! "${data.term}" terimini bulamadık.</h3>
+                            <p>Bu terimin anlamını biliyor musunuz? O zaman aşağıdan yeni bir terim önerisinde bulunabilirsiniz.</p>
+                            <button class="secondary-btn" onclick="scrollToSuggestionForm('${data.term}')">
+                                <i class="fas fa-lightbulb"></i> Bu terimi eklemek istiyorum
+                            </button>
                         </div>
-                    {% endif %}
-                </div>
-            </section>
-        </main>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultPlaceholder.style.display = 'none';
+                translationResult.style.display = 'block';
+                translationResult.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Bir hata oluştu</h3>
+                        <p>Lütfen daha sonra tekrar deneyin.</p>
+                    </div>
+                `;
+            });
+        });
+    }
+    
+    // Popüler terimlere tıklama işlevi
+    const wordChips = document.querySelectorAll('.word-chip');
+    wordChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+            const term = this.getAttribute('data-term');
+            document.getElementById('term').value = term;
+            // Formu otomatik olarak gönder
+            const submitEvent = new Event('submit');
+            translatorForm.dispatchEvent(submitEvent);
+        });
+    });
+});
+
+// Öneri formuna scroll yapma işlevi
+function scrollToSuggestionForm(term) {
+    document.getElementById('new_term').value = term;
+    document.querySelector('.suggestion-section').scrollIntoView({ 
+        behavior: 'smooth' 
+    });
+    document.getElementById('new_term').focus();
+}
+
+// Oylama işlevi
+function voteForMeaning(meaningId, voteType) {
+    fetch('/vote', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            'meaning_id': meaningId,
+            'vote_type': voteType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Oy sayısını güncelle
+            const voteButtons = document.querySelectorAll(`.vote-btn[onclick*="${meaningId}"]`);
+            if (voteButtons.length >= 2) {
+                const upVoteCount = voteButtons[0].querySelector('.vote-count');
+                const downVoteCount = voteButtons[1].querySelector('.vote-count');
+                
+                if (data.upvotes !== undefined) upVoteCount.textContent = data.upvotes;
+                if (data.downvotes !== undefined) downVoteCount.textContent = data.downvotes;
+                
+                // Aktif oy sınıflarını güncelle
+                if (data.user_vote === 'up') {
+                    voteButtons[0].classList.add('voted');
+                    voteButtons[1].classList.remove('voted');
+                } else if (data.user_vote === 'down') {
+                    voteButtons[0].classList.remove('voted');
+                    voteButtons[1].classList.add('voted');
+                } else {
+                    voteButtons[0].classList.remove('voted');
+                    voteButtons[1].classList.remove('voted');
+                }
+            }
+            
+            // Başarı bildirimi göster
+            showNotification('success', data.message || 'Oyunuz kaydedildi');
+        } else {
+            // Hata bildirimi göster
+            showNotification('error', data.message || 'Oy verirken bir hata oluştu');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', 'Bir bağlantı hatası oluştu. Lütfen tekrar deneyin.');
+    });
+}
+
+// Bildirim gösterme işlevi
+function showNotification(type, message) {
+    const notification = document.getElementById('notification');
+    if (!notification) return;
+    
+    const messageElement = notification.querySelector('.notification-message');
+    messageElement.textContent = message;
+    
+    notification.className = 'notification ' + type;
+    notification.classList.add('show');
+    
+    setTimeout(function() {
+        closeNotification();
+    }, 3000);
+}
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+/* Ana sayfa özel stilleri */
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.section-header h2 {
+    font-size: var(--font-size-xxl);
+    color: hsl(var(--primary));
+    margin-bottom: var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.section-intro {
+    color: hsl(var(--text-medium));
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid hsla(var(--primary-light), 0.3);
+    border-radius: 50%;
+    border-top-color: hsl(var(--primary));
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: var(--space-md);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.no-results, .error-message {
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+.no-results i, .error-message i {
+    font-size: 3rem;
+    color: hsl(var(--primary));
+    margin-bottom: var(--space-md);
+    display: block;
+}
+
+.error-message i {
+    color: hsl(var(--danger));
+}
+
+.no-results h3, .error-message h3 {
+    margin-bottom: var(--space-md);
+    color: hsl(var(--text-dark));
+}
+
+.no-results p, .error-message p {
+    margin-bottom: var(--space-lg);
+    color: hsl(var(--text-medium));
+}
+
+/* Özellikler bölümü stilleri */
+.features-section {
+    margin-top: var(--space-xxl);
+    padding: var(--space-xl);
+    background-color: hsl(var(--card-bg));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid hsla(var(--border), 0.5);
+}
+
+.features-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(to right, hsl(var(--accent)), hsl(var(--primary)));
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-xl);
+}
+
+.feature-card {
+    background-color: hsla(var(--background), 0.7);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border: 1px dashed hsla(var(--border), 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border: 1px solid hsla(var(--primary), 0.3);
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, hsla(var(--primary-light), 0.2), hsla(var(--accent-light), 0.2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-md);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-glow);
+}
+
+.feature-icon i {
+    font-size: 2rem;
+    color: hsl(var(--primary));
+}
+
+.feature-card h3 {
+    margin-bottom: var(--space-sm);
+    color: hsl(var(--text-dark));
+    font-size: var(--font-size-lg);
+}
+
+.feature-card p {
+    color: hsl(var(--text-medium));
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .feature-card {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+</style>
 {% endblock %}
