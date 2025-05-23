@@ -3,7 +3,7 @@ import json
 import hashlib
 from datetime import datetime
 from functools import wraps
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort, request
 from models import (init_db, get_word, add_word, add_suggestion, get_popular_words, 
                   register_user, get_user_by_username, get_user_by_id, get_user_achievements, 
                   get_user_words, get_top_contributors, is_admin, get_pending_suggestions,
@@ -15,6 +15,33 @@ from models import (init_db, get_word, add_word, add_suggestion, get_popular_wor
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "z-kusagi-translator-secret")
+
+# HTTP'den HTTPS'ye yönlendirme middleware'i
+class HTTPSRedirectMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # HTTPS kontrol - Natro hosting için yapılandırma
+        is_secure = environ.get('HTTPS', 'off') == 'on' or \
+                   environ.get('HTTP_X_FORWARDED_PROTO', 'http') == 'https'
+        
+        # Prodüksiyon ortamında mıyız?
+        is_production = os.environ.get('FLASK_ENV', 'development') == 'production'
+        
+        # Eğer prodüksiyon ortamındaysak ve bağlantı güvenli değilse, HTTPS'ye yönlendir
+        if is_production and not is_secure and environ['PATH_INFO'] != '/health':
+            url = 'https://' + environ.get('HTTP_HOST', 'zgentranslator.com') + environ['PATH_INFO']
+            status = '301 Moved Permanently'
+            headers = [('Location', url), ('Content-Length', '0')]
+            start_response(status, headers)
+            return [b'']
+        
+        return self.app(environ, start_response)
+
+# Middleware'i sadece prodüksiyonda etkinleştir
+if os.environ.get('FLASK_ENV', 'development') == 'production':
+    app.wsgi_app = HTTPSRedirectMiddleware(app.wsgi_app)
 
 # Initialize database
 init_db()
