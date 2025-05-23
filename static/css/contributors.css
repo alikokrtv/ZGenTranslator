@@ -1,0 +1,175 @@
+/* Katkıda Bulunanlar Bölümü İyileştirilmiş Stiller */
+.contributors-section {
+    background-color: hsl(var(--card-bg));
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-md);
+    margin-top: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.contributors-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
+}
+
+.contributors-section h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-sm);
+    color: hsl(var(--text-dark));
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.contributors-section p {
+    color: hsl(var(--text-medium));
+    margin-bottom: var(--space-lg);
+}
+
+.contributors-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+}
+
+.contributor-card {
+    background: linear-gradient(145deg, hsl(var(--background)), hsl(var(--card-bg)));
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid hsla(var(--primary-light), 0.1);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.contributor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: hsla(var(--primary-light), 0.3);
+}
+
+.contributor-rank {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 40px;
+    height: 40px;
+    background-color: hsl(var(--primary));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: var(--font-size-md);
+    box-shadow: var(--shadow-md);
+    border: 2px solid white;
+    z-index: 1;
+}
+
+.contributor-info {
+    padding-left: var(--space-lg);
+    width: 100%;
+}
+
+.contributor-info h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-xs);
+    color: hsl(var(--primary));
+}
+
+.contributor-info p {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-weight: 500;
+}
+
+.contributor-info p i {
+    color: hsl(var(--accent));
+}
+
+.see-more-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    color: hsl(var(--primary));
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background-color: hsla(var(--primary-light), 0.1);
+}
+
+.see-more-link:hover {
+    background-color: hsla(var(--primary-light), 0.2);
+    transform: translateX(5px);
+}
+
+.see-more-link i {
+    transition: transform 0.2s ease;
+}
+
+.see-more-link:hover i {
+    transform: translateX(3px);
+}
+
+.empty-contributors {
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+.empty-contributors p {
+    margin-bottom: var(--space-md);
+}
+
+/* Top 3 için özel stiller */
+.contributor-card:nth-child(1) {
+    background: linear-gradient(145deg, hsl(var(--background)), rgba(255, 215, 0, 0.05));
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+.contributor-card:nth-child(1) .contributor-rank {
+    background-color: gold;
+    color: hsl(var(--text-dark));
+}
+
+.contributor-card:nth-child(2) {
+    background: linear-gradient(145deg, hsl(var(--background)), rgba(192, 192, 192, 0.05));
+    border-color: rgba(192, 192, 192, 0.3);
+}
+
+.contributor-card:nth-child(2) .contributor-rank {
+    background-color: silver;
+    color: hsl(var(--text-dark));
+}
+
+.contributor-card:nth-child(3) {
+    background: linear-gradient(145deg, hsl(var(--background)), rgba(205, 127, 50, 0.05));
+    border-color: rgba(205, 127, 50, 0.3);
+}
+
+.contributor-card:nth-child(3) .contributor-rank {
+    background-color: #cd7f32;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .contributors-list {
+        grid-template-columns: 1fr;
+    }
+}

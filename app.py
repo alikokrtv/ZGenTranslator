@@ -4,6 +4,7 @@ import hashlib
 from datetime import datetime
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort, request
+from email_system import init_mail, new_word_suggestion_notification, edit_request_notification, user_registration_notification
 from models import (init_db, get_word, add_word, add_suggestion, get_popular_words, 
                   register_user, get_user_by_username, get_user_by_id, get_user_achievements, 
                   get_user_words, get_top_contributors, is_admin, get_pending_suggestions,
@@ -15,6 +16,9 @@ from models import (init_db, get_word, add_word, add_suggestion, get_popular_wor
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "z-kusagi-translator-secret")
+
+# E-posta sistemini başlat
+mail = init_mail(app)
 
 # HTTP'den HTTPS'ye yönlendirme middleware'i - Cloudflare kullanıldığı için devre dışı bırakıldı
 class HTTPSRedirectMiddleware:
@@ -118,8 +122,10 @@ def register():
         if result:
             # Auto login after registration
             session['user_id'] = result
-            flash('Kayıt başarılı! Hoş geldiniz.', 'success')
-            return redirect(url_for('profile'))
+            # Başarılı kayıt için e-posta bildirimi gönder
+            user_registration_notification(username, email)
+            flash('Kayıt işlemi başarılı! Şimdi giriş yapabilirsiniz.', 'success')
+            return redirect(url_for('login'))
         else:
             flash('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.', 'error')
             
@@ -268,15 +274,21 @@ def suggest():
     # Check if user is logged in
     user_id = session.get('user_id', None)
     
-    # Önerilen kelime onay sürecine gönderilir
-    suggestion_id = add_word(word, meaning, user_id)
-    
     if user_id:
-        print(f"Yeni kelime önerisi: '{word}' = '{meaning}' (Kullanıcı ID: {user_id})")
+        suggestion_user_id = user_id
+        user = get_user_by_id(session['user_id'])
+        success, result = add_suggestion(word, meaning, suggestion_user_id)
+        
+        # Yöneticiye e-posta bildirimi gönder
+        new_word_suggestion_notification(word, meaning, user['username'])
     else:
-        print(f"Yeni kelime önerisi: '{word}' = '{meaning}' (Öneren: {name if name else 'İsimsiz'})")
+        # Anonim öneriler için user_id None
+        success, result = add_suggestion(word, meaning, None, submitter_name)
+        
+        # Yöneticiye anonim öneri için e-posta bildirimi gönder
+        new_word_suggestion_notification(word, meaning, submitter_name)
     
-    if suggestion_id:
+    if success:
         return jsonify({
             'success': True,
             'message': 'Teşekkürler! Kelime öneriniz onay sürecine alındı. Onaylandıktan sonra sözlüğe eklenecektir. 🎉'
@@ -412,6 +424,11 @@ def edit_request(word_id):
     success, result = request_edit(word_id, new_meaning, reason, session['user_id'])
     
     if success:
+        # Değişiklik talebi için yöneticiye e-posta gönder
+        word_info = get_word(word_id)
+        if word_info:
+            edit_request_notification(word_info['word'], word_info['meaning'], new_meaning, reason, user['username'])
+        
         return jsonify({
             'success': True,
             'message': 'Değişiklik talebiniz alındı. İncelendikten sonra onaylanacaktır.'

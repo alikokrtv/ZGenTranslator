@@ -64,14 +64,20 @@
                 </form>
             </section>
             <section class="contributors-section">
-                <h2>En Çok Katkıda Bulunanlar 👑</h2>
-                <p>Z Kuşağı sözlüğümüze en çok kelime ekleyen kullanıcılar</p>
+                <h2><i class="fas fa-crown"></i> En Çok Katkıda Bulunanlar</h2>
+                <p>Z Kuşağı sözlüğümüze en çok kelime ekleyen süper kullanıcılarımız</p>
                 
                 <div class="contributors-list">
                     {% if top_contributors %}
                         {% for contributor in top_contributors %}
                             <div class="contributor-card">
-                                <div class="contributor-rank">{{ loop.index }}</div>
+                                <div class="contributor-rank">
+                                    {% if loop.index == 1 %}
+                                        <i class="fas fa-trophy"></i>
+                                    {% else %}
+                                        {{ loop.index }}
+                                    {% endif %}
+                                </div>
                                 <div class="contributor-info">
                                     <h3>{{ contributor.username }}</h3>
                                     <p><i class="fas fa-language"></i> {{ contributor.contribution_count }} Kelime</p>
