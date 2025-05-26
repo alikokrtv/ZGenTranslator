@@ -351,53 +351,61 @@ def register():
 # User login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Log for debugging
-    logger.info(f"Login route called with method: {request.method}")
-    logger.info(f"Form data: {request.form if request.method == 'POST' else 'N/A'}")
-    
-    if 'user_id' in session:
-        logger.info("User already logged in, redirecting to profile")
-        return redirect(url_for('profile'))
+    try:
+        # Log for debugging
+        logger.info(f"Login route called with method: {request.method}")
         
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
-        
-        logger.info(f"Login attempt for username: {username}")
-        
-        if not username or not password:
-            logger.warning("Missing username or password")
-            flash('Kullanıcı adı ve şifre gereklidir.', 'error')
-            return render_template('login.html')
+        if 'user_id' in session:
+            logger.info("User already logged in, redirecting to profile")
+            return redirect(url_for('profile'))
             
-        # Get user
-        user = get_user_by_username(username)
-        
-        if not user:
-            logger.warning(f"User not found: {username}")
-            flash('Kullanıcı adı veya şifre hatalı.', 'error')
-            return render_template('login.html')
+        if request.method == 'POST':
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '')
             
-        # Check password
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
-        logger.info(f"Password check for user {username}: {'success' if user['password_hash'] == password_hash else 'failed'}")
-        
-        if user['password_hash'] != password_hash:
-            logger.warning(f"Password mismatch for user: {username}")
-            flash('Kullanıcı adı veya şifre hatalı.', 'error')
-            return render_template('login.html')
+            logger.info(f"Login attempt for username: {username}")
             
-        # Login successful
-        logger.info(f"Login successful for user: {username}")
-        session['user_id'] = user['id']
-        flash('Giriş başarılı! Hoş geldiniz.', 'success')
-        
-        next_page = request.args.get('next')
-        if next_page:
-            return redirect(next_page)
-        return redirect(url_for('profile'))
-        
-    return render_template('login.html')
+            if not username or not password:
+                logger.warning("Missing username or password")
+                flash('Kullanıcı adı ve şifre gereklidir.', 'error')
+                return render_template('login.html')
+                
+            try:
+                # Get user
+                user = get_user_by_username(username)
+                
+                if not user:
+                    logger.warning(f"User not found: {username}")
+                    flash('Kullanıcı adı veya şifre hatalı.', 'error')
+                    return render_template('login.html')
+                    
+                # Check password
+                password_hash = hashlib.sha256(password.encode()).hexdigest()
+                
+                if user['password_hash'] != password_hash:
+                    logger.warning(f"Password mismatch for user: {username}")
+                    flash('Kullanıcı adı veya şifre hatalı.', 'error')
+                    return render_template('login.html')
+                    
+                # Login successful
+                logger.info(f"Login successful for user: {username}")
+                session['user_id'] = user['id']
+                flash('Giriş başarılı! Hoş geldiniz.', 'success')
+                
+                next_page = request.args.get('next')
+                if next_page:
+                    return redirect(next_page)
+                return redirect(url_for('profile'))
+            except Exception as e:
+                logger.error(f"Error during login process: {str(e)}")
+                flash('Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin.', 'error')
+                return render_template('login.html')
+            
+        return render_template('login.html')
+    except Exception as e:
+        logger.error(f"Unexpected error in login route: {str(e)}")
+        flash('Bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'error')
+        return render_template('error.html', error=str(e))
 
 # Veritabanı parametre yer tutucusu fonksiyonu
 def get_param_placeholder(conn):
@@ -429,8 +437,29 @@ def profile():
 # Leaderboard - En çok katkıda bulunanlar
 @app.route('/leaderboard')
 def leaderboard():
-    top_contributors = get_top_contributors(20)
-    return render_template('leaderboard.html', contributors=top_contributors)
+    try:
+        # Kullanıcı bilgilerini al
+        user = None
+        is_user_admin = False
+        if 'user_id' in session:
+            try:
+                user = get_user_by_id(session['user_id'])
+                is_user_admin = is_admin(session['user_id']) if user else False
+            except Exception as e:
+                logger.error(f"Leaderboard - kullanıcı bilgileri alınırken hata: {e}")
+        
+        # En çok katkıda bulunanları al
+        top_contributors = get_top_contributors(20)
+        
+        return render_template('leaderboard.html', 
+                            contributors=top_contributors,
+                            user=user,
+                            is_admin=is_user_admin)
+    except Exception as e:
+        logger.error(f"Leaderboard sayfası yüklenirken hata: {e}")
+        return render_template('error.html', 
+                            error_message="Liderlik tablosu yüklenirken bir hata oluştu.",
+                            user=None)
 
 # Legal pages
 @app.route('/privacy')
@@ -499,42 +528,75 @@ def translate():
 # API endpoint to suggest new word
 @app.route('/suggest', methods=['POST'])
 def suggest():
-    word = request.form.get('word', '').lower().strip()
-    meaning = request.form.get('meaning', '').strip()
-    name = request.form.get('name', '').strip()
-    
-    if not word or not meaning:
+    try:
+        word = request.form.get('word', '').lower().strip()
+        meaning = request.form.get('meaning', '').strip()
+        name = request.form.get('name', '').strip()
+        
+        logger.info(f"Suggestion attempt for word: {word}")
+        
+        if not word or not meaning:
+            logger.warning("Missing word or meaning in suggestion")
+            return jsonify({
+                'success': False,
+                'message': 'Kelime, anlamı zorunludur! 📝'
+            })
+        
+        # Check if user is logged in
+        user_id = session.get('user_id', None)
+        
+        try:
+            if user_id:
+                suggestion_user_id = user_id
+                user = get_user_by_id(session['user_id'])
+                if not user:
+                    logger.warning(f"User not found for suggestion: {user_id}")
+                    return jsonify({
+                        'success': False,
+                        'message': 'Kullanıcı bilgileriniz bulunamadı. Lütfen tekrar giriş yapın.'
+                    })
+                
+                success, result = add_suggestion(word, meaning, suggestion_user_id)
+                
+                # Yöneticiye e-posta bildirimi gönder
+                try:
+                    new_word_suggestion_notification(word, meaning, user['username'])
+                except Exception as e:
+                    logger.error(f"Email notification failed: {str(e)}")
+                    # E-posta gönderimi başarısız olsa bile devam et
+            else:
+                # Anonim öneriler için user_id None
+                success, result = add_suggestion(word, meaning, None)
+                
+                # Yöneticiye anonim öneri için e-posta bildirimi gönder
+                try:
+                    new_word_suggestion_notification(word, meaning, name if name else "Anonim Kullanıcı")
+                except Exception as e:
+                    logger.error(f"Email notification failed: {str(e)}")
+            
+            if success:
+                logger.info(f"Word suggestion successful: {word}")
+                return jsonify({
+                    'success': True,
+                    'message': 'Teşekkürler! Kelime öneriniz onay sürecine alındı. Onaylandıktan sonra sözlüğe eklenecektir. 🎉'
+                })
+            else:
+                logger.warning(f"Word suggestion failed: {result}")
+                return jsonify({
+                    'success': False,
+                    'message': f'Bir hata oluştu: {result}'
+                })
+        except Exception as e:
+            logger.error(f"Error during suggestion process: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': 'Kelime önerilirken bir hata oluştu. Lütfen tekrar deneyin.'
+            })
+    except Exception as e:
+        logger.error(f"Unexpected error in suggestion route: {str(e)}")
         return jsonify({
             'success': False,
-            'message': 'Kelime, anlamı zorunludur! 📝'
-        })
-    
-    # Check if user is logged in
-    user_id = session.get('user_id', None)
-    
-    if user_id:
-        suggestion_user_id = user_id
-        user = get_user_by_id(session['user_id'])
-        success, result = add_suggestion(word, meaning, suggestion_user_id)
-        
-        # Yöneticiye e-posta bildirimi gönder
-        new_word_suggestion_notification(word, meaning, user['username'])
-    else:
-        # Anonim öneriler için user_id None
-        success, result = add_suggestion(word, meaning, None)
-        
-        # Yöneticiye anonim öneri için e-posta bildirimi gönder
-        new_word_suggestion_notification(word, meaning, name if name else "Anonim Kullanıcı")
-    
-    if success:
-        return jsonify({
-            'success': True,
-            'message': 'Teşekkürler! Kelime öneriniz onay sürecine alındı. Onaylandıktan sonra sözlüğe eklenecektir. 🎉'
-        })
-    else:
-        return jsonify({
-            'success': False,
-            'message': 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.'
+            'message': 'Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.'
         })
 
 # Admin sayfaları
@@ -640,24 +702,26 @@ def admin_reject_edit_request(request_id):
 @app.route('/vote', methods=['POST'])
 @login_required
 def vote():
-    meaning_id = request.form.get('meaning_id')
-    vote_type = request.form.get('vote_type')
-    
-    if not meaning_id or not vote_type:
-        return jsonify({
-            'success': False,
-            'message': 'Eksik parametreler'
-        })
-        
-    if vote_type not in ['up', 'down']:
-        return jsonify({
-            'success': False,
-            'message': 'Geçersiz oy tipi'
-        })
-    
-    # Burada oy verme işlemi gerçekleşiyor
+    conn = None
     try:
-        # vote_word fonksiyonu yoksa gerekli işlemi burada yapalım
+        meaning_id = request.form.get('meaning_id')
+        vote_type = request.form.get('vote_type')
+        
+        logger.info(f"Vote attempt: meaning_id={meaning_id}, vote_type={vote_type}")
+        
+        if not meaning_id or not vote_type:
+            return jsonify({
+                'success': False,
+                'message': 'Eksik parametreler'
+            })
+        
+        if vote_type not in ['up', 'down']:
+            return jsonify({
+                'success': False,
+                'message': 'Geçersiz oy tipi'
+            })
+        
+        # Veritabanı bağlantısını al
         conn = get_db_connection()
         cur = conn.cursor()
         
@@ -665,7 +729,7 @@ def vote():
         is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
         param_placeholder = get_param_placeholder(conn)
         
-        # Önce meaning'in var olup olmadığını kontrol et
+        # Önce kelimenin var olup olmadığını kontrol et
         query = f"SELECT id FROM words WHERE id = {param_placeholder}"
         cur.execute(query, (meaning_id,))
         
@@ -704,12 +768,14 @@ def vote():
         })
     except Exception as e:
         logger.error(f"Oy verme sırasında hata: {e}")
+        if conn:
+            conn.rollback()
         return jsonify({
             'success': False,
             'message': 'Oy verilirken bir hata oluştu'
         })
     finally:
-        if 'conn' in locals():
+        if conn:
             conn.close()
 
 # Düzenleme önerme sayfası
