@@ -1,6 +1,5 @@
 import os
 import logging
-import sqlite3
 from datetime import datetime
 from db_config import get_db_connection
 
@@ -386,57 +385,80 @@ def add_word(word, meaning, suggested_by=None):
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
         # Instead of directly adding to words table, add to suggestions
-        cur.execute(
-            "INSERT INTO suggestions (word, meaning, suggested_by, status) VALUES (?, ?, ?, ?)",
-            (word.lower(), meaning, suggested_by, 'pending')
-        )
-        suggestion_id = cur.lastrowid
+        query = f"INSERT INTO suggestions (word, meaning, suggested_by, status) VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder}, {param_placeholder})"
+        
+        if is_postgres:
+            query += " RETURNING id"
+            cur.execute(query, (word.lower(), meaning, suggested_by, 'pending'))
+            suggestion_id = cur.fetchone()[0]  # PostgreSQL'de RETURNING kullanarak ID al
+        else:
+            cur.execute(query, (word.lower(), meaning, suggested_by, 'pending'))
+            suggestion_id = cur.lastrowid  # SQLite'de lastrowid kullan
         
         conn.commit()
-        conn.close()
         return suggestion_id
     except Exception as e:
-        print(f"Error adding suggestion: {e}")
-        conn.close()
+        logger.error(f"Error adding word suggestion: {e}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
         return None
+    finally:
+        conn.close()
 
 def approve_word(suggestion_id, admin_id):
     """Approve a word suggestion and add it to the words table"""
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
         # Get the suggestion
-        cur.execute("SELECT * FROM suggestions WHERE id = ?", (suggestion_id,))
+        query = f"SELECT * FROM suggestions WHERE id = {param_placeholder}"
+        cur.execute(query, (suggestion_id,))
         suggestion = cur.fetchone()
         
         if not suggestion:
-            conn.close()
             return False, "Öneri bulunamadı"
         
+        # PostgreSQL için sonuç işleme
+        if is_postgres and not isinstance(suggestion, dict):
+            columns = ['id', 'word', 'meaning', 'suggested_by', 'created_at', 'status', 'admin_notes']
+            suggestion_dict = {}
+            for i, col in enumerate(columns):
+                suggestion_dict[col] = suggestion[i]
+            suggestion = suggestion_dict
+        
         # Add the word to the words table
-        cur.execute(
-            """INSERT INTO words 
-                (word, meaning, suggested_by, is_approved, approved_by, approved_at) 
-                VALUES (?, ?, ?, 1, ?, CURRENT_TIMESTAMP)""",
-            (suggestion['word'], suggestion['meaning'], suggestion['suggested_by'], admin_id)
-        )
-        word_id = cur.lastrowid
+        insert_query = f"""
+            INSERT INTO words 
+            (word, meaning, suggested_by, is_approved, approved_by, approved_at) 
+            VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder}, 1, {param_placeholder}, CURRENT_TIMESTAMP)
+        """
+        
+        if is_postgres:
+            insert_query += " RETURNING id"
+            cur.execute(insert_query, (suggestion['word'], suggestion['meaning'], suggestion['suggested_by'], admin_id))
+            word_id = cur.fetchone()[0]
+        else:
+            cur.execute(insert_query, (suggestion['word'], suggestion['meaning'], suggestion['suggested_by'], admin_id))
+            word_id = cur.lastrowid
         
         # Update suggestion status
-        cur.execute(
-            "UPDATE suggestions SET status = 'approved' WHERE id = ?",
-            (suggestion_id,)
-        )
+        update_query = f"UPDATE suggestions SET status = 'approved' WHERE id = {param_placeholder}"
+        cur.execute(update_query, (suggestion_id,))
         
         # Update user's contribution count if user exists
         if suggestion['suggested_by']:
-            cur.execute(
-                "UPDATE users SET contribution_count = contribution_count + 1 WHERE id = ?",
-                (suggestion['suggested_by'],)
-            )
+            contribution_query = f"UPDATE users SET contribution_count = contribution_count + 1 WHERE id = {param_placeholder}"
+            cur.execute(contribution_query, (suggestion['suggested_by'],))
             # Check if user earned any achievements
             check_user_achievements(conn, suggestion['suggested_by'])
         
@@ -453,20 +475,23 @@ def reject_word(suggestion_id, admin_id, admin_notes=None):
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
         # Update suggestion status
-        cur.execute(
-            "UPDATE suggestions SET status = 'rejected', admin_notes = ? WHERE id = ?",
-            (admin_notes, suggestion_id)
-        )
+        query = f"UPDATE suggestions SET status = 'rejected', admin_notes = {param_placeholder} WHERE id = {param_placeholder}"
+        cur.execute(query, (admin_notes, suggestion_id))
         
         conn.commit()
-        conn.close()
         return True, "Öneri başarıyla reddedildi"
     except Exception as e:
-        print(f"Error rejecting word: {e}")
-        conn.close()
+        logger.error(f"Error rejecting word: {e}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
         return False, str(e)
+    finally:
+        conn.close()
 
 
 # Şifre sıfırlama fonksiyonları
@@ -479,58 +504,65 @@ def generate_reset_token(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
-        # Önceki kullanılmamış tokenleri iptal et
-        cur.execute(
-            "UPDATE password_reset_tokens SET used = 1 WHERE user_id = ? AND used = 0",
-            (user_id,)
-        )
-        
-        # 24 saat geçerli yeni token oluştur
+        # Token'in süresi 24 saat
         expires_at = datetime.datetime.now() + datetime.timedelta(hours=24)
-        expires_str = expires_at.strftime('%Y-%m-%d %H:%M:%S')
         
-        cur.execute(
-            "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
-            (user_id, token, expires_str)
-        )
+        # Token'i veritabanına kaydet
+        query = f"INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder})"
+        
+        if is_postgres:
+            query += " RETURNING id"
+            cur.execute(query, (user_id, token, expires_at))
+        else:
+            cur.execute(query, (user_id, token, expires_at))
         
         conn.commit()
-        conn.close()
         return token
     except Exception as e:
-        print(f"Error generating reset token: {e}")
-        conn.close()
+        logger.error(f"Error generating reset token: {e}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
         return None
+    finally:
+        conn.close()
 
 def get_user_by_email(email):
     """Get user by email"""
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
-        # Veritabanı tipini kontrol et
-        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
-        
         if is_postgres:
-            cur.execute("SELECT * FROM users WHERE email ILIKE %s", (email,))
-            user = cur.fetchone()
+            # PostgreSQL için case-insensitive sorgu (ILIKE kullan)
+            query = "SELECT * FROM users WHERE email ILIKE %s"
+            cur.execute(query, (email,))
         else:
-            cur.execute("SELECT * FROM users WHERE email = ? COLLATE NOCASE", (email,))
-            user = cur.fetchone()
+            # SQLite için case-insensitive sorgu (COLLATE NOCASE kullan)
+            query = "SELECT * FROM users WHERE email = ? COLLATE NOCASE"
+            cur.execute(query, (email,))
             
-            if user:
-                # SQLite tupple'ı sözlüğe çevir
-                columns = ['id', 'username', 'email', 'password_hash', 'created_at', 
-                          'updated_at', 'contribution_count', 'bio', 'is_admin']
-                user = dict(zip(columns, user))
+        user = cur.fetchone()
+            
+        # SQLite sonucunu sözlüğe çevir
+        if user and not isinstance(user, dict):
+            columns = ['id', 'username', 'email', 'password_hash', 'created_at', 
+                      'updated_at', 'contribution_count', 'bio', 'is_admin']
+            user = dict(zip(columns, user))
         
-        conn.close()
         return user
     except Exception as e:
-        print(f"Error getting user by email: {e}")
-        conn.close()
+        logger.error(f"Error getting user by email: {e}")
         return None
+    finally:
+        conn.close()
 
 def verify_reset_token(token):
     """Verify if a reset token is valid"""
@@ -539,11 +571,11 @@ def verify_reset_token(token):
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
-        # Veritabanı tipini kontrol et
-        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
-        param_placeholder = '%s' if is_postgres else '?'
-        
         query = f"""SELECT t.*, u.email, u.username FROM password_reset_tokens t 
                 JOIN users u ON t.user_id = u.id 
                 WHERE t.token = {param_placeholder} AND t.used = 0"""
@@ -552,28 +584,48 @@ def verify_reset_token(token):
         result = cur.fetchone()
         
         if not result:
-            conn.close()
             return None, "Geçersiz veya kullanılmış token"
         
-        # Sözlüğe çevir (SQLite için)
-        if not is_postgres and result:
+        # PostgreSQL ve SQLite sonuçlarını işleme
+        if not isinstance(result, dict):
+            # Tuple sonucunu sözlüğe çevir
             columns = ['id', 'user_id', 'token', 'created_at', 'expires_at', 'used', 'email', 'username']
-            result = dict(zip(columns, result))
+            result_dict = {}
+            for i, col in enumerate(columns):
+                if i < len(result):
+                    result_dict[col] = result[i]
+            result = result_dict
         
         # Tokenin süresi dolmuş mu kontrol et
         now = datetime.datetime.now()
-        expires_at = datetime.datetime.fromisoformat(str(result['expires_at']).replace(' ', 'T'))
         
-        if now > expires_at:
-            conn.close()
-            return None, "Tokenin süresi dolmuş"
+        # expires_at string veya datetime olabilir
+        try:
+            if isinstance(result['expires_at'], str):
+                expires_at = datetime.datetime.fromisoformat(result['expires_at'].replace(' ', 'T'))
+            else:
+                expires_at = result['expires_at']
+                
+            if now > expires_at:
+                return None, "Tokenin süresi dolmuş"
+        except Exception as e:
+            logger.error(f"Token süresi kontrol edilirken hata: {e}")
+            return None, "Token süresi kontrol edilirken hata oluştu"
         
-        conn.close()
-        return result, "Token geçerli"
+        # Token geçerli, kullanıcı bilgilerini döndür
+        token_data = {
+            'user_id': result['user_id'],
+            'email': result['email'],
+            'username': result['username'],
+            'token': token
+        }
+        
+        return token_data, "Token geçerli"
     except Exception as e:
-        print(f"Error verifying reset token: {e}")
+        logger.error(f"Token doğrulanırken hata: {e}")
+        return None, f"Token doğrulanırken hata oluştu: {str(e)}"
+    finally:
         conn.close()
-        return None, str(e)
 
 def reset_password(token, new_password):
     """Reset password using a valid token"""
@@ -582,58 +634,56 @@ def reset_password(token, new_password):
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
         # Token'i doğrula
         token_data, message = verify_reset_token(token)
         
         if not token_data:
-            conn.close()
             return False, message
         
         # Şifreyi güncelle
         password_hash = hashlib.sha256(new_password.encode()).hexdigest()
         
-        cur.execute(
-            "UPDATE users SET password_hash = ? WHERE id = ?",
-            (password_hash, token_data['user_id'])
-        )
+        update_query = f"UPDATE users SET password_hash = {param_placeholder} WHERE id = {param_placeholder}"
+        cur.execute(update_query, (password_hash, token_data['user_id']))
         
         # Token'i kullanıldı olarak işaretle
-        cur.execute(
-            "UPDATE password_reset_tokens SET used = 1 WHERE token = ?",
-            (token,)
-        )
+        token_query = f"UPDATE password_reset_tokens SET used = 1 WHERE token = {param_placeholder}"
+        cur.execute(token_query, (token,))
         
         conn.commit()
-        conn.close()
         return True, "Şifre başarıyla sıfırlandı"
     except Exception as e:
-        print(f"Error resetting password: {e}")
-        conn.close()
+        logger.error(f"Error resetting password: {e}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
         return False, str(e)
-    except Exception as e:
-        print(f"Error rejecting word: {e}")
+    finally:
         conn.close()
-        return False, str(e)
 
 def add_suggestion(word, meaning, suggested_by=None):
     """Add a new word suggestion to the database"""
     conn = get_db_connection()
     cur = conn.cursor()
     
-    try:
-        cur.execute(
-            "INSERT INTO suggestions (word, meaning, suggested_by) VALUES (?, ?, ?)",
-            (word.lower(), meaning, suggested_by)
-        )
-        conn.commit()
-        success = True
-    except Exception as e:
-        print(f"Error adding suggestion: {e}")
-        success = False
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
     
-    conn.close()
-    return success
+    try:
+        query = f"INSERT INTO suggestions (word, meaning, suggested_by) VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder})"
+        cur.execute(query, (word.lower(), meaning, suggested_by))
+        conn.commit()
+        return True, "Öneri başarıyla kaydedildi"
+    except Exception as e:
+        logger.error(f"Error adding suggestion: {e}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
+        return False, str(e)
+    finally:
+        conn.close()
 
 def get_popular_words(limit):
     """Get a list of popular words from the database"""
@@ -687,62 +737,98 @@ def seed_initial_achievements():
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Check if achievements already exist
-    cur.execute("SELECT COUNT(*) FROM achievements")
-    count = cur.fetchone()[0]
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
     
-    if count == 0:
-        print("Başarımları veritabanına ekliyorum...")
-        achievements = [
-            ("Yeni Çevirmen", "İlk kelimeni ekledin!", "📝", 1),
-            ("Kelime Ustası", "10 kelime ekledin", "🔤", 10),
-            ("Z Kuşağı Çevirmeni", "25 kelime ekledin", "💬", 25),
-            ("Dil Dehası", "50 kelime ekledin", "🏆", 50),
-            ("Z-Sözlük Oluşturucu", "100 kelime ekledin", "👑", 100)
-        ]
+    try:
+        # Check if achievements already exist
+        cur.execute("SELECT COUNT(*) FROM achievements")
+        count_result = cur.fetchone()
         
-        cur.executemany("""
-            INSERT INTO achievements (name, description, icon, requirement_count)
-            VALUES (?, ?, ?, ?)
-        """, achievements)
+        # PostgreSQL ile SQLite sonuçları farklı formatta olabilir
+        count = count_result[0] if isinstance(count_result, tuple) else count_result
         
-        conn.commit()
-        print(f"{len(achievements)} başarım veritabanına eklendi.")
-    else:
-        print(f"Veritabanında zaten {count} başarım var, yeni başarım eklemiyorum.")
-    
-    conn.close()
+        if count == 0:
+            logger.info("Başarımları veritabanına ekliyorum...")
+            achievements = [
+                ("Yeni Çevirmen", "İlk kelimeni ekledin!", "📝", 1),
+                ("Kelime Ustası", "10 kelime ekledin", "🔤", 10),
+                ("Z Kuşağı Çevirmeni", "25 kelime ekledin", "💬", 25),
+                ("Dil Dehası", "50 kelime ekledin", "🏆", 50),
+                ("Z-Sözlük Oluşturucu", "100 kelime ekledin", "👑", 100)
+            ]
+            
+            # PostgreSQL için parametre yerleştirici uyumlu sorgu oluştur
+            query = f"""
+                INSERT INTO achievements (name, description, icon, requirement_count)
+                VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder}, {param_placeholder})
+            """
+            
+            # Her bir başarımı tek tek ekle (executemany PostgreSQL'de sorun çıkarabilir)
+            for achievement in achievements:
+                cur.execute(query, achievement)
+            
+            conn.commit()
+            logger.info(f"{len(achievements)} başarım veritabanına eklendi.")
+        else:
+            logger.info(f"Veritabanında zaten {count} başarım var, yeni başarım eklemiyorum.")
+    except Exception as e:
+        logger.error(f"Başarımlar eklenirken hata: {str(e)}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
+    finally:
+        conn.close()
 
 def check_user_achievements(conn, user_id):
     """Check if user earned any new achievements based on contribution count"""
     cur = conn.cursor()
     
-    # Get user's current contribution count
-    cur.execute("SELECT contribution_count FROM users WHERE id = ?", (user_id,))
-    result = cur.fetchone()
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
     
-    if not result:
-        return
+    try:
+        # Get user's current contribution count
+        query = f"SELECT contribution_count FROM users WHERE id = {param_placeholder}"
+        cur.execute(query, (user_id,))
+        result = cur.fetchone()
         
-    contribution_count = result[0]
-    
-    # Get all achievements that the user qualifies for but hasn't earned yet
-    cur.execute("""
-        SELECT a.id 
-        FROM achievements a 
-        LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ? 
-        WHERE ua.user_id IS NULL AND a.requirement_count <= ?
-    """, (user_id, contribution_count))
-    
-    new_achievements = cur.fetchall()
-    
-    # Award new achievements to the user
-    for achievement in new_achievements:
-        achievement_id = achievement[0]
-        cur.execute("""
-            INSERT INTO user_achievements (user_id, achievement_id)
-            VALUES (?, ?)
-        """, (user_id, achievement_id))
+        if not result:
+            return
+            
+        # PostgreSQL için farklı sonuç biçimi
+        if is_postgres and isinstance(result, dict):
+            contribution_count = result['contribution_count']
+        else:
+            contribution_count = result[0]
+        
+        # Get all achievements that the user qualifies for but hasn't earned yet
+        query = f"""
+            SELECT a.id 
+            FROM achievements a 
+            LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = {param_placeholder} 
+            WHERE ua.user_id IS NULL AND a.requirement_count <= {param_placeholder}
+        """
+        cur.execute(query, (user_id, contribution_count))
+        
+        new_achievements = cur.fetchall()
+        
+        # Award new achievements to the user
+        for achievement in new_achievements:
+            # PostgreSQL için farklı sonuç biçimi
+            if is_postgres and isinstance(achievement, dict):
+                achievement_id = achievement['id']
+            else:
+                achievement_id = achievement[0]
+                
+            insert_query = f"""
+                INSERT INTO user_achievements (user_id, achievement_id)
+                VALUES ({param_placeholder}, {param_placeholder})
+            """
+            cur.execute(insert_query, (user_id, achievement_id))
+    except Exception as e:
+        logger.error(f"Başarımlar kontrol edilirken hata: {str(e)}")
+        # Bu fonksiyon başka bir transaction içinde çağrılabilir, bu yüzden burada commit/rollback yapmıyoruz
     
     # No need to commit here as it will be done by the caller
 
@@ -751,33 +837,75 @@ def get_top_contributors(limit=10):
     conn = get_db_connection()
     cur = conn.cursor()
     
-    cur.execute("""
-        SELECT id, username, contribution_count 
-        FROM users 
-        ORDER BY contribution_count DESC LIMIT ?
-    """, (limit,))
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
     
-    results = cur.fetchall()
-    conn.close()
-    
-    return [dict(result) for result in results]
+    try:
+        logger.info("Popüler katılımcılar alınıyor")
+        query = f"""
+            SELECT id, username, contribution_count 
+            FROM users 
+            ORDER BY contribution_count DESC 
+            LIMIT {param_placeholder}
+        """
+        
+        cur.execute(query, (limit,))
+        
+        results = cur.fetchall()
+        
+        # PostgreSQL için dict dönüşümü farklı
+        if is_postgres:
+            contributors = []
+            for result in results:
+                if isinstance(result, dict):
+                    contributors.append(result)
+                else:
+                    contributors.append({
+                        'id': result[0],
+                        'username': result[1],
+                        'contribution_count': result[2]
+                    })
+            return contributors
+        else:
+            return [dict(result) for result in results]
+    except Exception as e:
+        logger.error(f"Katkıda bulunanlar alınırken hata: {e}")
+        return []
+    finally:
+        conn.close()
 
 def register_user(username, email, password_hash):
     """Register a new user"""
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
-        cur.execute("""
+        query = f"""
             INSERT INTO users (username, email, password_hash)
-            VALUES (?, ?, ?)
-        """, (username, email, password_hash))
+            VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder})
+            RETURNING id
+        """
+        
+        cur.execute(query, (username, email, password_hash))
         
         conn.commit()
-        user_id = cur.lastrowid
-        conn.close()
+        
+        # PostgreSQL ve SQLite'da lastrowid alma yöntemi farklı
+        if is_postgres:
+            user_id = cur.fetchone()[0]
+        else:
+            user_id = cur.lastrowid
+            
         return user_id
-    except sqlite3.IntegrityError as e:
+    except Exception as e:
+        # Hata ayıklama için log kaydı
+        logger.error(f"Error registering user: {str(e)}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
         # Username or email already exists
         conn.close()
         if "username" in str(e).lower():

@@ -754,8 +754,13 @@ def vote():
         votes = cur.fetchone()
         
         if is_postgres:
-            upvotes = votes['votes_up']
-            downvotes = votes['votes_down']
+            # PostgreSQL'de fetchone sonucu dict veya tuple olabilir
+            if isinstance(votes, dict):
+                upvotes = votes['votes_up']
+                downvotes = votes['votes_down']
+            else:
+                upvotes = votes[0]
+                downvotes = votes[1]
         else:
             upvotes = votes[0]
             downvotes = votes[1]
