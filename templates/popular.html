@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Popüler Kelimeler - Z Kuşağı Çevirici{% endblock %}
+
+{% block content %}
+<div class="content-box">
+    <h2><i class="fas fa-fire"></i> En Popüler Kelimeler</h2>
+    
+    {% if not words %}
+        <div class="no-results">
+            <i class="fas fa-info-circle"></i>
+            <p>Henüz popüler kelime bulunmuyor.</p>
+        </div>
+    {% else %}
+        <div class="words-list">
+            {% for word in words %}
+                <div class="word-card">
+                    <div class="word-header">
+                        <h3>{{ word.word }}</h3>
+                        <span class="word-votes">
+                            <i class="fas fa-thumbs-up"></i> {{ word.upvotes or 0 }}
+                            <i class="fas fa-thumbs-down"></i> {{ word.downvotes or 0 }}
+                        </span>
+                    </div>
+                    <div class="word-meaning">
+                        <p><strong>Anlamı:</strong> {{ word.meaning }}</p>
+                        {% if word.example %}
+                            <p class="example"><strong>Örnek:</strong> {{ word.example }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="word-meta">
+                        <span class="meta"><i class="fas fa-user"></i> {{ word.added_by or 'Bilinmeyen' }}</span>
+                        <span class="meta"><i class="far fa-calendar-alt"></i> {{ word.created_at|safe_date }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.words-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.word-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.word-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.word-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.word-header h3 {
+    margin: 0;
+    color: #6ab7ff;
+    font-size: 1.4rem;
+}
+
+.word-votes {
+    font-size: 0.9rem;
+    color: #a0a0a0;
+}
+
+.word-votes i {
+    margin-left: 0.5rem;
+}
+
+.word-meaning {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.word-meaning p {
+    margin: 0.5rem 0;
+}
+
+.example {
+    font-style: italic;
+    color: #b3b3b3;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid #6ab7ff;
+    margin-top: 0.75rem !important;
+}
+
+.word-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.meta i {
+    margin-right: 0.3rem;
+    color: #6ab7ff;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #888;
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #6ab7ff;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .words-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .word-card {
+        padding: 1.2rem;
+    }
+}
+</style>
+{% endblock %}

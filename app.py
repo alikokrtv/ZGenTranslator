@@ -4,7 +4,7 @@ import hashlib
 import logging
 from datetime import datetime
 from functools import wraps
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort, request
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort, request, Response
 from email_system import init_mail, new_word_suggestion_notification, edit_request_notification, user_registration_notification
 from models import (init_db, get_word, add_word, add_suggestion, get_popular_words, 
                   register_user, get_user_by_username, get_user_by_id, get_user_achievements, 
@@ -19,8 +19,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('app')
 
 # Create Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.environ.get("SESSION_SECRET", "z-kusagi-translator-secret")
+
+# Configure app to ensure proper static file serving
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching during development
 
 # E-posta sistemini başlat
 mail = init_mail(app)
@@ -53,11 +56,72 @@ if os.environ.get('FLASK_ENV', 'development') == 'production':
 # Initialize database with error handling
 try:
     logger.info("Veritabanı başlatılıyor...")
+    logger.info(f"Çalışma dizini: {os.getcwd()}")
+    logger.info(f"Mevcut dosyalar: {os.listdir('.')}")
     init_db()
     logger.info("Veritabanı başlatma tamamlandı")
 except Exception as e:
-    logger.error(f"Veritabanı başlatma hatası: {e}")
+    import traceback
+    logger.error(f"Veritabanı başlatma hatası: {str(e)}")
+    logger.error(f"Hata detayı: {traceback.format_exc()}")
     logger.error("Uygulama devam ediyor ancak veritabanı işlevselliği sınırlı olabilir.")
+
+# Add a test route to check basic functionality
+@app.route('/test')
+def test():
+    """Test endpoint to check basic functionality"""
+    try:
+        # Test database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT 1')
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        # Test template rendering
+        template_test = render_template('test.html')
+        
+        return jsonify({
+            'status': 'success',
+            'database': 'connected',
+            'templates': 'working',
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'traceback': traceback.format_exc(),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
+
+# Add a simple health check endpoint
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint"""
+    try:
+        # Test database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT 1')
+        cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'database': 'connection failed',
+            'error': str(e),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
 
 # Authentication decorator
 def login_required(f):
@@ -101,19 +165,54 @@ def index():
         except Exception as e:
             logger.error(f"En iyi katkıda bulunanlar alınırken hata: {e}")
             top_contributors = []
+        
+        try:
+            popular_words = get_popular_words(10)
+            logger.info(f"Popüler kelimeler: {popular_words}")
+            # Popüler kelimelerin içeriğini görelim
+            for word in popular_words:
+                logger.info(f"Kelime: {word}")
+        except Exception as e:
+            logger.error(f"Popüler kelimeler alınırken hata: {e}")
+            import traceback
+            logger.error(f"Hata detayı: {traceback.format_exc()}")
+            popular_words = []
             
-        return render_template('index.html', user=user, top_contributors=top_contributors, is_admin=is_user_admin)
+        return render_template('index.html', user=user, top_contributors=top_contributors, popular_words=popular_words, is_admin=is_user_admin)
     except Exception as e:
         logger.error(f"Ana sayfa yüklenirken beklenmeyen hata: {e}")
         return render_template('error.html', error_message="Üzgünüz, bir hata oluştu. Lütfen daha sonra tekrar deneyiniz."), 500
 
 @app.route('/popular', methods=['GET'])
 def popular_words():
-    words = get_popular_words(10)
-    return jsonify({
-        'success': True,
-        'words': words
-    })
+    try:
+        # Sadece 10 kelime getir
+        words = get_popular_words(10)
+        
+        # Kullanıcı bilgilerini al
+        user = None
+        is_admin = False
+        
+        if 'user_id' in session:
+            user = get_user_by_id(session['user_id'])
+            if user:
+                is_admin = user.get('is_admin', False)
+        
+        # Debug için konsola yazdır
+        print(f"Toplam {len(words)} kelime bulundu.")
+        for word in words:
+            print(f"Kelime: {word.get('word')}, Upvotes: {word.get('upvotes')}")
+        
+        return render_template('popular.html', 
+                            user=user, 
+                            words=words,
+                            is_admin=is_admin)
+    except Exception as e:
+        logger.error(f"Popüler kelimeler yüklenirken hata: {e}", exc_info=True)
+        return render_template('error.html', 
+                            error_message="Popüler kelimeler yüklenirken bir hata oluştu.",
+                            user=None,
+                            is_admin=False), 500
 
 # User registration
 @app.route('/register', methods=['GET', 'POST'])
@@ -449,16 +548,25 @@ def admin_reject_edit_request(request_id):
     return redirect(url_for('admin_edit_requests'))
 
 # Kelime oylaması
-@app.route('/vote/<int:word_id>/<vote_type>', methods=['POST'])
+@app.route('/vote', methods=['POST'])
 @login_required
-def vote(word_id, vote_type):
+def vote():
+    meaning_id = request.form.get('meaning_id')
+    vote_type = request.form.get('vote_type')
+    
+    if not meaning_id or not vote_type:
+        return jsonify({
+            'success': False,
+            'message': 'Eksik parametreler'
+        })
+        
     if vote_type not in ['up', 'down']:
         return jsonify({
             'success': False,
             'message': 'Geçersiz oy tipi'
         })
     
-    success, message = vote_word(word_id, session['user_id'], vote_type)
+    success, message = vote_word(int(meaning_id), session['user_id'], vote_type)
     
     return jsonify({
         'success': success,

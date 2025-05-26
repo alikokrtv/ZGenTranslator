@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
 {% block title %}Lider Tablosu - Z Kuşağı Translator{% endblock %}
 
@@ -8,37 +8,44 @@
     <p class="leaderboard-intro">En çok katkıda bulunan Z Kuşağı Translator üyeleri</p>
 
     <div class="leaderboard-table">
-        <div class="leaderboard-header">
-            <div class="rank-cell">Sıra</div>
-            <div class="user-cell">Kullanıcı</div>
-            <div class="count-cell">Kelime Sayısı</div>
-        </div>
-        
-        {% if contributors %}
-            {% for contributor in contributors %}
-                <div class="leaderboard-row {% if loop.index <= 3 %}top-{{ loop.index }}{% endif %}">
-                    <div class="rank-cell">
-                        {% if loop.index == 1 %}
-                            <i class="fas fa-medal gold"></i>
-                        {% elif loop.index == 2 %}
-                            <i class="fas fa-medal silver"></i>
-                        {% elif loop.index == 3 %}
-                            <i class="fas fa-medal bronze"></i>
-                        {% else %}
-                            {{ loop.index }}
-                        {% endif %}
-                    </div>
-                    <div class="user-cell">{{ contributor.username }}</div>
-                    <div class="count-cell">{{ contributor.contribution_count }}</div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <p>Henüz katkıda bulunan kullanıcı yok.</p>
-                <p>İlk katkıda bulunan sen olmak ister misin?</p>
-                <a href="{{ url_for('register') }}" class="primary-btn">Hemen Kayıt Ol</a>
-            </div>
-        {% endif %}
+        <table class="contributor-table">
+            <thead>
+                <tr>
+                    <th class="rank-column">Sıra</th>
+                    <th class="user-column">Kullanıcı</th>
+                    <th class="count-column">Kelime Sayısı</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if contributors %}
+                    {% for contributor in contributors %}
+                        <tr class="contributor-row {% if loop.index <= 3 %}top-{{ loop.index }}{% endif %}">
+                            <td class="rank-column">
+                                {% if loop.index == 1 %}
+                                    <i class="fas fa-medal gold"></i>
+                                {% elif loop.index == 2 %}
+                                    <i class="fas fa-medal silver"></i>
+                                {% elif loop.index == 3 %}
+                                    <i class="fas fa-medal bronze"></i>
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </td>
+                            <td class="user-column">{{ contributor.username }}</td>
+                            <td class="count-column">{{ contributor.contribution_count }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            <p>Henüz katkıda bulunan kullanıcı yok.</p>
+                            <p>İlk katkıda bulunan sen olmak ister misin?</p>
+                            <a href="{{ url_for('register') }}" class="primary-btn">Hemen Kayıt Ol</a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
 
     <div class="leaderboard-info">

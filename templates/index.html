@@ -13,7 +13,7 @@
         <form id="translator-form" action="{{ url_for('translate') }}" method="post">
             <label for="term">Çevirmek istediğiniz Z kuşağı terimini yazın:</label>
             <div class="input-group">
-                <input type="text" id="term" name="term" placeholder="Örn: cringe, based, no cap..." required>
+                <input type="text" id="term" name="word" placeholder="Örn: cringe, based, no cap..." required>
                 <button type="submit" class="primary-btn">
                     <i class="fas fa-search"></i> Çevir
                 </button>
@@ -34,9 +34,21 @@
     <div class="popular-words">
         <h3>Popüler Terimler</h3>
         <div class="word-chips">
-            {% for word in popular_words %}
-                <span class="word-chip" data-term="{{ word.term }}">{{ word.term }}</span>
-            {% endfor %}
+            <!-- Debug: {{ popular_words }} -->
+            {% if popular_words %}
+                {% for word in popular_words %}
+                    <span class="word-chip" data-term="{{ word.word }}">{{ word.word }}</span>
+                {% endfor %}
+            {% else %}
+                <p class="no-words-message">Henüz popüler terim bulunmuyor.</p>
+            {% endif %}
+            
+            <!-- Sabit kelimeler ekleyelim geçici olarak -->
+            <span class="word-chip" data-term="güno">güno</span>
+            <span class="word-chip" data-term="ajg">ajg</span>
+            <span class="word-chip" data-term="vibe">vibe</span>
+            <span class="word-chip" data-term="sus">sus</span>
+            <span class="word-chip" data-term="fr">fr</span>
         </div>
     </div>
 </section>
@@ -50,7 +62,7 @@
     <form id="suggestion-form" action="{{ url_for('suggest') }}" method="post">
         <div class="form-group">
             <label for="new_term">Yeni Terim <span class="required">*</span></label>
-            <input type="text" id="new_term" name="new_term" placeholder="Eklemek istediğiniz terimi yazın" required>
+            <input type="text" id="new_term" name="word" placeholder="Eklemek istediğiniz terimi yazın" required>
         </div>
         
         <div class="form-group">
@@ -142,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    'term': term
+                    'word': term
                 })
             })
             .then(response => response.json())
@@ -150,10 +162,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 resultPlaceholder.style.display = 'none';
                 translationResult.style.display = 'block';
                 
-                if (data.exists) {
+                if (data.success) {
                     // Sonuçları göster
                     let resultHTML = `
-                        <h2>${data.term}</h2>
+                        <h2>${data.word}</h2>
                         <div class="translation-meanings">
                     `;
                     
@@ -161,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         resultHTML += `
                             <div class="meaning-item">
                                 <div class="edit-button-wrapper">
-                                    <button class="edit-request-btn" onclick="location.href='/edit-request/${meaning.id}'">
+                                    <button class="edit-request-btn" onclick="location.href='/request-edit/${meaning.id}'">
                                         <i class="fas fa-pen"></i> Düzenleme öner
                                     </button>
                                 </div>
@@ -190,9 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     translationResult.innerHTML = `
                         <div class="no-results">
                             <i class="fas fa-search-minus"></i>
-                            <h3>Oops! "${data.term}" terimini bulamadık.</h3>
+                            <h3>Oops! "${data.word}" terimini bulamadık.</h3>
                             <p>Bu terimin anlamını biliyor musunuz? O zaman aşağıdan yeni bir terim önerisinde bulunabilirsiniz.</p>
-                            <button class="secondary-btn" onclick="scrollToSuggestionForm('${data.term}')">
+                            <button class="secondary-btn" onclick="scrollToSuggestionForm('${data.word}')">
                                 <i class="fas fa-lightbulb"></i> Bu terimi eklemek istiyorum
                             </button>
                         </div>

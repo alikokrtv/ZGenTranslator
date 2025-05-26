@@ -13,9 +13,11 @@ def get_param_placeholder(conn):
     Veritabanı bağlantı tipine göre doğru parametre işaretleyicisini döndür
     SQLite için ? ve PostgreSQL için %s
     """
-    if hasattr(conn, 'cursor_factory'):  # PostgreSQL bağlantısı
-        return '%s'
-    return '?'  # SQLite bağlantısı
+    # Bağlantı tipine göre doğru işaretleyiciyi belirle
+    if hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn)):
+        return '%s'  # PostgreSQL bağlantısı
+    else:
+        return '?'  # SQLite bağlantısı
 
 # get_db_connection fonksiyonu artık db_config.py'de
 
@@ -27,8 +29,11 @@ def init_db():
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    
     try:
-        logger.info("Veritabanı tablolarını oluşturma başlatılıyor...")
+        logger.info(f"{'PostgreSQL' if is_postgres else 'SQLite'} için tablolar oluşturuluyor...")
         
         # PostgreSQL için farklı PRIMARY KEY sözdizimi gerekebilir
         is_postgres = hasattr(conn, 'cursor_factory')
@@ -428,33 +433,52 @@ def add_suggestion(word, meaning, suggested_by=None):
     conn.close()
     return success
 
-def get_popular_words(limit=10):
+def get_popular_words(limit):
     """Get a list of popular words from the database"""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    
-    # Oncelikle is_approved=1 olan kelimeleri dene
-    cur.execute("""
-        SELECT w.id, w.word, w.meaning, w.created_at, u.username as added_by, w.votes_up
-        FROM words w 
-        LEFT JOIN users u ON w.suggested_by = u.id 
-        WHERE w.is_approved = 1
-        ORDER BY w.votes_up DESC, w.created_at DESC LIMIT ?
-    """, (limit,))
-    results = cur.fetchall()
-    
-    # Eğer onaylı kelime yoksa, varsayılan sözlükteki kelimeleri göster
-    if not results:
-        cur.execute("""
-            SELECT w.id, w.word, w.meaning, w.created_at, u.username as added_by, w.votes_up
-            FROM words w 
-            LEFT JOIN users u ON w.suggested_by = u.id 
-            ORDER BY w.votes_up DESC, w.created_at DESC LIMIT ?
-        """, (limit,))
-        results = cur.fetchall()
-    
-    conn.close()
-    return [dict(result) for result in results]
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Veritabanı tipini kontrol et
+        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+        param_placeholder = get_param_placeholder(conn)
+        
+        # Basitleştirilmiş sorgu - sadece temel bilgileri getirelim
+        query = f"""
+            SELECT id, word, meaning 
+            FROM words
+            ORDER BY votes_up DESC, created_at DESC
+            LIMIT {param_placeholder}
+        """
+        
+        cur.execute(query, (limit,))
+        
+        # Sonuçları basit sözlük listesi olarak döndür
+        words = []
+        if is_postgres:
+            # PostgreSQL sonuçları zaten sözlük olarak döner
+            words = [dict(row) for row in cur.fetchall()]
+        else:
+            # SQLite için tuple'dan sözlüğe çevir
+            for row in cur.fetchall():
+                word = {
+                    'id': row[0],
+                    'word': row[1],
+                    'meaning': row[2]
+                }
+                words.append(word)
+        
+        logger.info(f"Popüler kelimeler: {len(words)} adet") 
+        return words
+        
+    except Exception as e:
+        import traceback
+        logger.error(f"Popüler kelimeler getirilirken hata: {e}")
+        logger.error(traceback.format_exc())
+        return []
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 def seed_initial_achievements():
     """Seed the database with initial achievements"""
