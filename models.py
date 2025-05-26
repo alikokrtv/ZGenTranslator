@@ -337,14 +337,31 @@ def get_word(word):
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Only get approved words
-    cur.execute("""
-        SELECT w.*, u.username as suggested_by_username
-        FROM words w
-        LEFT JOIN users u ON w.suggested_by = u.id
-        WHERE w.word = ? COLLATE NOCASE AND w.is_approved = 1
-        ORDER BY w.votes_up DESC
-    """, (word,))
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = get_param_placeholder(conn)
+    
+    # Veritabanı tipine göre farklı sorgu kullan
+    if is_postgres:
+        # PostgreSQL için ILIKE kullan (case-insensitive eşleşme)
+        query = f"""
+            SELECT w.*, u.username as suggested_by_username
+            FROM words w
+            LEFT JOIN users u ON w.suggested_by = u.id
+            WHERE w.word ILIKE {param_placeholder} AND w.is_approved = 1
+            ORDER BY w.votes_up DESC
+        """
+    else:
+        # SQLite için COLLATE NOCASE kullan
+        query = f"""
+            SELECT w.*, u.username as suggested_by_username
+            FROM words w
+            LEFT JOIN users u ON w.suggested_by = u.id
+            WHERE w.word = {param_placeholder} COLLATE NOCASE AND w.is_approved = 1
+            ORDER BY w.votes_up DESC
+        """
+    
+    cur.execute(query, (word,))
     
     results = cur.fetchall()
     
