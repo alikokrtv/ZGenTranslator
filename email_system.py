@@ -13,7 +13,7 @@ mail_settings = {
     "MAIL_USE_TLS": True,
     "MAIL_USE_SSL": False,
     "MAIL_USERNAME": 'alikokrtv@gmail.com',
-    "MAIL_PASSWORD": 'psmr xlwg vbbm qnkn',  # Gmail App Password
+    "MAIL_PASSWORD": 'chez obrp ugyl lfgn',  # Gmail App Password
     "MAIL_DEFAULT_SENDER": 'alikokrtv@gmail.com'
 }
 
@@ -45,6 +45,29 @@ def send_notification(subject, recipient, template):
         return True, "E-posta başarıyla gönderildi"
     except Exception as e:
         return False, f"E-posta gönderilirken hata oluştu: {str(e)}"
+
+def password_reset_notification(email, username, reset_link):
+    """Kullanıcıya şifre sıfırlama bağlantısı gönder"""
+    subject = "Z Kuşağı Çevirici - Şifre Sıfırlama"
+    
+    html_template = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 5px;">
+        <h2 style="color: #7C3AED; margin-bottom: 20px;">Z Kuşağı Çevirici - Şifre Sıfırlama</h2>
+        <p>Merhaba <strong>{username}</strong>,</p>
+        <p>Şifrenizi sıfırlamak için bir istek aldık. Aşağıdaki bağlantıya tıklayarak yeni bir şifre oluşturabilirsiniz:</p>
+        <p style="margin: 30px 0; text-align: center;">
+            <a href="{reset_link}" style="background-color: #7C3AED; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">Şifremi Sıfırla</a>
+        </p>
+        <p>Eğer bu isteği siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz. Hesabınız güvende.</p>
+        <p>Not: Bu bağlantı 24 saat boyunca geçerlidir.</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e5e5;">
+        <p style="color: #666; font-size: 12px; text-align: center;">
+            &copy; Z Kuşağı Çevirici | Bu otomatik bir e-postadır, lütfen yanıtlamayın.
+        </p>
+    </div>
+    """
+    
+    return send_notification(subject, email, html_template)
 
 def new_word_suggestion_notification(word, meaning, submitter=None):
     """Yeni kelime önerisi bildirimini yöneticiye gönder"""

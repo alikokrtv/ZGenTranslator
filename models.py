@@ -244,6 +244,19 @@ def init_db():
                 FOREIGN KEY (achievement_id) REFERENCES achievements(id)
             )
             ''')
+            
+            # Create password reset tokens table
+            cur.execute('''
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token TEXT UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                expires_at TIMESTAMP NOT NULL,
+                used INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+            ''')
         
         conn.commit()
         logger.info("Veritabanı tabloları başarıyla oluşturuldu.")
@@ -449,7 +462,155 @@ def reject_word(suggestion_id, admin_id, admin_notes=None):
         
         conn.commit()
         conn.close()
-        return True, "Öneri reddedildi"
+        return True, "Öneri başarıyla reddedildi"
+    except Exception as e:
+        print(f"Error rejecting word: {e}")
+        conn.close()
+        return False, str(e)
+
+
+# Şifre sıfırlama fonksiyonları
+def generate_reset_token(user_id):
+    """Generate a unique token for password reset"""
+    import secrets
+    import datetime
+    
+    token = secrets.token_urlsafe(32)  # 32 byte güvenli token oluştur
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Önceki kullanılmamış tokenleri iptal et
+        cur.execute(
+            "UPDATE password_reset_tokens SET used = 1 WHERE user_id = ? AND used = 0",
+            (user_id,)
+        )
+        
+        # 24 saat geçerli yeni token oluştur
+        expires_at = datetime.datetime.now() + datetime.timedelta(hours=24)
+        expires_str = expires_at.strftime('%Y-%m-%d %H:%M:%S')
+        
+        cur.execute(
+            "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+            (user_id, token, expires_str)
+        )
+        
+        conn.commit()
+        conn.close()
+        return token
+    except Exception as e:
+        print(f"Error generating reset token: {e}")
+        conn.close()
+        return None
+
+def get_user_by_email(email):
+    """Get user by email"""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Veritabanı tipini kontrol et
+        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+        
+        if is_postgres:
+            cur.execute("SELECT * FROM users WHERE email ILIKE %s", (email,))
+            user = cur.fetchone()
+        else:
+            cur.execute("SELECT * FROM users WHERE email = ? COLLATE NOCASE", (email,))
+            user = cur.fetchone()
+            
+            if user:
+                # SQLite tupple'ı sözlüğe çevir
+                columns = ['id', 'username', 'email', 'password_hash', 'created_at', 
+                          'updated_at', 'contribution_count', 'bio', 'is_admin']
+                user = dict(zip(columns, user))
+        
+        conn.close()
+        return user
+    except Exception as e:
+        print(f"Error getting user by email: {e}")
+        conn.close()
+        return None
+
+def verify_reset_token(token):
+    """Verify if a reset token is valid"""
+    import datetime
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Veritabanı tipini kontrol et
+        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+        param_placeholder = '%s' if is_postgres else '?'
+        
+        query = f"""SELECT t.*, u.email, u.username FROM password_reset_tokens t 
+                JOIN users u ON t.user_id = u.id 
+                WHERE t.token = {param_placeholder} AND t.used = 0"""
+        
+        cur.execute(query, (token,))
+        result = cur.fetchone()
+        
+        if not result:
+            conn.close()
+            return None, "Geçersiz veya kullanılmış token"
+        
+        # Sözlüğe çevir (SQLite için)
+        if not is_postgres and result:
+            columns = ['id', 'user_id', 'token', 'created_at', 'expires_at', 'used', 'email', 'username']
+            result = dict(zip(columns, result))
+        
+        # Tokenin süresi dolmuş mu kontrol et
+        now = datetime.datetime.now()
+        expires_at = datetime.datetime.fromisoformat(str(result['expires_at']).replace(' ', 'T'))
+        
+        if now > expires_at:
+            conn.close()
+            return None, "Tokenin süresi dolmuş"
+        
+        conn.close()
+        return result, "Token geçerli"
+    except Exception as e:
+        print(f"Error verifying reset token: {e}")
+        conn.close()
+        return None, str(e)
+
+def reset_password(token, new_password):
+    """Reset password using a valid token"""
+    import hashlib
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Token'i doğrula
+        token_data, message = verify_reset_token(token)
+        
+        if not token_data:
+            conn.close()
+            return False, message
+        
+        # Şifreyi güncelle
+        password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+        
+        cur.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (password_hash, token_data['user_id'])
+        )
+        
+        # Token'i kullanıldı olarak işaretle
+        cur.execute(
+            "UPDATE password_reset_tokens SET used = 1 WHERE token = ?",
+            (token,)
+        )
+        
+        conn.commit()
+        conn.close()
+        return True, "Şifre başarıyla sıfırlandı"
+    except Exception as e:
+        print(f"Error resetting password: {e}")
+        conn.close()
+        return False, str(e)
     except Exception as e:
         print(f"Error rejecting word: {e}")
         conn.close()

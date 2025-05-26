@@ -215,6 +215,88 @@ def popular_words():
                             user=None,
                             is_admin=False), 500
 
+# Şifre sıfırlama isteği
+@app.route('/request-reset', methods=['GET', 'POST'])
+def request_reset():
+    if 'user_id' in session:
+        return redirect(url_for('profile'))
+        
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        
+        if not email:
+            flash('E-posta adresi gereklidir.', 'error')
+            return render_template('reset_password.html')
+            
+        # Kullanıcıyı e-posta ile bul
+        user = get_user_by_email(email)
+        
+        if not user:
+            # Güvenlik için kullanıcı bulunamadığını belirtme
+            flash('Eğer bu e-posta adresine sahip bir hesabınız varsa, size bir sıfırlama bağlantısı gönderdik.', 'success')
+            return render_template('reset_password.html')
+            
+        # Sıfırlama token'i oluştur
+        token = generate_reset_token(user['id'])
+        
+        if not token:
+            flash('Sıfırlama bağlantısı oluşturulurken bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'error')
+            return render_template('reset_password.html')
+            
+        # Sıfırlama bağlantısı oluştur
+        reset_link = request.url_root.rstrip('/') + url_for('reset_password_confirm', token=token)
+        
+        # E-posta gönder
+        success, message = password_reset_notification(user['email'], user['username'], reset_link)
+        
+        if success:
+            flash('Sıfırlama bağlantısı e-posta adresinize gönderildi.', 'success')
+        else:
+            logger.error(f"Sıfırlama e-postası gönderilirken hata: {message}")
+            flash('Sıfırlama e-postası gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'error')
+            
+        return render_template('reset_password.html')
+        
+    return render_template('reset_password.html')
+
+# Şifre sıfırlama onayı
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password_confirm(token):
+    # Token'i doğrula
+    token_data, message = verify_reset_token(token)
+    
+    if not token_data:
+        flash(message, 'error')
+        return redirect(url_for('login'))
+        
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        if not password or not confirm_password:
+            flash('Tüm alanları doldurmanız gerekiyor.', 'error')
+            return render_template('reset_password_confirm.html', token=token, username=token_data['username'])
+            
+        if password != confirm_password:
+            flash('Şifreler eşleşmiyor.', 'error')
+            return render_template('reset_password_confirm.html', token=token, username=token_data['username'])
+            
+        if len(password) < 6:
+            flash('Şifre en az 6 karakter olmalıdır.', 'error')
+            return render_template('reset_password_confirm.html', token=token, username=token_data['username'])
+            
+        # Şifreyi sıfırla
+        success, result_message = reset_password(token, password)
+        
+        if success:
+            flash('Şifreniz başarıyla sıfırlandı. Şimdi giriş yapabilirsiniz.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash(f'Şifre sıfırlama sırasında bir hata oluştu: {result_message}', 'error')
+            return render_template('reset_password_confirm.html', token=token, username=token_data['username'])
+    
+    return render_template('reset_password_confirm.html', token=token, username=token_data['username'])
+
 # User registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
