@@ -35,32 +35,56 @@ def init_db():
     try:
         logger.info(f"{'PostgreSQL' if is_postgres else 'SQLite'} için tablolar oluşturuluyor...")
         
-        # PostgreSQL için farklı PRIMARY KEY sözdizimi gerekebilir
-        is_postgres = hasattr(conn, 'cursor_factory')
-        
+        # PostgreSQL için farklı PRIMARY KEY sözdizimi 
         if is_postgres:
-            # PostgreSQL için tablo oluşturma
-            # PostgreSQL'de AUTOINCREMENT yerine SERIAL kullanılır
-            logger.info("PostgreSQL için tablolar oluşturuluyor...")
+            # PostgreSQL için tablo oluşturma - ÖNCE users tablosunu oluştur
+            logger.info("PostgreSQL için tablolar oluşturuluyor... Önce users tablosu.")
             
-            # Create words table
-            cur.execute("""
-            CREATE TABLE IF NOT EXISTS words (
-                id SERIAL PRIMARY KEY,
-                word TEXT NOT NULL,
-                meaning TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                suggested_by INTEGER,
-                votes_up INTEGER DEFAULT 0,
-                votes_down INTEGER DEFAULT 0,
-                is_approved INTEGER DEFAULT 0,
-                approved_by INTEGER,
-                approved_at TIMESTAMP,
-                FOREIGN KEY (suggested_by) REFERENCES users(id) ON DELETE SET NULL,
-                FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
-            )
-            """)
+            # Önce users tablosunu oluştur
+            try:
+                cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    role TEXT DEFAULT 'user',
+                    is_active BOOLEAN DEFAULT TRUE,
+                    points INTEGER DEFAULT 0
+                )
+                """)
+                conn.commit()
+                logger.info("PostgreSQL users tablosu başarıyla oluşturuldu.")
+            except Exception as e:
+                logger.error(f"PostgreSQL users tablosu oluşturulurken hata: {e}")
+                conn.rollback()
+            
+            # Sonra words tablosunu oluştur (users'a foreign key içeriyor)
+            try:
+                cur.execute("""
+                CREATE TABLE IF NOT EXISTS words (
+                    id SERIAL PRIMARY KEY,
+                    word TEXT NOT NULL,
+                    meaning TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    suggested_by INTEGER,
+                    votes_up INTEGER DEFAULT 0,
+                    votes_down INTEGER DEFAULT 0,
+                    is_approved INTEGER DEFAULT 0,
+                    approved_by INTEGER,
+                    approved_at TIMESTAMP,
+                    FOREIGN KEY (suggested_by) REFERENCES users(id) ON DELETE SET NULL,
+                    FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
+                )
+                """)
+                conn.commit()
+                logger.info("PostgreSQL words tablosu başarıyla oluşturuldu.")
+            except Exception as e:
+                logger.error(f"PostgreSQL words tablosu oluşturulurken hata: {e}")
+                conn.rollback()
             
             # Create suggestions table for pending words
             cur.execute("""
