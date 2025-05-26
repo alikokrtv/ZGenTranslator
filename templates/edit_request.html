@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Düzenleme Öner - {{ word.word }}{% endblock %}
+
+{% block styles %}
+<style>
+    .edit-request-form {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .original-word {
+        background-color: rgba(96, 125, 139, 0.1);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .original-word h2 {
+        margin-top: 0;
+        color: #3f51b5;
+        font-size: 1.8rem;
+    }
+    
+    .original-meaning {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+        min-height: 120px;
+        background-color: #fff;
+    }
+    
+    textarea:focus {
+        border-color: #3f51b5;
+        outline: none;
+    }
+    
+    .btn-group {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .submit-btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+    
+    .submit-btn:hover {
+        background-color: #388e3c;
+    }
+    
+    .cancel-btn {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+    
+    .cancel-btn:hover {
+        background-color: #d32f2f;
+    }
+    
+    .info-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="header-section">
+        <h1>Düzenleme Öner</h1>
+        <p class="section-intro">Kelimenin anlamını düzeltmek veya genişletmek için öneri yapabilirsiniz.</p>
+    </div>
+    
+    <div class="edit-request-form">
+        <div class="original-word">
+            <h2>{{ word.word }}</h2>
+            <div class="original-meaning">
+                <strong>Mevcut Anlam:</strong> {{ word.meaning }}
+            </div>
+            <div class="meta-info">
+                <small>Öneren: {{ word.suggested_by_username or 'Anonim' }} | Oylar: 👍 {{ word.votes_up }} 👎 {{ word.votes_down }}</small>
+            </div>
+        </div>
+        
+        <form method="post" action="{{ url_for('submit_edit_request', word_id=word.id) }}">
+            <div class="form-group">
+                <label for="new_meaning">Önerdiğiniz Yeni Anlam <span class="required">*</span></label>
+                <textarea id="new_meaning" name="new_meaning" required>{{ word.meaning }}</textarea>
+                <p class="info-text">Lütfen kelimenin anlamını düzeltin veya genişletin.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="reason">Neden Düzeltme Yapılmalı?</label>
+                <textarea id="reason" name="reason" placeholder="Bu düzeltmeyi önerme nedeninizi açıklayın..."></textarea>
+                <p class="info-text">Düzeltme önerinizin kabul edilmesi için açıklama yapmanız faydalı olabilir.</p>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Öneriyi Gönder
+                </button>
+                <a href="{{ url_for('index') }}" class="cancel-btn">
+                    <i class="fas fa-times"></i> İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

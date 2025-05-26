@@ -13,6 +13,10 @@
     
     <!-- CSS dosyaları -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     
     <!-- SEO için meta açıklamaları -->
     <meta name="description" content="Z kuşağının dilini anlamak için modern çeviri aracı. Gönderilen terimleri anlamlandırın, yeni eklemeler önerin.">
@@ -101,18 +105,44 @@
             {% block content %}{% endblock %}
         </main>
         
-        <footer>
-            <div class="footer-links">
-                <!-- Geçici olarak kaldırıldı -->
-                {# <a href="{{ url_for('about') }}">Hakkında</a>
-                <a href="{{ url_for('privacy') }}">Gizlilik</a>
-                <a href="{{ url_for('contact') }}">İletişim</a> #}
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Z Kuşağı Çevirici</h3>
+                    <p>Modern dili anlamak için en iyi çözüm</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Bağlantılar</h3>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+                        <li><a href="{{ url_for('popular_words') }}">Popüler Terimler</a></li>
+                        <li><a href="{{ url_for('leaderboard') }}">Sıralama</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Hesap</h3>
+                    <ul>
+                        {% if user %}
+                            <li><a href="{{ url_for('profile') }}">Profilim</a></li>
+                            <li><a href="{{ url_for('logout') }}">Çıkış Yap</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Giriş Yap</a></li>
+                            <li><a href="{{ url_for('register') }}">Kayıt Ol</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-            <p>&copy; <span id="current-year"></span> Z Kuşağı Çevirici. Tüm hakları saklıdır.</p>
-            <script>
-                // Set current year in footer
-                document.getElementById('current-year').textContent = new Date().getFullYear();
-            </script>
+            
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> Z Kuşağı Çevirici. Tüm hakları saklıdır.</p>
+                <p class="developer-info">Geliştiren: Ali Kök | KCKN</p>
+                <script>
+                    // Güncel yılı footer'a ekle
+                    document.getElementById('current-year').textContent = new Date().getFullYear();
+                </script>
+            </div>
         </footer>
     </div>
     
@@ -121,5 +151,6 @@
     
     <!-- Genel Site Scriptleri -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/voting.js') }}"></script>
 </body>
 </html> 

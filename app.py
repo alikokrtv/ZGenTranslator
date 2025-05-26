@@ -6,6 +6,7 @@ from datetime import datetime
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash, abort, request, Response
 from email_system import init_mail, new_word_suggestion_notification, edit_request_notification, user_registration_notification
+from db_config import get_db_connection
 from models import (init_db, get_word, add_word, add_suggestion, get_popular_words, 
                   register_user, get_user_by_username, get_user_by_id, get_user_achievements, 
                   get_user_words, get_top_contributors, is_admin, get_pending_suggestions,
@@ -316,6 +317,12 @@ def login():
         
     return render_template('login.html')
 
+# Veritabanı parametre yer tutucusu fonksiyonu
+def get_param_placeholder(conn):
+    # PostgreSQL için %s, SQLite için ? kullan
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    return '%s' if is_postgres else '?'
+
 # Logout
 @app.route('/logout')
 def logout():
@@ -566,12 +573,175 @@ def vote():
             'message': 'Geçersiz oy tipi'
         })
     
-    success, message = vote_word(int(meaning_id), session['user_id'], vote_type)
+    # Burada oy verme işlemi gerçekleşiyor
+    try:
+        # vote_word fonksiyonu yoksa gerekli işlemi burada yapalım
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Veritabanı tipini kontrol et
+        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+        param_placeholder = get_param_placeholder(conn)
+        
+        # Önce meaning'in var olup olmadığını kontrol et
+        query = f"SELECT id FROM words WHERE id = {param_placeholder}"
+        cur.execute(query, (meaning_id,))
+        
+        if not cur.fetchone():
+            return jsonify({
+                'success': False,
+                'message': 'Kelime bulunamadı'
+            })
+        
+        # Oy ver
+        if vote_type == 'up':
+            query = f"UPDATE words SET votes_up = votes_up + 1 WHERE id = {param_placeholder}"
+        else:
+            query = f"UPDATE words SET votes_down = votes_down + 1 WHERE id = {param_placeholder}"
+            
+        cur.execute(query, (meaning_id,))
+        conn.commit()
+        
+        # Güncel oy sayılarını al
+        query = f"SELECT votes_up, votes_down FROM words WHERE id = {param_placeholder}"
+        cur.execute(query, (meaning_id,))
+        votes = cur.fetchone()
+        
+        if is_postgres:
+            upvotes = votes['votes_up']
+            downvotes = votes['votes_down']
+        else:
+            upvotes = votes[0]
+            downvotes = votes[1]
+        
+        return jsonify({
+            'success': True,
+            'message': 'Oy başarıyla kaydedildi',
+            'upvotes': upvotes,
+            'downvotes': downvotes
+        })
+    except Exception as e:
+        logger.error(f"Oy verme sırasında hata: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Oy verilirken bir hata oluştu'
+        })
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+# Düzenleme önerme sayfası
+@app.route('/request-edit/<int:word_id>', methods=['GET'])
+@login_required
+def request_edit_form(word_id):
+    # Kelimeyi getir
+    conn = get_db_connection()
+    cur = conn.cursor()
     
-    return jsonify({
-        'success': success,
-        'message': message
-    })
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = get_param_placeholder(conn)
+    
+    query = f"""
+        SELECT w.*, u.username as suggested_by_username
+        FROM words w
+        LEFT JOIN users u ON w.suggested_by = u.id
+        WHERE w.id = {param_placeholder}
+    """
+    
+    cur.execute(query, (word_id,))
+    word = cur.fetchone()
+    conn.close()
+    
+    if not word:
+        flash('Böyle bir kelime bulunamadı.', 'error')
+        return redirect(url_for('index'))
+    
+    # Word nesnesini sözlüğe çevir
+    if is_postgres:
+        word_dict = dict(word)
+    else:
+        # SQLite için tuple'dan sözlüğe çevir
+        columns = ['id', 'word', 'meaning', 'created_at', 'updated_at', 'suggested_by', 
+                  'votes_up', 'votes_down', 'is_approved', 'approved_by', 'approved_at', 'suggested_by_username']
+        word_dict = dict(zip(columns, word))
+    
+    return render_template('edit_request.html', word=word_dict)
+
+# Düzenleme önerisi gönderme
+@app.route('/request-edit/<int:word_id>', methods=['POST'])
+@login_required
+def submit_edit_request(word_id):
+    new_meaning = request.form.get('new_meaning', '').strip()
+    reason = request.form.get('reason', '').strip()
+    
+    if not new_meaning:
+        flash('Yeni anlam alanı boş olamaz.', 'error')
+        return redirect(url_for('request_edit_form', word_id=word_id))
+    
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Veritabanı tipini kontrol et
+        is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+        param_placeholder = get_param_placeholder(conn)
+        
+        # Önce edit_requests tablosunu kontrol et, yoksa oluştur
+        try:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS edit_requests (
+                    id SERIAL PRIMARY KEY,
+                    word_id INTEGER NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    original_meaning TEXT NOT NULL,
+                    new_meaning TEXT NOT NULL,
+                    reason TEXT,
+                    status TEXT DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    admin_notes TEXT,
+                    FOREIGN KEY (word_id) REFERENCES words(id) ON DELETE CASCADE,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            """)
+            conn.commit()
+        except Exception as e:
+            logger.error(f"edit_requests tablosu oluşturulurken hata: {e}")
+        
+        # Önce kelimeyi getir
+        query = f"SELECT meaning FROM words WHERE id = {param_placeholder}"
+        cur.execute(query, (word_id,))
+        word = cur.fetchone()
+        
+        if not word:
+            flash('Böyle bir kelime bulunamadı.', 'error')
+            return redirect(url_for('index'))
+        
+        original_meaning = word[0] if not is_postgres else word['meaning']
+        
+        # Düzenleme önerisini kaydet
+        query = f"""
+            INSERT INTO edit_requests 
+            (word_id, user_id, original_meaning, new_meaning, reason, created_at, updated_at) 
+            VALUES 
+            ({param_placeholder}, {param_placeholder}, {param_placeholder}, {param_placeholder}, 
+             {param_placeholder}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        """
+        
+        cur.execute(query, (word_id, session['user_id'], original_meaning, new_meaning, reason))
+        conn.commit()
+        
+        flash('Düzenleme öneriniz başarıyla alındı. Teşekkürler!', 'success')
+        return redirect(url_for('index'))
+        
+    except Exception as e:
+        logger.error(f"Düzenleme önerisi gönderilirken hata: {e}")
+        flash('Düzenleme önerisi gönderilirken bir hata oluştu.', 'error')
+        return redirect(url_for('request_edit_form', word_id=word_id))
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 # Değişiklik talebi
 @app.route('/request-edit/<int:word_id>', methods=['POST'])

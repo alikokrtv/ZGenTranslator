@@ -1,0 +1,195 @@
+/* Responsive CSS */
+
+/* Genel Duyarlı Tasarım Kuralları */
+@media screen and (max-width: 1200px) {
+    .container {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .container {
+        width: 95%;
+    }
+    
+    /* Navbar ve Menü */
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+    
+    .navbar-logo img {
+        max-height: 40px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    /* Genel Container */
+    .container {
+        width: 100%;
+        padding: 0 1rem;
+    }
+    
+    /* Navbar */
+    .navbar-links {
+        display: none;
+    }
+    
+    /* Ana Sayfa */
+    .hero-section {
+        padding: 2rem 0;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Translator Formu */
+    .translator-form {
+        padding: 1.5rem;
+    }
+    
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .input-group input {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .input-group button {
+        width: 100%;
+    }
+    
+    /* Sıralama Tablosu */
+    .leaderboard-container {
+        padding: 1rem;
+    }
+    
+    .contributor-table {
+        font-size: 0.9rem;
+    }
+    
+    .rank-column {
+        width: 60px;
+    }
+    
+    .user-column {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Başarımlar */
+    .achievements-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .achievement-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    /* Öneri Formu */
+    .suggestion-form {
+        padding: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    textarea, input[type="text"], input[type="email"], input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.75rem;
+    }
+    
+    /* Düzenleme Öner Formu */
+    .edit-request-form {
+        padding: 1rem;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group button, .btn-group a {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* Başlıklar */
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    /* Çeviri Sonuçları */
+    .translation-result {
+        padding: 1rem;
+    }
+    
+    .meaning-item {
+        padding: 1rem;
+    }
+    
+    .meaning-content {
+        font-size: 0.9rem;
+    }
+    
+    /* Popüler Kelimeler */
+    .word-chips {
+        flex-wrap: wrap;
+    }
+    
+    .word-chip {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Tablolar */
+    table {
+        font-size: 0.8rem;
+    }
+    
+    /* Form Elemanları */
+    label {
+        font-size: 0.9rem;
+    }
+    
+    input, textarea, select, button {
+        font-size: 0.9rem;
+        padding: 0.7rem;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Login/Register formları için özel düzenleme */
+    .auth-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+    
+    .auth-container .form-group {
+        width: 100%;
+    }
+    
+    .auth-container input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}

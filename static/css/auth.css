@@ -1,0 +1,179 @@
+/* Özel Kimlik Doğrulama (Auth) Stilleri */
+
+.auth-container {
+    max-width: 400px;
+    width: 90%;
+    margin: 2rem auto;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, #7C3AED, #FF5BAA);
+}
+
+.auth-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    color: #7C3AED;
+}
+
+.auth-container p {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #5D6B89;
+}
+
+.auth-container .form-group {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.auth-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #252A37;
+    font-weight: 500;
+}
+
+.auth-container input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #F8FAFD;
+}
+
+.auth-container input:focus {
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    outline: none;
+}
+
+.auth-container .required {
+    color: #EF4444;
+}
+
+.auth-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.auth-links {
+    font-size: 0.9rem;
+}
+
+.auth-links a {
+    color: #7C3AED;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.auth-links a:hover {
+    color: #6D28D9;
+    text-decoration: underline;
+}
+
+.auth-container button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #7C3AED;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
+}
+
+.auth-container button:hover {
+    background-color: #6D28D9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.4);
+}
+
+.auth-container button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(124, 58, 237, 0.3);
+}
+
+.auth-container button i {
+    font-size: 1rem;
+}
+
+/* Notifications */
+.notification {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    background-color: #F8FAFD;
+    border-left: 4px solid #7C3AED;
+}
+
+.notification.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left-color: #EF4444;
+}
+
+.notification.success {
+    background-color: rgba(18, 183, 106, 0.1);
+    border-left-color: #12B76A;
+}
+
+.notification.warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left-color: #F59E0B;
+}
+
+.notification-message {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #252A37;
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1.5rem;
+        width: 95%;
+    }
+    
+    .auth-action {
+        flex-direction: column-reverse;
+    }
+    
+    .auth-container button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .auth-links {
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+    }
+}

@@ -853,17 +853,18 @@ footer::before {
     }
 }
 
-/* Giriş ve Kayıt formları için stil geliştirmeleri */
+/* Giriş/Kayıt Sayfası Stilleri */
 .auth-container {
     max-width: 500px;
-    margin: 0 auto;
-    padding: var(--space-xl);
-    background-color: hsl(var(--card-bg));
+    margin: 2rem auto;
+    background-color: white;
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid hsla(var(--border), 0.5);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-md);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
     animation: fadeIn 0.5s ease-out;
 }
 

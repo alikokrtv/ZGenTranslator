@@ -51,7 +51,7 @@
         <p class="section-intro">Veritabanımızda bulunmayan bir terim mi var? Önerin, herkes faydalansın!</p>
     </div>
     
-    <form id="suggestion-form" action="{{ url_for('suggest') }}" method="post">
+    <form id="suggestion-form" action="{{ url_for('suggest') }}" method="post" class="form-container">
         <div class="form-group">
             <label for="new_term">Yeni Terim <span class="required">*</span></label>
             <input type="text" id="new_term" name="word" placeholder="Eklemek istediğiniz terimi yazın" required>

@@ -6,6 +6,10 @@
     <title>{% block title %}Z Kuşağı Translator{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/contributors.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,14 +46,43 @@
             {% block content %}{% endblock %}
         </main>
 
-        <footer>
-            <div class="footer-links">
-                <a href="{{ url_for('terms_of_service') }}">Kullanım Koşulları</a>
-                <a href="{{ url_for('privacy_policy') }}">Gizlilik Politikası</a>
-                <a href="{{ url_for('cookie_policy') }}">Çerez Politikası</a>
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Z Kuşağı Çevirici</h3>
+                    <p>Modern dili anlamak için en iyi çözüm</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Bağlantılar</h3>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Ana Sayfa</a></li>
+                        <li><a href="{{ url_for('popular_words') }}">Popüler Terimler</a></li>
+                        <li><a href="{{ url_for('leaderboard') }}">Sıralama</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Hesap</h3>
+                    <ul>
+                        {% if session.get('user_id') %}
+                            <li><a href="{{ url_for('profile') }}">Profilim</a></li>
+                            <li><a href="{{ url_for('logout') }}">Çıkış Yap</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('login') }}">Giriş Yap</a></li>
+                            <li><a href="{{ url_for('register') }}">Kayıt Ol</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-            <p>Z Kuşağı Translator &copy; 2023 | Tüm hakları saklıdır.</p>
-            <p>Geliştiren: Ali Kök</p>
+            
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> Z Kuşağı Çevirici. Tüm hakları saklıdır.</p>
+                <p class="developer-info">Geliştiren: Ali Kök | KCKN</p>
+                <script>
+                    document.getElementById('current-year').textContent = new Date().getFullYear();
+                </script>
+            </div>
         </footer>
     </div>
 
@@ -62,6 +95,7 @@
         <button class="notification-close">&times;</button>
     </div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/voting.js') }}"></script>
 </body>
 </html>
