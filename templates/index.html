@@ -34,7 +34,6 @@
     <div class="popular-words">
         <h3>Popüler Terimler</h3>
         <div class="word-chips">
-            <!-- Debug: {{ popular_words }} -->
             {% if popular_words %}
                 {% for word in popular_words %}
                     <span class="word-chip" data-term="{{ word.word }}">{{ word.word }}</span>
@@ -42,13 +41,6 @@
             {% else %}
                 <p class="no-words-message">Henüz popüler terim bulunmuyor.</p>
             {% endif %}
-            
-            <!-- Sabit kelimeler ekleyelim geçici olarak -->
-            <span class="word-chip" data-term="güno">güno</span>
-            <span class="word-chip" data-term="ajg">ajg</span>
-            <span class="word-chip" data-term="vibe">vibe</span>
-            <span class="word-chip" data-term="sus">sus</span>
-            <span class="word-chip" data-term="fr">fr</span>
         </div>
     </div>
 </section>
