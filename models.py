@@ -313,14 +313,15 @@ def seed_initial_words():
         if count == 0:
             logger.info("Veritabanı boş, başlangıç Z kuşağı kelimelerini ekliyorum...")
             
-            # PostgreSQL için parametre yerleştirici %s kullan
+            # Veritabanı tipini kontrol et
+            is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+            param_placeholder = '%s' if is_postgres else '?'
+            
             for word, meaning in initial_words.items():
                 current_time = datetime.now()
                 try:
-                    cur.execute(
-                        "INSERT INTO words (word, meaning, is_approved, approved_at) VALUES (%s, %s, 1, %s)",
-                        (word, meaning, current_time)
-                    )
+                    query = f"INSERT INTO words (word, meaning, is_approved, approved_at) VALUES ({param_placeholder}, {param_placeholder}, 1, {param_placeholder})"
+                    cur.execute(query, (word, meaning, current_time))
                 except Exception as e:
                     logger.error(f"Kelime eklerken hata: {e}")
             
@@ -399,7 +400,12 @@ def add_word(word, meaning, suggested_by=None):
             suggestion_id = cur.fetchone()[0]  # PostgreSQL'de RETURNING kullanarak ID al
         else:
             cur.execute(query, (word.lower(), meaning, suggested_by, 'pending'))
-            suggestion_id = cur.lastrowid  # SQLite'de lastrowid kullan
+            # Veritabanı tipine göre ID al
+            if is_postgres:
+                cur.execute("SELECT lastval()")
+                suggestion_id = cur.fetchone()[0]
+            else:
+                suggestion_id = cur.lastrowid  # SQLite için
         
         conn.commit()
         return suggestion_id
@@ -449,7 +455,12 @@ def approve_word(suggestion_id, admin_id):
             word_id = cur.fetchone()[0]
         else:
             cur.execute(insert_query, (suggestion['word'], suggestion['meaning'], suggestion['suggested_by'], admin_id))
-            word_id = cur.lastrowid
+            # Veritabanı tipine göre ID al
+            if is_postgres:
+                cur.execute("SELECT lastval()")
+                word_id = cur.fetchone()[0]
+            else:
+                word_id = cur.lastrowid  # SQLite için
         
         # Update suggestion status
         update_query = f"UPDATE suggestions SET status = 'approved' WHERE id = {param_placeholder}"
@@ -833,7 +844,7 @@ def check_user_achievements(conn, user_id):
     # No need to commit here as it will be done by the caller
 
 def get_top_contributors(limit=10):
-    """Get top contributors based on contribution count"""
+    """Get top contributors based on the number of words they've added"""
     conn = get_db_connection()
     cur = conn.cursor()
     
@@ -843,10 +854,15 @@ def get_top_contributors(limit=10):
     
     try:
         logger.info("Popüler katılımcılar alınıyor")
+        
+        # Kullanıcıların katkı sayısını hesaplayan sorgu
+        # words tablosundaki suggested_by sütununu kullanarak
         query = f"""
-            SELECT id, username, contribution_count 
-            FROM users 
-            ORDER BY contribution_count DESC 
+            SELECT u.id, u.username, COUNT(w.id) as contribution_count
+            FROM users u
+            LEFT JOIN words w ON u.id = w.suggested_by AND w.is_approved = 1
+            GROUP BY u.id, u.username
+            ORDER BY contribution_count DESC
             LIMIT {param_placeholder}
         """
         
@@ -864,11 +880,12 @@ def get_top_contributors(limit=10):
                     contributors.append({
                         'id': result[0],
                         'username': result[1],
-                        'contribution_count': result[2]
+                        'contribution_count': result[2] if result[2] is not None else 0
                     })
             return contributors
         else:
-            return [dict(result) for result in results]
+            # SQLite için çevirme işlemi
+            return [{'id': r[0], 'username': r[1], 'contribution_count': r[2] if r[2] is not None else 0} for r in results]
     except Exception as e:
         logger.error(f"Katkıda bulunanlar alınırken hata: {e}")
         return []
@@ -895,10 +912,19 @@ def register_user(username, email, password_hash):
         
         conn.commit()
         
-        # PostgreSQL ve SQLite'da lastrowid alma yöntemi farklı
+        # PostgreSQL ve SQLite'da ID alma yöntemi farklı
         if is_postgres:
-            user_id = cur.fetchone()[0]
+            # PostgreSQL için güvenli ID alma
+            try:
+                cur.execute("SELECT lastval()")
+                user_id = cur.fetchone()[0]
+            except Exception as e:
+                logger.error(f"PostgreSQL ID alma hatası: {e}")
+                # Alternatif olarak ID'yi doğrudan sorgula
+                cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+                user_id = cur.fetchone()[0]
         else:
+            # SQLite için
             user_id = cur.lastrowid
             
         return user_id
@@ -1012,21 +1038,34 @@ def request_edit(word_id, new_meaning, reason, user_id):
     conn = get_db_connection()
     cur = conn.cursor()
     
+    # Veritabanı tipini kontrol et
+    is_postgres = hasattr(conn, 'cursor_factory') or 'psycopg2' in str(type(conn))
+    param_placeholder = '%s' if is_postgres else '?'
+    
     try:
-        cur.execute("""
+        # Dinamik sorgu oluştur
+        query = f"""
             INSERT INTO edit_requests 
                 (word_id, new_meaning, reason, requested_by, status) 
-            VALUES (?, ?, ?, ?, 'pending')
-        """, (word_id, new_meaning, reason, user_id))
+            VALUES ({param_placeholder}, {param_placeholder}, {param_placeholder}, {param_placeholder}, 'pending')
+        """
         
-        request_id = cur.lastrowid
+        if is_postgres:
+            query += " RETURNING id"
+            cur.execute(query, (word_id, new_meaning, reason, user_id))
+            request_id = cur.fetchone()[0]
+        else:
+            cur.execute(query, (word_id, new_meaning, reason, user_id))
+            request_id = cur.lastrowid
+        
         conn.commit()
-        conn.close()
         return True, request_id
     except Exception as e:
-        print(f"Error requesting edit: {e}")
-        conn.close()
+        logger.error(f"Error requesting edit: {e}")
+        conn.rollback() if hasattr(conn, 'rollback') else None
         return False, str(e)
+    finally:
+        conn.close()
 
 def get_pending_edit_requests(limit=50):
     """Get pending edit requests for admin review"""
