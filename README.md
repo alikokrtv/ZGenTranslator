@@ -1,35 +1,52 @@
-# ZGenTranslator
+# 🗣️ Z Gen Translator
 
-Z Kuşağı Tercümanı - Z jenerasyonunun kullandığı terimleri açıklayan çevrimiçi sözlük.
+> Z Kuşağı dilini herkesin anlayacağı Türkçeye çeviren online sözlük
 
-## Railway Deployment
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=flat-square&logo=flask)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite)
 
-Bu uygulama Railway platformunda çalışacak şekilde yapılandırılmıştır.
+---
 
-### Railway'e Deployment Adımları
+## 📖 Hakkında
 
-1. [Railway.app](https://railway.app) hesabı oluşturun
-2. Yeni bir proje oluşturun
-3. GitHub reponuzu bağlayın veya kodu doğrudan yükleyin
-4. Aşağıdaki çevre değişkenlerini ayarlayın:
-   - `SESSION_SECRET`: Güvenli bir rastgele dize
-   - `FLASK_DEBUG`: Production için "False"
-   - `FLASK_ENV`: "production"
-   
-### Veritabanı
-   
-Varsayılan olarak uygulama SQLite kullanır, ancak Railway'in PostgreSQL veritabanını kullanmanız önerilir:
+Gençlerin kullandığı internet argosunu, slang kelimeleri ve terimleri Türkçeye çeviren interaktif platform. "Yikes", "no cap", "lowkey" ne demek? Artık bileceksiniz.
 
-1. Railway kontrol panelinden "New" → "Database" → "PostgreSQL" seçin
-2. PostgreSQL veritabanı eklendikten sonra, uygulamanızda `DATABASE_URL` çevre değişkeni otomatik olarak ayarlanacaktır
-3. Eğer PostgreSQL kullanmak isterseniz, models.py dosyasını güncellemeniz gerekecektir
+---
 
-### Özel Alan Adı Ayarlama
+## ✨ Özellikler
 
-1. Railway projenizin "Settings" sekmesinde "Networking" bölümünü bulun
-2. "Generate Domain" seçeneğini tıklayın veya özel alan adı ekleyin
-3. SSL sertifikası otomatik olarak oluşturulacaktır
+| | Özellik | Açıklama |
+|---|---|---|
+| 🔍 | **Anlık Arama** | Binlerce Z kuşağı terimini anında aratın |
+| 📖 | **Detaylı Açıklama** | Her terimin anlamı, kullanım örneği ve kökeni |
+| ➕ | **Topluluk Katkısı** | Yeni terim önerin, sözlüğü birlikte büyütelim |
+| 🌐 | **Türkçe Arayüz** | Tamamen Türkçe, kullanımı kolay tasarım |
 
-### Daha Fazla Bilgi
+---
 
-Railway'in daha fazla özelliği ve yapılandırma seçenekleri için [Railway Dokümantasyonu](https://docs.railway.app) adresini ziyaret edin.
+## 🛠️ Teknolojiler
+
+`Python · Flask · SQLite · HTML/CSS`
+
+---
+
+## 🚀 Kurulum
+
+```bash
+pip install -r requirements.txt
+python app.py
+```
+Tarayıcıda: http://localhost:5000
+
+---
+
+## 📄 Lisans
+
+MIT License — özgürce kullanabilir, geliştirebilir ve dağıtabilirsiniz.
+
+---
+
+<p align="center">
+  <a href="https://github.com/alikokrtv">github.com/alikokrtv</a>
+</p>
