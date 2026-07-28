@@ -3,280 +3,400 @@
     "id": 1,
     "term": "rizz",
     "translation": "Karizma / Çekicilik",
-    "meaning": "Karşı tarafı etkileme, tavlama veya flört etme yeteneği. 'Cha-rizz-ma' kelimesinden türemiştir.",
-    "example": "Kanka çocukta inanılmaz bir rizz var, iki dakikada kızın numarasını aldı.",
+    "meaning": "Karşı tarafı etkileme, tavlama veya flört etme yeteneği.",
+    "example": "Kanka çocukta inanılmaz bir rizz var, iki dakikada kızı ikna etti.",
     "category": "İlişkiler"
   },
   {
     "id": 2,
-    "term": "gümledim",
-    "translation": "Gülmekten Yarıldım",
-    "meaning": "Beklenmedik komik bir durum karşısında kendini tutamayarak kahkahalara boğulmak.",
-    "example": "Attığın videoyu izlerken otobüste gümledim resmen.",
-    "category": "Tepkiler"
+    "term": "aura",
+    "translation": "Karizma Puanı / Hava",
+    "meaning": "Bir insanın ortamdaki karizması ve ağırlığı. Harika bir harekette +1000 aura kazanılır, utanç anında aura kaybedilir.",
+    "example": "Son dakika golünü atarak +5000 aura kazandı.",
+    "category": "10-15 Yaş Trend"
   },
   {
     "id": 3,
+    "term": "sigma",
+    "translation": "Yalnız & Güçlü Kurt",
+    "meaning": "Sosyal kuralları umursamayan, kendi yolunda giden, bağımsız ve aşırı havalı erkek tipi.",
+    "example": "Tartışmaya girmeyip kulaklığını taktı, tam bir sigma hareketi.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 4,
+    "term": "yapping",
+    "translation": "Boş Kafa Şişirmek",
+    "meaning": "Gereksiz yere uzun uzun konuşup karşı tarafı darlamak.",
+    "example": "Hoca sabahtan beri yapping yapıyor, kimse dinlemiyor.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 5,
+    "term": "glazing",
+    "translation": "Aşırı Yağlamak / Yalakalık",
+    "meaning": "Birini abartılı şekilde övüp yağ çekmek.",
+    "example": "Adamı öyle bir glaze ettin ki utanmasa tahta oturtacaktın.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 6,
+    "term": "brainrot",
+    "translation": "Zihin Çürümesi / İçerik Bağımlılığı",
+    "meaning": "TikTok ve Instagram Reels'deki saçma videoları izlemekten zihnin sulanması durumu.",
+    "example": "Sabahtan beri Shorts izliyorum, beynim brainrot oldu.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 7,
+    "term": "looksmaxxing",
+    "translation": "Tipi Maksimuma Çıkarma",
+    "meaning": "Spor, cilt bakımı ve mewing ile dış görünüşü en üst seviyeye getirme akımı.",
+    "example": "Çocuk 3 aydır looksmaxxing yapıyor, tanınmayacak hale geldi.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 8,
+    "term": "clutch",
+    "translation": "Son An Zaferi",
+    "meaning": "Oyunlarda veya hayatta imkansız görünen son anda maçı/durumu kurtarmak.",
+    "example": "1v4 kaldığı raundda clutch attı ve maçı kazandırdı.",
+    "category": "Oyun"
+  },
+  {
+    "id": 9,
+    "term": "afk",
+    "translation": "Klavyeden Uzakta / Yok",
+    "meaning": "'Away From Keyboard'. Oyunda veya mesajlaşmada bilgisayar başında olmama durumu.",
+    "example": "Kanka 5 dk AFK'yım, su alıp geliyorum.",
+    "category": "Oyun"
+  },
+  {
+    "id": 10,
+    "term": "tilt olmak",
+    "translation": "Sinir Krizine Girmek",
+    "meaning": "Oyun kaybettikçe veya haksızlığa uğradıkça öfkelenip daha kötü oynamak.",
+    "example": "Rakip takıma tilt oldum, oyunu kapattım.",
+    "category": "Oyun"
+  },
+  {
+    "id": 11,
+    "term": "tryhard",
+    "translation": "Aşırı Kasan / Hırslı",
+    "meaning": "Eğlencelik oyunda bile profesyonel maçmış gibi aşırı çabalayan kişi.",
+    "example": "Normal modda bile tryhard oynuyorlar, rahat bırakın.",
+    "category": "Oyun"
+  },
+  {
+    "id": 12,
+    "term": "diff",
+    "translation": "Fark / Üstünlük",
+    "meaning": "'Difference' kelimesinden gelir. Bir roldeki oyuncunun rakibinden açıkça iyi olduğunu söylemek (Örn: Mid diff).",
+    "example": "Adam tek başına taşıdı, resmen jungle diff.",
+    "category": "Oyun"
+  },
+  {
+    "id": 13,
+    "term": "smurf",
+    "translation": "Düşük Seviyede Oynayan Usta",
+    "meaning": "Kıdemli oyuncunun acemi hesap açıp yeni başlayanları ezmesi.",
+    "example": "Karşıdaki adam kesin smurf, imkanı yok böyle oynamasının.",
+    "category": "Oyun"
+  },
+  {
+    "id": 14,
+    "term": "tbh",
+    "translation": "Dürüst Olmak Gerekirse",
+    "meaning": "'To Be Honest'. Dürüstçe fikrini söylerken kullanılan kısaltma.",
+    "example": "Tbh bu kıyafet sana pek yakışmamış.",
+    "category": "Kısaltmalar"
+  },
+  {
+    "id": 15,
+    "term": "fr",
+    "translation": "Valla / Harbi",
+    "meaning": "'For Real'. Bir sözü onaylarken harbi/gerçekten anlamında kullanılır.",
+    "example": "Bu hava çok sıcak fr.",
+    "category": "Kısaltmalar"
+  },
+  {
+    "id": 16,
+    "term": "ngl",
+    "translation": "Yalan Söylemeyeceğim",
+    "meaning": "'Not Gonna Lie'. İtiraf ederken kullanılan mesajlaşma kısaltması.",
+    "example": "Ngl dünkü yemek harikaydı.",
+    "category": "Kısaltmalar"
+  },
+  {
+    "id": 17,
+    "term": "imo",
+    "translation": "Bence / Benim Fikrimce",
+    "meaning": "'In My Opinion'. Kendi görüşünü ifade ederken kullanılır.",
+    "example": "Imo bu oyun yılın en iyisi.",
+    "category": "Kısaltmalar"
+  },
+  {
+    "id": 18,
+    "term": "irl",
+    "translation": "Gerçek Hayatta",
+    "meaning": "'In Real Life'. Sanal alem dışındaki gerçek yaşamı kasteder.",
+    "example": "Oyunda çok iyi ama IRL utangaç biri.",
+    "category": "Kısaltmalar"
+  },
+  {
+    "id": 19,
+    "term": "stalking",
+    "translation": "Gizlice Hesabını İncelemek",
+    "meaning": "Birinin sosyal medya geçmişini, fotoğraflarını çaktırmadan detaylıca araştırmak.",
+    "example": "Eski sevgilisinin storylerini stalklarken yanlışlıkla beğendi.",
+    "category": "Sosyal Medya"
+  },
+  {
+    "id": 20,
+    "term": "shadowban",
+    "translation": "Gizli Engel / Görünmezlik",
+    "meaning": "Sosyal medya platformunun kullanıcıya bildirmeden erişimini kısıtlaması.",
+    "example": "Gönderilerim kimseye düşmüyor, shadowban yemişim.",
+    "category": "Sosyal Medya"
+  },
+  {
+    "id": 21,
+    "term": "shipping",
+    "translation": "Birbirine Yakıştırmak",
+    "meaning": "İki kişiyi veya karakteri romantik olarak birbirine çok yakıştırıp sevgili olmalarını istemek.",
+    "example": "Dizideki o iki karakteri inanılmaz ship'liyorum.",
+    "category": "Sosyal Medya"
+  },
+  {
+    "id": 22,
+    "term": "tbt",
+    "translation": "Geçmişe Dönüş",
+    "meaning": "'Throwback Thursday'. Perşembe günleri eski fotoğrafları paylaşma geleneği.",
+    "example": "Geçen yazdan kalma tbt fotosu attım.",
+    "category": "Sosyal Medya"
+  },
+  {
+    "id": 23,
+    "term": "gümledim",
+    "translation": "Gülmekten Yarıldım",
+    "meaning": "Beklenmedik komik bir durum karşısında kahkahalara boğulmak.",
+    "example": "Attığın videoyu izlerken otobüste gümledim.",
+    "category": "Tepkiler"
+  },
+  {
+    "id": 24,
     "term": "olayy",
     "translation": "Aşırı Harika / Gündem",
-    "meaning": "Çok etkileyici, tarz veya ortamı kasıp kavuran durumlar için kullanılan coşku ifadesi.",
+    "meaning": "Çok etkileyici, ortamı kasıp kavuran durumlar için kullanılan coşku ifadesi.",
     "example": "Kızın yeni saç rengi aşırı olayy olmuş!",
     "category": "Övgü"
   },
   {
-    "id": 4,
+    "id": 25,
     "term": "düşmek",
     "translation": "Aşırı Beğenmek / Aşık Olmak",
-    "meaning": "Birinin tarzına, konuşmasına veya tipine anında hayran olmak ve etkilenmek.",
+    "meaning": "Birinin tarzına veya tipine anında hayran olmak.",
     "example": "Çocuğun gülüşüne fena düştüm kanka.",
     "category": "İlişkiler"
   },
   {
-    "id": 5,
+    "id": 26,
     "term": "zort",
     "translation": "Rezil Olmak / Yanılmak",
-    "meaning": "Büyük bir iddiadan veya hareketten sonra aniden başarısızlığa uğrama ve mahcup olma anı.",
+    "meaning": "Büyük bir iddiadan sonra aniden başarısızlığa uğrama anı.",
     "example": "Sınav kolay geçecek diyordu, ilk soruda zort oldu.",
     "category": "Tepkiler"
   },
   {
-    "id": 6,
+    "id": 27,
     "term": "boş yapmak",
-    "translation": "Gereksiz / Mantıksız Konuşmak",
-    "meaning": "Faydasız, dayanaksız veya karşı tarafı sıkan içi boş lakırdı etmek.",
-    "example": "Sabahtan beri boş yapıyorsun, sadede gel artık.",
+    "translation": "Gereksiz Konuşmak",
+    "meaning": "Faydasız, içi boş lakırdı etmek.",
+    "example": "Sabahtan beri boş yapıyorsun, sadede gel.",
     "category": "Günlük Konuşma"
   },
   {
-    "id": 7,
+    "id": 28,
     "term": "no cap",
     "translation": "Harbi / Yalan Yok",
-    "meaning": "Gerçekten doğru olan, abartı veya yalan içermeyen durumlar için kullanılır.",
+    "meaning": "Gerçekten doğru olan, abartı içermeyen durumlar.",
     "example": "Dünkü sınav hayatımın en zor sınavıydı, no cap.",
     "category": "Günlük Konuşma"
   },
   {
-    "id": 8,
+    "id": 29,
     "term": "slay",
     "translation": "Döktürmek / Şov Yapmak",
-    "meaning": "Bir işi harika yapmak, görünüşüyle veya performansıyla herkesi hayran bırakmak.",
+    "meaning": "Bir işi harika yapmak, herkesi hayran bırakmak.",
     "example": "Kızın giydiği kıyafet resmen slay etmiş.",
     "category": "Övgü"
   },
   {
-    "id": 9,
+    "id": 30,
     "term": "sarmadı",
-    "translation": "Keyif Vermedi / Beğenmedim",
-    "meaning": "Bir filmin, oyunun, mekanın veya ortamın beklentiyi karşılamaması ve zevk vermemesi.",
+    "translation": "Keyif Vermedi",
+    "meaning": "Bir şeyin beklentiyi karşılamaması.",
     "example": "Yeni sezonu izledim ama beni pek sarmadı.",
     "category": "Değerlendirme"
   },
   {
-    "id": 10,
-    "term": "ghosting",
-    "translation": "Aniden Ortadan Kaybolmak",
-    "meaning": "İletişimde olunan birinin hiçbir açıklama yapmadan mesajlara cevap vermeyi kesmesi.",
-    "example": "Üç hafta flört ettik, dün aniden ghostladı beni.",
-    "category": "İlişkiler"
-  },
-  {
-    "id": 11,
+    "id": 31,
     "term": "cringe",
     "translation": "Başkası Adına Utanmak",
-    "meaning": "Bir başkasının utanç verici, yapmacık veya komik durumuna tanık olduğunda hissettiğin huzursuzluk.",
-    "example": "Videodaki adamın hareketlerini izlerken cringe krizine girdim.",
+    "meaning": "Bir başkasının utanç verici durumuna tanık olunca hissedilen huzursuzluk.",
+    "example": "Videodaki adamı izlerken cringe krizine girdim.",
     "category": "Tepkiler"
-  },
-  {
-    "id": 12,
-    "term": "based",
-    "translation": "Kral Hareket / Özgün",
-    "meaning": "Başkalarının ne düşündüğünü umursamadan kendi doğrularını savunan cesur davranış.",
-    "example": "Kimsenin söyleyemediği gerçeği toplantıda söyledi, helal olsun çok based.",
-    "category": "Övgü"
-  },
-  {
-    "id": 13,
-    "term": "tetiklenmek",
-    "translation": "Sinir Olmak / Rahatsız Olmak",
-    "meaning": "Belirli bir kelime, tavır veya olay karşısında anında öfkelenmek ve huzursuz olmak.",
-    "example": "O adamın üslubuna acayip tetikleniyorum.",
-    "category": "Tepkiler"
-  },
-  {
-    "id": 14,
-    "term": "main character energy",
-    "translation": "Başrol Havası",
-    "meaning": "Bir insanın hayatını bir filmin başrolündeymiş gibi özgüvenle yaşaması.",
-    "example": "Kulaklığını takıp yağmurda yürürken tam bir main character energy saçıyor.",
-    "category": "Kişilik"
-  },
-  {
-    "id": 15,
-    "term": "mid",
-    "translation": "Ortalama / Tırt",
-    "meaning": "Ne çok iyi ne çok kötü olan, beklentiyi karşılamayan sıradan şeyler.",
-    "example": "O kadar övdükleri film bence gayet mid bir yapımdı.",
-    "category": "Değerlendirme"
-  },
-  {
-    "id": 16,
-    "term": "cooked",
-    "translation": "Ayvayı Yemek / Bitiş",
-    "meaning": "Geri dönüşü olmayan zor bir duruma düşmek, mahvolmak.",
-    "example": "Yarınki sınava hiç çalışmadım, valla cooked olduk.",
-    "category": "Durum"
-  },
-  {
-    "id": 17,
-    "term": "mewing",
-    "translation": "Çene Hattı Çalışması",
-    "meaning": "Çene kemiğini belirginleştirmek için dili damakta tutma tekniği ve bununla ilgili internet geyikleri.",
-    "example": "Çocuk konuşurken parmağını dudaklarına götürüp mewing yaptı.",
-    "category": "Trend"
-  },
-  {
-    "id": 18,
-    "term": "mogging",
-    "translation": "Baskın Çıkmak / Bakışla Ezmek",
-    "meaning": "Fiziksel görünüş veya karizma olarak yanındaki insanı gölgede bırakmak.",
-    "example": "Boyu ve tarzıyla mekândaki herkesi mogladı.",
-    "category": "Sosyal"
-  },
-  {
-    "id": 19,
-    "term": "delulu",
-    "translation": "Hayalperest / Kendini Kandıran",
-    "meaning": "Gerçekçi olmayan hayaller kuran veya durumları yanlış yorumlayan insan.",
-    "example": "Bana gülümsedi diye benle evlenecek sanıyor, tam bir delulu.",
-    "category": "Kişilik"
-  },
-  {
-    "id": 20,
-    "term": "skibidi",
-    "translation": "Absürt / Popüler Mizah",
-    "meaning": "Saçma, havalı veya sürrealist durumları tanımlayan viral meme terimi.",
-    "example": "Okulda herkes skibidi muhabbeti yapıyor.",
-    "category": "Trend"
-  },
-  {
-    "id": 21,
-    "term": "gyatt",
-    "translation": "Vay Be / Dikkat Çekici",
-    "meaning": "Etkileyici bir görünüş veya dikkat çekici hatlar için kullanılan şaşırma nidası.",
-    "example": "Kızın tarzına bak, gyatt dedirtti.",
-    "category": "Tepkiler"
-  },
-  {
-    "id": 22,
-    "term": "flex",
-    "translation": "Hava Atmak / Gösteriş",
-    "meaning": "Sahip olunan zenginlik, başarı veya eşyalarla başkalarına caka satmak.",
-    "example": "Yeni aldığı saatle sürekli story atıp flex yapıyor.",
-    "category": "Sosyal"
-  },
-  {
-    "id": 23,
-    "term": "lowkey",
-    "translation": "Alttan Alta / Çaktırmadan",
-    "meaning": "Çok açığa vurmadan, gizlice veya hafifçe hissetme durumu.",
-    "example": "Lowkey ben de o konsere gitmek istiyorum.",
-    "category": "Duygu"
-  },
-  {
-    "id": 24,
-    "term": "gaslighting",
-    "translation": "Zihin Manipülasyonu",
-    "meaning": "Karşı tarafın kendi hafızasından şüphe etmesini sağlama ikna taktiği.",
-    "example": "Bana sürekli 'ben öyle demedim' diyerek gaslight yapıyor.",
-    "category": "İlişkiler"
-  },
-  {
-    "id": 25,
-    "term": "red flag",
-    "translation": "Kırmızı Çizgi / Tehlike Sinyali",
-    "meaning": "Bir insanda uzak durulması gerektiğini gösteren olumsuz özellik.",
-    "example": "Garsona kötü davranması benim için büyük bir red flag.",
-    "category": "İlişkiler"
-  },
-  {
-    "id": 26,
-    "term": "green flag",
-    "translation": "Güven Sinyali / Olumlu Özellik",
-    "meaning": "Bir insanın güvenilir ve olgun olduğunu gösteren davranış.",
-    "example": "Dinlemeyi bilmesi ve saygılı olması tam bir green flag.",
-    "category": "İlişkiler"
-  },
-  {
-    "id": 27,
-    "term": "patladım",
-    "translation": "Gülmekten Mahvolmak / Rezil Olmak",
-    "meaning": "Komik bir şey karşısında kontrolü kaybetmek veya bir işte fena yakalanmak.",
-    "example": "O espriyi duyunca ortamın ortasında patladım.",
-    "category": "Tepkiler"
-  },
-  {
-    "id": 28,
-    "term": "kafa dengi",
-    "translation": "Tam Uyuşan / Kafadar",
-    "meaning": "Düşünce yapısı, zevkleri ve mizah anlayışı birebir uyuşan insan.",
-    "example": "Nihayet birlikte yazılım yapabileceğim kafa dengi birini buldum.",
-    "category": "Sosyal"
-  },
-  {
-    "id": 29,
-    "term": "sus",
-    "translation": "Şüpheli / Şüphe Çekici",
-    "meaning": "'Suspicious' kelimesinden türetilen, güvensizlik veren durum.",
-    "example": "Adamın hareketleri bana biraz sus geldi.",
-    "category": "Tepkiler"
-  },
-  {
-    "id": 30,
-    "term": "bussin",
-    "translation": "Aşırı Lezzetli / Harika",
-    "meaning": "Genellikle çok lezzetli yiyecekler için kullanılan övgü sözü.",
-    "example": "Bu burger harbi bussin olmuş kanka.",
-    "category": "Değerlendirme"
-  },
-  {
-    "id": 31,
-    "term": "npc",
-    "translation": "Kendi Aklı Olmayan / Sıradan",
-    "meaning": "Oyunlardaki NPC gibi kendi özgün fikri olmadan sürüye uyan kişiler.",
-    "example": "Herkes ne yapıyorsa onu yapıyor, tam bir NPC.",
-    "category": "Kişilik"
   },
   {
     "id": 32,
-    "term": "W",
-    "translation": "Galibiyet / Kazanım",
-    "meaning": "'Win' (Zafer) kelimesinin kısaltması. Başarılı bir durumu kutlarken söylenir.",
-    "example": "Sınavdan 100 almak tam bir büyük W!",
+    "term": "based",
+    "translation": "Kral Hareket / Özgün",
+    "meaning": "Başkalarını umursamadan kendi doğrusunu savunan cesur davranış.",
+    "example": "Gerçeği söylerken hiç çekinmedi, çok based.",
     "category": "Övgü"
   },
   {
     "id": 33,
-    "term": "L",
-    "translation": "Yenilgi / Kayıp",
-    "meaning": "'Loss' (Kayıp) kelimesinin kısaltması. Başarısız durumlar için kullanılır.",
-    "example": "Otobüsü kaçırmak büyük L oldu.",
-    "category": "Durum"
+    "term": "tetiklenmek",
+    "translation": "Sinir Olmak",
+    "meaning": "Belirli bir kelime veya tavır karşısında anında öfkelenmek.",
+    "example": "O adamın üslubuna acayip tetikleniyorum.",
+    "category": "Tepkiler"
   },
   {
     "id": 34,
-    "term": "simp",
-    "translation": "Kör Kütük Kul Köle Olan",
-    "meaning": "Bir insanın ilgisini çekmek için gurursuzca fedakarlık yapan kişi.",
-    "example": "Kızın her dediğini yapıyor, tam bir simp.",
-    "category": "Kişilik"
+    "term": "cooked",
+    "translation": "Ayvayı Yemek",
+    "meaning": "Geri dönüşü olmayan zor bir duruma düşmek.",
+    "example": "Sınava hiç çalışmadım, valla cooked olduk.",
+    "category": "Durum"
   },
   {
     "id": 35,
-    "term": "vibe check",
-    "translation": "Enerji Kontrolü",
-    "meaning": "Bir insanın veya ortamın havasını ve samimiyetini test etme.",
-    "example": "Ortama girdik ama vibe check olumsuz çıktı.",
+    "term": "mewing",
+    "translation": "Çene Hattı Çalışması",
+    "meaning": "Çene kemiğini belirginleştirmek için dili damakta tutma tekniği.",
+    "example": "Çocuk konuşurken parmağını dudağına götürüp mewing yaptı.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 36,
+    "term": "mogging",
+    "translation": "Baskın Çıkmak / Ezmek",
+    "meaning": "Görünüş veya karizma olarak yanındakini gölgede bırakmak.",
+    "example": "Tarzıyla mekândaki herkesi mogladı.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 37,
+    "term": "delulu",
+    "translation": "Hayalperest",
+    "meaning": "Gerçekçi olmayan hayaller kuran kişi.",
+    "example": "Bana baktı diye aşık sanıyor, tam delulu.",
+    "category": "Kişilik"
+  },
+  {
+    "id": 38,
+    "term": "skibidi",
+    "translation": "Absürt / Popüler Mizah",
+    "meaning": "Saçma ve havalı viral meme terimi.",
+    "example": "Okulda çocuklar skibidi muhabbeti yapıyor.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 39,
+    "term": "gyatt",
+    "translation": "Vay Be / Şaşırma",
+    "meaning": "Etkileyici bir görünüş için söylenen nida.",
+    "example": "Kızın tarzına bak, gyatt dedirtti.",
+    "category": "10-15 Yaş Trend"
+  },
+  {
+    "id": 40,
+    "term": "flex",
+    "translation": "Hava Atmak",
+    "meaning": "Sahip olunan zenginlik veya başarıyla caka satmak.",
+    "example": "Saatini gösterip flex yapıyor.",
+    "category": "Sosyal Medya"
+  },
+  {
+    "id": 41,
+    "term": "gaslighting",
+    "translation": "Zihin Manipülasyonu",
+    "meaning": "Karşı tarafın hafızasından şüphe etmesini sağlama taktiği.",
+    "example": "Sürekli beni suçlayarak gaslight yapıyor.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 42,
+    "term": "red flag",
+    "translation": "Tehlike Sinyali",
+    "meaning": "Uzak durulması gerektiğini gösteren olumsuz durum.",
+    "example": "Garsona bağırması büyük bir red flag.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 43,
+    "term": "green flag",
+    "translation": "Güven Sinyali",
+    "meaning": "Düzgün ve güvenilir insan davranışı.",
+    "example": "Saygılı olması tam bir green flag.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 44,
+    "term": "patladım",
+    "translation": "Gülmekten Mahvolmak",
+    "meaning": "Komik bir şey karşısında kendini tutamamak.",
+    "example": "O espriyi duyunca patladım.",
     "category": "Tepkiler"
+  },
+  {
+    "id": 45,
+    "term": "kafa dengi",
+    "translation": "Kafadar",
+    "meaning": "Düşünce yapısı birebir uyuşan insan.",
+    "example": "Nihayet kafa dengi bir arkadaş buldum.",
+    "category": "Sosyal"
+  },
+  {
+    "id": 46,
+    "term": "sus",
+    "translation": "Şüpheli",
+    "meaning": "Güvensizlik veren durum.",
+    "example": "Adamın hareketleri bana sus geldi.",
+    "category": "Oyun"
+  },
+  {
+    "id": 47,
+    "term": "bussin",
+    "translation": "Aşırı Lezzetli",
+    "meaning": "Lezzetli yemekler için söylenen söz.",
+    "example": "Bu yemek harbi bussin olmuş.",
+    "category": "Değerlendirme"
+  },
+  {
+    "id": 48,
+    "term": "npc",
+    "translation": "Sıradan Tipi",
+    "meaning": "Kendi fikri olmadan sürüye uyan kişi.",
+    "example": "Sürüye uymuş tam bir NPC.",
+    "category": "Kişilik"
+  },
+  {
+    "id": 49,
+    "term": "W",
+    "translation": "Galibiyet",
+    "meaning": "Başarılı durumlar için söylenen zafer simgesi.",
+    "example": "Sınavı geçmek büyük W oldu.",
+    "category": "Övgü"
+  },
+  {
+    "id": 50,
+    "term": "L",
+    "translation": "Kayıp",
+    "meaning": "Başarısız durum simgesi.",
+    "example": "Otobüsü kaçırmak büyük L.",
+    "category": "Durum"
   }
 ]
