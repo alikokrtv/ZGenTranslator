@@ -1,7 +1,1 @@
-flask==2.3.3
-gunicorn==21.2.0
-Werkzeug==2.3.7
-pyopenssl==23.2.0
-flask-mail==0.9.1
-psycopg2-binary==2.9.9
-pymysql==1.1.0
+# Static web app deployment - no Python dependencies required
