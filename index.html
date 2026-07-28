@@ -23,7 +23,7 @@
   <meta name="twitter:title" content="Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici">
   <meta name="twitter:description" content="Rizz, no cap, slay, cooked ne demek? Anında çevirin ve terim ekleyin.">
 
-  <!-- Schema.org JSON-LD Structured Data for Google Rich Snippets -->
+  <!-- Schema.org JSON-LD Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -146,22 +146,28 @@
         <h3><i class="fa-solid fa-pen-to-square"></i> Yeni Terim Ekle / Düzenle</h3>
         <button id="closeModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
+      
+      <!-- AI Auto-Complete Top Banner Button -->
+      <button type="button" id="aiFillFormBtn" class="btn-ai-fill">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Yapay Zeka (AI) ile Otomatik Tamamla & Düzelt
+      </button>
+
       <form id="addTermForm">
         <div class="form-group">
           <label for="inputTerm">Terim / Kelime *</label>
-          <input type="text" id="inputTerm" placeholder="Örn: skibidi, rizz" required>
+          <input type="text" id="inputTerm" placeholder="Örn: LOL, skibidi, rizz" required>
         </div>
         <div class="form-group">
           <label for="inputTranslation">Türkçe Karşılığı *</label>
-          <input type="text" id="inputTranslation" placeholder="Örn: Karizma / Çekicilik" required>
+          <input type="text" id="inputTranslation" placeholder="Örn: Kahkaha Atmak / Çok Komik" required>
         </div>
         <div class="form-group">
           <label for="inputCategory">Kategori</label>
           <select id="inputCategory">
             <option value="Günlük Konuşma">Günlük Konuşma</option>
+            <option value="Tepkiler">Tepkiler</option>
             <option value="İlişkiler">İlişkiler</option>
             <option value="Övgü">Övgü</option>
-            <option value="Tepkiler">Tepkiler</option>
             <option value="Sosyal">Sosyal</option>
             <option value="Kişilik">Kişilik</option>
             <option value="Trend">Trend</option>
@@ -173,7 +179,7 @@
         </div>
         <div class="form-group">
           <label for="inputExample">Örnek Cümle *</label>
-          <input type="text" id="inputExample" placeholder="Örn: Kanka çocukta inanılmaz bir rizz var." required>
+          <input type="text" id="inputExample" placeholder="Örn: Kanka attığın videoya kahkaha attım, LOL!" required>
         </div>
         <button type="submit" class="btn-submit-term">
           <i class="fa-solid fa-check"></i> Sözlüğe Ekle & Kaydet

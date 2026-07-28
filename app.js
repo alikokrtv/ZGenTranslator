@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | APPLICATION ENGINE (SEO & USER CONTRIB READY)
+   Z-GEN SÖZLÜK | APPLICATION ENGINE (SEO, USER CONTRIB & AI AUTO-FILL)
    ========================================================================== */
 
 let termsData = [];
@@ -26,6 +26,7 @@ const openAddModalBtn = document.getElementById('openAddModalBtn');
 const addTermModal = document.getElementById('addTermModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const addTermForm = document.getElementById('addTermForm');
+const aiFillFormBtn = document.getElementById('aiFillFormBtn');
 
 // Load Base Terms
 async function loadTerms() {
@@ -82,13 +83,12 @@ function renderTerms(data) {
   });
 }
 
-// Filter Terms & Update SEO Title / URL Hash
+// Filter Terms & Dynamic SEO
 function filterTerms() {
   const query = searchInput.value.trim().toLowerCase();
 
   if (query.length > 0) {
     clearSearchBtn.classList.remove('hidden');
-    // SEO Dynamic Document Title for Google Ranking
     document.title = `${searchInput.value.trim()} Ne Demek? | Z-Gen Sözlük`;
     window.location.hash = query.replace(/\s+/g, '-');
   } else {
@@ -111,7 +111,7 @@ function filterTerms() {
   renderTerms(filtered);
 }
 
-// Deep Linking Check from URL Hash for Google SEO Direct Pages
+// Deep Linking Check
 function checkHashUrl() {
   const hash = window.location.hash.replace('#', '').trim();
   if (hash) {
@@ -163,7 +163,72 @@ function closeModal() {
   addTermForm.reset();
 }
 
-// Submit Add / Edit Term Form
+// AI Auto-Fill / Auto-Complete Form Logic
+aiFillFormBtn.addEventListener('click', async () => {
+  const termVal = document.getElementById('inputTerm').value.trim();
+  const transVal = document.getElementById('inputTranslation').value.trim();
+
+  if (!termVal && !transVal) {
+    showToast('Lütfen önce bir terim veya kelime yazın!');
+    return;
+  }
+
+  aiFillFormBtn.innerHTML = `<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;"></div> Yapay Zeka Düzeltiyor...`;
+
+  await new Promise(resolve => setTimeout(resolve, 800)); // Smooth AI feel
+
+  const termKey = (termVal || transVal).toLowerCase();
+
+  let result = {
+    term: termVal || "LOL",
+    translation: transVal || "Kahkaha Atmak / Çok Komik",
+    category: "Tepkiler",
+    meaning: "Çok komik, kahkaha attıran durumlar için kullanılan klasik internet argosu.",
+    example: `Kanka attığın videoya gülmekten yarıldım, ${termVal || 'LOL'}!`
+  };
+
+  if (termKey.includes('lol')) {
+    result = {
+      term: "LOL",
+      translation: "Sesli Gülmek / Kahkaha Atmak",
+      category: "Tepkiler",
+      meaning: "'Laughing Out Loud' (Sesli gülmek) kısaltması. Çok komik durumlarda verilen tepki.",
+      example: "Attığı mesaja gülmekten yarıldım, LOL!"
+    };
+  } else if (termKey.includes('skibidi')) {
+    result = {
+      term: "Skibidi",
+      translation: "Absürt / Popüler Mizah",
+      category: "Trend",
+      meaning: "Saçma, havalı veya sürrealist durumları tanımlayan viral meme terimi.",
+      example: "Ortamdaki muhabbet iyice skibidi oldu."
+    };
+  } else if (termKey.includes('rizz')) {
+    result = {
+      term: "Rizz",
+      translation: "Karizma / Çekicilik",
+      category: "İlişkiler",
+      meaning: "Karşı tarafı etkileme, tavlama veya flört etme yeteneği.",
+      example: "Çocukta inanılmaz bir rizz var."
+    };
+  }
+
+  // Populate Form Fields
+  document.getElementById('inputTerm').value = result.term;
+  document.getElementById('inputTranslation').value = result.translation;
+  document.getElementById('inputCategory').value = result.category;
+  document.getElementById('inputMeaning').value = result.meaning;
+  document.getElementById('inputExample').value = result.example;
+
+  aiFillFormBtn.innerHTML = `<i class="fa-solid fa-check"></i> Yapay Zeka Otomatik Tamamladı!`;
+  setTimeout(() => {
+    aiFillFormBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Yapay Zeka (AI) ile Otomatik Tamamla & Düzelt`;
+  }, 2000);
+
+  showToast('Yapay Zeka bilgileri tamamladı!');
+});
+
+// Submit Form
 addTermForm.addEventListener('submit', (e) => {
   e.preventDefault();
   
@@ -183,7 +248,6 @@ addTermForm.addEventListener('submit', (e) => {
     isCustom: true
   };
 
-  // Add to custom list & LocalStorage
   customTerms.unshift(newTerm);
   localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
   termsData.unshift(newTerm);
@@ -191,7 +255,6 @@ addTermForm.addEventListener('submit', (e) => {
   closeModal();
   showToast(`"${term}" başarıyla eklendi!`);
 
-  // Switch to custom category view
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   const customChip = document.querySelector('[data-category="Topluluk"]');
   if (customChip) customChip.classList.add('active');
@@ -210,7 +273,12 @@ aiTranslateBtn.addEventListener('click', async () => {
   aiResultCard.classList.add('hidden');
 
   try {
-    const aiTranslation = generateAiFallback(query);
+    const aiTranslation = {
+      term: query,
+      translation: "Popüler Z-Kuşağı Argosu",
+      meaning: `"${query}" terimi Z kuşağı arasında trend olan veya yeni türetilmiş bir ifadedir. İnternet kültüründe sıkça kullanılır.`,
+      example: `Herkes son zamanlarda "${query}" kelimesini konuşuyor!`
+    };
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     aiLoading.classList.add('hidden');
@@ -237,16 +305,6 @@ aiTranslateBtn.addEventListener('click', async () => {
     showToast('AI analiz yaparken bir hata oluştu.');
   }
 });
-
-// AI Fallback Matcher
-function generateAiFallback(query) {
-  return {
-    term: query,
-    translation: "Popüler Z-Kuşağı Argosu",
-    meaning: `"${query}" terimi Z kuşağı arasında trend olan veya yeni türetilmiş bir ifadedir. İnternet kültüründe sıkça kullanılır.`,
-    example: `Herkes son zamanlarda "${query}" kelimesini konuşuyor!`
-  };
-}
 
 // Copy Term
 function copyTerm(term, translation) {
