@@ -332,7 +332,10 @@ Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver
       <div class="translation-badge" style="color:#ec4899;">👉 ${escapeHtml(aiTranslation.translation || 'Türkçe Karşılık')}</div>
       <p class="term-meaning">${escapeHtml(aiTranslation.meaning || 'Açıklama')}</p>
       <div class="example-box">"${escapeHtml(aiTranslation.example || 'Örnek cümle')}"</div>
-      <div class="card-actions" style="margin-top:12px;">
+      <div class="card-actions" style="margin-top:14px;gap:10px;">
+        <button class="btn-action" style="background:var(--gradient-main);border:none;color:#fff;" onclick="saveAiResultToDictionary('${escapeJs(aiTranslation.term || query)}', '${escapeJs(aiTranslation.translation || '')}', '${escapeJs(aiTranslation.category || 'Trend')}', '${escapeJs(aiTranslation.meaning || '')}', '${escapeJs(aiTranslation.example || '')}')">
+          <i class="fa-solid fa-plus"></i> Sözlüğe Kaydet & Ekle
+        </button>
         <button class="btn-action" onclick="copyTerm('${escapeJs(aiTranslation.term || query)}', '${escapeJs(aiTranslation.translation || 'Türkçe Karşılık')}')">
           <i class="fa-regular fa-copy"></i> Kopyala
         </button>
@@ -348,6 +351,38 @@ Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver
     showToast('Gemini AI analiz ederken hata oluştu.');
   }
 });
+
+// Save AI Result directly to Dictionary
+function saveAiResultToDictionary(term, translation, category, meaning, example) {
+  const newTerm = {
+    id: Date.now(),
+    term,
+    translation: translation || "Türkçe Karşılık",
+    category: category || "Trend",
+    meaning: meaning || "Açıklama",
+    example: example || "Örnek cümle",
+    isCustom: true
+  };
+
+  // Avoid duplicates
+  const exists = customTerms.some(t => t.term.toLowerCase() === term.toLowerCase());
+  if (!exists) {
+    customTerms.unshift(newTerm);
+    localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
+    termsData.unshift(newTerm);
+  }
+
+  showToast(`"${term}" sözlüğe başarıyla kaydedildi!`);
+
+  // Switch to All or Custom view
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  const allChip = document.querySelector('[data-category="Tümü"]');
+  if (allChip) allChip.classList.add('active');
+  activeCategory = 'Tümü';
+
+  searchInput.value = '';
+  filterTerms();
+}
 
 // Copy Term
 function copyTerm(term, translation) {
