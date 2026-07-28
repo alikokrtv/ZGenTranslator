@@ -1,8 +1,12 @@
 import os
 import sqlite3
 import logging
-import psycopg2
-from psycopg2.extras import RealDictCursor
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+except ImportError:
+    psycopg2 = None
+    RealDictCursor = None
 
 # Logging ayarlaması
 logging.basicConfig(level=logging.INFO)

@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "term": "rizz",
+    "translation": "Karizma / Çekicilik",
+    "meaning": "Karşı tarafı etkileme, tavlama veya flört etme yeteneği. 'Cha-rizz-ma' kelimesinden türemiştir.",
+    "example": "Kanka çocukta inanılmaz bir rizz var, iki dakikada kızın numarasını aldı.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 2,
+    "term": "no cap",
+    "translation": "Harbi / Yalan Yok",
+    "meaning": "Gerçekten doğru olan, abartı veya yalan içermeyen durumlar için kullanılır.",
+    "example": "Dünkü sınav hayatımın en zor sınavıydı, no cap.",
+    "category": "Günlük Konuşma"
+  },
+  {
+    "id": 3,
+    "term": "slay",
+    "translation": "Döktürmek / Şov Yapmak",
+    "meaning": "Bir işi harika yapmak, görünüşüyle veya performansıyla herkesi hayran bırakmak.",
+    "example": "Kızın giydiği kıyafet resmen slay etmiş, ortamın yıldızıydı.",
+    "category": "Övgü"
+  },
+  {
+    "id": 4,
+    "term": "ghosting",
+    "translation": "Aniden Ortadan Kaybolmak",
+    "meaning": "İletişimde olunan birinin hiçbir açıklama yapmadan mesajlara cevap vermeyi kesmesi ve engellemesi.",
+    "example": "Üç hafta flört ettik, dün aniden ghostladı beni, mesajlarıma bakmıyor.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 5,
+    "term": "cringe",
+    "translation": "Başkası Adına Utanmak",
+    "meaning": "Bir başkasının utanç verici, yapmacık veya komik durumuna tanık olduğunda hissettiğin huzursuzluk.",
+    "example": "Videodaki adamın hareketlerini izlerken cringe krizine girdim.",
+    "category": "Tepkiler"
+  },
+  {
+    "id": 6,
+    "term": "based",
+    "translation": "Kral Hareket / Özgün",
+    "meaning": "Başkalarının ne düşündüğünü umursamadan kendi doğrularını savunan, cesur ve takdir toplayan davranış.",
+    "example": "Kimsenin söyleyemediği gerçeği toplantıda söyledi, helal olsun adam çok based.",
+    "category": "Övgü"
+  },
+  {
+    "id": 7,
+    "term": "main character energy",
+    "translation": "Başrol Havası",
+    "meaning": "Bir insanın hayatını bir filmin başrolündeymiş gibi özgüvenle ve dikkat çekici şekilde yaşaması.",
+    "example": "Kulaklığını takıp yağmurda yürürken tam bir main character energy saçıyor.",
+    "category": "Kişilik"
+  },
+  {
+    "id": 8,
+    "term": "mid",
+    "translation": "Ortalama / Tırt",
+    "meaning": "Ne çok iyi ne çok kötü olan, beklentiyi karşılamayan, sıradan şeyler için kullanılır.",
+    "example": "O kadar övdükleri film bence gayet mid bir yapımdı, abartmışlar.",
+    "category": "Değerlendirme"
+  },
+  {
+    "id": 9,
+    "term": "cooked",
+    "translation": "Ayvayı Yemek / Bitiş",
+    "meaning": "Geri dönüşü olmayan zor bir duruma düşmek, mahvolmak.",
+    "example": "Yarınki sınava hiç çalışmadım, hoca da zor soruyor, valla cooked olduk.",
+    "category": "Durum"
+  },
+  {
+    "id": 10,
+    "term": "mewing",
+    "translation": "Çene Hattı Çalışması",
+    "meaning": "Çene kemiğini ve yüz hatlarını belirginleştirmek için dili damakta tutma tekniği ve bununla ilgili geyikler.",
+    "example": "Çocuk konuşurken parmağını dudaklarına götürüp mewing işareti yaptı.",
+    "category": "Trend"
+  },
+  {
+    "id": 11,
+    "term": "mogging",
+    "translation": "Baskın Çıkmak / Bakışla Ezmek",
+    "meaning": "Fiziksel görünüş veya karizma olarak yanındaki insanı gölgede bırakmak.",
+    "example": "Boyu ve tarzıyla mekândaki herkesi mogladı.",
+    "category": "Sosyal"
+  },
+  {
+    "id": 12,
+    "term": "delulu",
+    "translation": "Hayalperest / Kendini Kandıran",
+    "meaning": "'Delusional' kelimesinden gelir. Gerçekçi olmayan hayaller kuran veya durumları yanlış yorumlayan.",
+    "example": "Bana gülümsedi diye benle evlenecek sanıyor, tam bir delulu.",
+    "category": "Kişilik"
+  },
+  {
+    "id": 13,
+    "term": "skibidi",
+    "translation": "Absürt / Popüler Mizah Ögesi",
+    "meaning": "Skibidi Toilet viralinden türeyen, genellikle saçma, havalı veya anlamsız mizahi durumları tanımlayan argo.",
+    "example": "Okulda herkes skibidi muhabbeti yapıyor, çocuklar çıldırdı.",
+    "category": "Memeler"
+  },
+  {
+    "id": 14,
+    "term": "gyatt",
+    "translation": "Vay Be / Dikkat Çekici",
+    "meaning": "'God damn' ifadesinin Z kuşağı okunuşu. Etkileyici bir görünüş veya kalça için kullanılan ünlem.",
+    "example": "Kızın tarzına bak, gyatt dedirtti.",
+    "category": "Tepkiler"
+  },
+  {
+    "id": 15,
+    "term": "flex",
+    "translation": "Hava Atmak / Gösteriş",
+    "meaning": "Sahip olunan zenginlik, başarı veya eşyalarla başkalarına caka satmak.",
+    "example": "Yeni aldığı saatle sürekli story atıp flex yapıyor.",
+    "category": "Sosyal"
+  },
+  {
+    "id": 16,
+    "term": "lowkey",
+    "translation": "Alttan Alta / Çaktırmadan",
+    "meaning": "Çok açığa vurmadan, gizlice veya hafifçe hissetme/isteme durumu.",
+    "example": "Lowkey ben de o konsere gitmek istiyorum ama kimseye söylemedim.",
+    "category": "Duygu"
+  },
+  {
+    "id": 17,
+    "term": "highkey",
+    "translation": "Bayağı / Açık Açık",
+    "meaning": "Gizleme gereği duymadan, alenen ve güçlü bir şekilde.",
+    "example": "Highkey bu yemeğe bayıldım, her gün yiyebilirim.",
+    "category": "Duygu"
+  },
+  {
+    "id": 18,
+    "term": "gaslighting",
+    "translation": "Zihin Manipülasyonu",
+    "meaning": "Karşı tarafın kendi hafızasından, akıl sağlığından veya algısından şüphe etmesini sağlama ikna taktiği.",
+    "example": "Bana sürekli 'ben öyle demedim' diyerek gaslight yapmaya çalışıyor.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 19,
+    "term": "red flag",
+    "translation": "Kırmızı Çizgi / Tehlike Sinyali",
+    "meaning": "Bir insanda veya ilişkide uzak durulması gerektiğini gösteren olumsuz özellik.",
+    "example": "Garsona kötü davranması benim için büyük bir red flag.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 20,
+    "term": "green flag",
+    "translation": "Olumlu Özellik / Güven Sinyali",
+    "meaning": "Bir insanın güvenilir, olgun ve düzgün biri olduğunu gösteren davranış.",
+    "example": "Dinlemeyi bilmesi ve saygılı olması tam bir green flag.",
+    "category": "İlişkiler"
+  },
+  {
+    "id": 21,
+    "term": "ate and left no crumbs",
+    "translation": "Kasıp Kavurdu / Kusursuz Yaptı",
+    "meaning": "Bir işte veya görünüşte hiçbir eksik bırakmadan mükemmel performans sergilemek.",
+    "example": "Sahnede öyle bir dans etti ki, ate and left no crumbs!",
+    "category": "Övgü"
+  },
+  {
+    "id": 22,
+    "term": "sus",
+    "translation": "Şüpheli / Şüphe Çekici",
+    "meaning": "'Suspicious' kelimesinden türetilen, güvensizlik veren durum veya kişi.",
+    "example": "Adamın hareketleri bana biraz sus geldi, dikkatli olalım.",
+    "category": "Tepkiler"
+  },
+  {
+    "id": 23,
+    "term": "bussin",
+    "translation": "Aşırı Lezzetli / Harika",
+    "meaning": "Genellikle çok lezzetli yiyecekler veya harika şeyler için kullanılır.",
+    "example": "Bu burger harbi bussin olmuş kanka, dene kesinlikle.",
+    "category": "Değerlendirme"
+  },
+  {
+    "id": 24,
+    "term": "gatekeeping",
+    "translation": "Bilgiyi / Kaynağı Saklamak",
+    "meaning": "Güzel bir şarkıyı, mekânı veya kaynağı başkaları öğrenmesin diye kendine saklama huyu.",
+    "example": "Dinlediği grubu soruyorum söylemiyor, resmen gatekeep yapıyor.",
+    "category": "Sosyal"
+  },
+  {
+    "id": 25,
+    "term": "npc",
+    "translation": "Kendi Aklı Olmayan / Sıradan Tipi",
+    "meaning": "Oyunlardaki NPC (Non-Player Character) gibi kendi özgün fikri olmadan sürüye uyan kişilere verilen ad.",
+    "example": "Herkes ne yapıyorsa onu yapıyor, tam bir NPC gibi takılıyor.",
+    "category": "Kişilik"
+  }
+]

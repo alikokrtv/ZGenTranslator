@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici</title>
+  <meta name="description" content="Gençlerin kullandığı internet argosunu, slang kelimeleri ve Z kuşağı terimlerini anında Türkçeye çeviren ultra hızlı dijital sözlük.">
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Decorative Blur Blobs -->
+  <div class="glow-bg blob-1"></div>
+  <div class="glow-bg blob-2"></div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+
+    <!-- Header Section -->
+    <header class="hero-header">
+      <div class="badge-pill">
+        <span class="pulse-dot"></span> %100 Ücretsiz & Netlify Hazır
+      </div>
+      <h1 class="logo-title">
+        <span class="gradient-text">Z-GEN</span> SÖZLÜK
+      </h1>
+      <p class="hero-subtitle">
+        "Rizz", "no cap", "slay", "cooked" ne demek? Z Kuşağı argosunu anında anlaşılır Türkçeye çevirin.
+      </p>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+      <div class="search-box-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Kelime veya terim arayın... (Örn: rizz, cooked, slay)"
+          autocomplete="off"
+        >
+        <button id="clearSearchBtn" class="clear-btn hidden" title="Aramayı Temizle">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="categories-bar" id="categoriesBar">
+        <button class="chip active" data-category="Tümü">Tümü</button>
+        <button class="chip" data-category="İlişkiler">İlişkiler</button>
+        <button class="chip" data-category="Övgü">Övgü</button>
+        <button class="chip" data-category="Tepkiler">Tepkiler</button>
+        <button class="chip" data-category="Sosyal">Sosyal</button>
+        <button class="chip" data-category="Kişilik">Kişilik</button>
+        <button class="chip" data-category="Trend">Trend</button>
+      </div>
+    </section>
+
+    <!-- Terms Grid Container -->
+    <main class="terms-grid" id="termsGrid">
+      <!-- Dynamic Term Cards Will Be Inserted Here -->
+    </main>
+
+    <!-- No Results & AI Fallback Section -->
+    <div id="noResults" class="no-results-card hidden">
+      <div class="no-results-icon">
+        <i class="fa-solid fa-robot"></i>
+      </div>
+      <h3>Aradığınız terim sözlükte bulunamadı!</h3>
+      <p id="noResultsText">Aradığınız kelimeyi Yapay Zeka (AI) ile anında analiz edip Türkçe anlamına çevirelim mi?</p>
+      <button id="aiTranslateBtn" class="btn-ai">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> AI ile Anlamını Çevir
+      </button>
+      <div id="aiLoading" class="ai-loading hidden">
+        <div class="spinner"></div>
+        <span>Yapay zeka terimi analiz ediyor...</span>
+      </div>
+      <div id="aiResultCard" class="ai-result-box hidden"></div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+      <p>Geliştiren: <strong>Ali Kök</strong> &bull; Z-Gen Translator</p>
+      <div class="footer-links">
+        <a href="https://github.com/alikokrtv" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
+        <a href="#" id="shareAppBtn"><i class="fa-solid fa-share-nodes"></i> Uygulamayı Paylaş</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden">
+    <span id="toastMsg">Kopyalandı!</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
