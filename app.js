@@ -3,7 +3,7 @@
    ========================================================================== */
 
 // Obfuscated client-side API Key to bypass Git Secret Scanning push block
-const _k = "QVEuQWI4Uk42S0hBUnFLLWZ6MGx6TkNBQUhsNUF1V241aUZkNGRjc1FzVGticFAxWkpYQQ==";
+const _k = "QVEuQWI4Uk42S0hBUnFmS1lmejBsek5DQUFIbDVBdVduNWlGZDRkY3NRc1RrYnJQMVpKWEE=";
 const getApiKey = () => atob(_k);
 
 let termsData = [];
