@@ -308,18 +308,21 @@ aiTranslateBtn.addEventListener('click', async () => {
   aiResultCard.classList.add('hidden');
 
   try {
-    const prompt = `Sen Z-Kuşağı argosunu, sokak dilini, oyun terimlerini ve Türkçe argoyu mükemmel bilen uzman bir dilbilimcisin. 
+    const prompt = `Sen Z-Kuşağı argosunu, sokak dilini ve oyun terimlerini mükemmel bilen bir uzmansın. 
 Kullanıcının sorduğu terim: "${query}". 
 
-DİKKAT: Eğer bu kelimenin Türkçede/argoda birden fazla farklı anlamı varsa (örneğin hem iri yarı adam hem de gülünç durum gibi), açıklamada 1. ve 2. şeklinde tüm anlamlarını belirt.
+DİKKAT VE KURALLAR:
+1. "category": Tek kelimelik kısa bir kategori seç (Örn: 'Oyun', 'Tepkiler', 'İlişkiler', 'Övgü', 'Trend', 'Sosyal'). Virgüle boğma!
+2. "meaning": Öz ve anlaşılır maksimum 2 kısa cümle yaz. Çok uzun yazma.
+3. "example": 1 kısa doğal Türkçe örnek cümle yaz.
 
-Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver:
+Lütfen YALNIZCA aşağıdaki JSON formatında yanıt ver:
 {
   "term": "${query}",
-  "translation": "En yaygın Türkçe Karşılığı / Karşılıkları",
-  "category": "Kategorisi",
-  "meaning": "Tüm anlamlarını ve kullanım bağlamlarını içeren detaylı Türkçe açıklama (1. ve 2. varsa belirt)",
-  "example": "En doğal ve yaygın Türkçe Z-kuşağı/sokak örneği"
+  "translation": "Öz Türkçe Karşılığı",
+  "category": "Tek Kelime Kategori",
+  "meaning": "Maksimum 2 kısa cümlelik açıklama",
+  "example": "1 kısa doğal örnek cümle"
 }`;
 
     const aiTranslation = await callGeminiApi(prompt);
@@ -385,6 +388,7 @@ function saveCurrentAiResult() {
 
   showToast(`"${newTerm.term}" sözlüğe başarıyla kaydedildi!`);
 
+  // Switch to All view
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   const allChip = document.querySelector('[data-category="Tümü"]');
   if (allChip) allChip.classList.add('active');
@@ -392,6 +396,9 @@ function saveCurrentAiResult() {
 
   searchInput.value = '';
   filterTerms();
+
+  // Smooth scroll to top of terms grid
+  window.scrollTo({ top: 120, behavior: 'smooth' });
 }
 
 // Copy Term
