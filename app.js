@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (SAFE STATE SAVER)
+   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (POPUP DETAIL MODAL)
    ========================================================================== */
 
 // Obfuscated client-side API Key to bypass Git Secret Scanning push block
@@ -9,7 +9,8 @@ const getApiKey = () => atob(_k);
 let termsData = [];
 let customTerms = JSON.parse(localStorage.getItem('zgen_custom_terms') || '[]');
 let activeCategory = 'Tümü';
-let currentAiResult = null; // In-memory state for safe AI saving without HTML escaping bugs
+let currentAiResult = null;
+let activeDetailTerm = null;
 
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
@@ -26,12 +27,23 @@ const toast = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
 const shareAppBtn = document.getElementById('shareAppBtn');
 
-// Modal Elements
+// Add Modal Elements
 const openAddModalBtn = document.getElementById('openAddModalBtn');
 const addTermModal = document.getElementById('addTermModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const addTermForm = document.getElementById('addTermForm');
 const aiFillFormBtn = document.getElementById('aiFillFormBtn');
+
+// Detail Modal Elements
+const detailModal = document.getElementById('detailModal');
+const closeDetailModalBtn = document.getElementById('closeDetailModalBtn');
+const detailTermTitle = document.getElementById('detailTermTitle');
+const detailCategoryTag = document.getElementById('detailCategoryTag');
+const detailTranslationBadge = document.getElementById('detailTranslationBadge');
+const detailMeaning = document.getElementById('detailMeaning');
+const detailExample = document.getElementById('detailExample');
+const detailCopyBtn = document.getElementById('detailCopyBtn');
+const detailShareBtn = document.getElementById('detailShareBtn');
 
 // Load Base Terms
 async function loadTerms() {
@@ -59,7 +71,7 @@ async function loadTerms() {
   }
 }
 
-// Render Grid
+// Render Grid (Compact Uniform Cards)
 function renderTerms(data) {
   termsGrid.innerHTML = '';
 
@@ -77,26 +89,79 @@ function renderTerms(data) {
     const card = document.createElement('div');
     card.className = 'term-card';
     card.id = `term-${item.term.toLowerCase().replace(/\s+/g, '-')}`;
+    
+    const cleanMeaning = item.meaning.replace(/\*\*/g, '');
+    const cleanExample = item.example.replace(/\*\*/g, '');
+    const cleanTranslation = item.translation.replace(/\*\*/g, '');
+
     card.innerHTML = `
       <div class="card-header">
         <h2 class="term-title">${escapeHtml(item.term)}</h2>
         <span class="category-tag" title="${escapeHtml(item.category)}">${escapeHtml(item.category)}</span>
       </div>
-      <div class="translation-badge">👉 ${escapeHtml(item.translation.replace(/\*\*/g, ''))}</div>
-      <p class="term-meaning">${escapeHtml(item.meaning.replace(/\*\*/g, ''))}</p>
-      <div class="example-box">"${escapeHtml(item.example.replace(/\*\*/g, ''))}"</div>
+      <div class="translation-badge">👉 ${escapeHtml(cleanTranslation)}</div>
+      <p class="term-meaning line-clamp">${escapeHtml(cleanMeaning)}</p>
+      <div class="example-box line-clamp">"${escapeHtml(cleanExample)}"</div>
       <div class="card-actions">
-        <button class="btn-action" onclick="copyTerm('${escapeJs(item.term)}', '${escapeJs(item.translation)}')">
-          <i class="fa-regular fa-copy"></i> Kopyala
+        <button class="btn-action btn-detail" onclick="event.stopPropagation(); openDetailModalByTerm('${escapeJs(item.term)}')">
+          <i class="fa-solid fa-expand"></i> Detaylı İncele
         </button>
-        <button class="btn-action" onclick="shareTerm('${escapeJs(item.term)}', '${escapeJs(item.translation)}')">
-          <i class="fa-brands fa-x-twitter"></i> Paylaş
+        <button class="btn-action" onclick="event.stopPropagation(); copyTerm('${escapeJs(item.term)}', '${escapeJs(cleanTranslation)}')">
+          <i class="fa-regular fa-copy"></i> Kopyala
         </button>
       </div>
     `;
+
+    // Click anywhere on card opens Detail Popup Modal!
+    card.addEventListener('click', () => {
+      openDetailModal(item);
+    });
+
     termsGrid.appendChild(card);
   });
 }
+
+// Open Detail Popup Modal
+function openDetailModal(item) {
+  activeDetailTerm = item;
+  detailTermTitle.textContent = item.term;
+  detailCategoryTag.textContent = item.category;
+  detailCategoryTag.title = item.category;
+  detailTranslationBadge.textContent = `👉 ${item.translation.replace(/\*\*/g, '')}`;
+  detailMeaning.textContent = item.meaning.replace(/\*\*/g, '');
+  detailExample.textContent = `"${item.example.replace(/\*\*/g, '')}"`;
+  
+  detailModal.classList.remove('hidden');
+}
+
+function openDetailModalByTerm(termName) {
+  const found = termsData.find(t => t.term.toLowerCase() === termName.toLowerCase());
+  if (found) {
+    openDetailModal(found);
+  }
+}
+
+function closeDetailModal() {
+  detailModal.classList.add('hidden');
+  activeDetailTerm = null;
+}
+
+closeDetailModalBtn.addEventListener('click', closeDetailModal);
+detailModal.addEventListener('click', (e) => {
+  if (e.target === detailModal) closeDetailModal();
+});
+
+detailCopyBtn.addEventListener('click', () => {
+  if (activeDetailTerm) {
+    copyTerm(activeDetailTerm.term, activeDetailTerm.translation);
+  }
+});
+
+detailShareBtn.addEventListener('click', () => {
+  if (activeDetailTerm) {
+    shareTerm(activeDetailTerm.term, activeDetailTerm.translation);
+  }
+});
 
 // Filter Terms & Dynamic SEO
 function filterTerms() {
@@ -155,25 +220,25 @@ clearSearchBtn.addEventListener('click', () => {
   searchInput.focus();
 });
 
-// Modal Logic
-openAddModalBtn.addEventListener('click', () => openModal());
+// Add Modal Logic
+openAddModalBtn.addEventListener('click', () => openAddModal());
 addMissingTermBtn.addEventListener('click', () => {
-  openModal(searchInput.value.trim());
+  openAddModal(searchInput.value.trim());
 });
-closeModalBtn.addEventListener('click', closeModal);
+closeModalBtn.addEventListener('click', closeAddModal);
 
 addTermModal.addEventListener('click', (e) => {
-  if (e.target === addTermModal) closeModal();
+  if (e.target === addTermModal) closeAddModal();
 });
 
-function openModal(prefillTerm = '') {
+function openAddModal(prefillTerm = '') {
   addTermModal.classList.remove('hidden');
   if (prefillTerm) {
     document.getElementById('inputTerm').value = prefillTerm;
   }
 }
 
-function closeModal() {
+function closeAddModal() {
   addTermModal.classList.add('hidden');
   addTermForm.reset();
 }
@@ -297,7 +362,7 @@ addTermForm.addEventListener('submit', (e) => {
   localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
   termsData.unshift(newTerm);
 
-  closeModal();
+  closeAddModal();
   showToast(`"${term}" başarıyla eklendi!`);
 
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -322,17 +387,17 @@ aiTranslateBtn.addEventListener('click', async () => {
 Kullanıcının sorduğu terim: "${query}". 
 
 DİKKAT VE KURALLAR:
-1. "category": Tek kelimelik kısa bir kategori seç (Örn: 'Oyun', 'Tepkiler', 'İlişkiler', 'Övgü', 'Trend', 'Sosyal'). Virgüle boğma!
-2. "meaning": Öz ve anlaşılır maksimum 2 kısa cümle yaz. Çok uzun yazma.
-3. "example": 1 kısa doğal Türkçe örnek cümle yaz.
+1. "category": Tek kelimelik kısa bir kategori seç (Örn: 'Oyun Terimi', 'Tepkiler', 'İlişkiler', 'Övgü', 'Trend', 'Sosyal').
+2. "meaning": Öz ve anlaşılır Türkçe detaylı açıklama.
+3. "example": 1 doğal Türkçe örnek cümle.
 
 Lütfen YALNIZCA aşağıdaki JSON formatında yanıt ver:
 {
   "term": "${query}",
   "translation": "Öz Türkçe Karşılığı",
   "category": "Tek Kelime Kategori",
-  "meaning": "Maksimum 2 kısa cümlelik açıklama",
-  "example": "1 kısa doğal örnek cümle"
+  "meaning": "Açıklama",
+  "example": "1 doğal örnek cümle"
 }`;
 
     const aiTranslation = await callGeminiApi(prompt);

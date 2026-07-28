@@ -113,7 +113,7 @@
       <div class="categories-bar" id="categoriesBar">
         <button class="chip active" data-category="Tümü"><i class="fa-solid fa-layer-group"></i> Tümü</button>
         <button class="chip" data-category="10-15 Yaş Trend"><i class="fa-solid fa-fire-flame-curved"></i> 10-15 Yaş Trend</button>
-        <button class="chip" data-category="Oyun"><i class="fa-solid fa-gamepad"></i> Oyun</button>
+        <button class="chip" data-category="Oyun Terimi"><i class="fa-solid fa-gamepad"></i> Oyun Terimi</button>
         <button class="chip" data-category="Kısaltmalar"><i class="fa-solid fa-comment-dots"></i> Kısaltmalar</button>
         <button class="chip" data-category="Sosyal Medya"><i class="fa-brands fa-instagram"></i> Sosyal Medya</button>
         <button class="chip" data-category="İlişkiler"><i class="fa-solid fa-heart"></i> İlişkiler</button>
@@ -210,6 +210,38 @@
           <i class="fa-solid fa-check"></i> Sözlüğe Ekle & Kaydet
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Term Detail Popup Modal -->
+  <div id="detailModal" class="modal-backdrop hidden">
+    <div class="modal-card detail-modal-card">
+      <div class="modal-header">
+        <h2 id="detailTermTitle" class="term-title text-neon" style="font-size:32px;">-</h2>
+        <span id="detailCategoryTag" class="category-tag">-</span>
+        <button id="closeDetailModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="detailTranslationBadge" class="translation-badge" style="font-size:18px;margin-bottom:18px;">👉 -</div>
+
+      <div class="detail-section">
+        <h4 style="font-size:12px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">Detaylı Açıklama & Anlamı</h4>
+        <p id="detailMeaning" class="detail-text" style="font-size:15px;color:#e2e8f0;line-height:1.7;margin-bottom:20px;"></p>
+      </div>
+
+      <div class="detail-section">
+        <h4 style="font-size:12px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">Kullanım Örneği</h4>
+        <div id="detailExample" class="example-box" style="font-size:14.5px;padding:14px;margin-bottom:24px;">"-"</div>
+      </div>
+
+      <div class="card-actions">
+        <button id="detailCopyBtn" class="btn-action" style="padding:12px;">
+          <i class="fa-regular fa-copy"></i> Kopyala
+        </button>
+        <button id="detailShareBtn" class="btn-action" style="padding:12px;">
+          <i class="fa-brands fa-x-twitter"></i> Paylaş
+        </button>
+      </div>
     </div>
   </div>
 

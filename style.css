@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | ALIGN-ITEMS START GRID (PERFECT INDIVIDUAL CARD HEIGHTS)
+   Z-GEN SÖZLÜK | CLEAN UNIFORM CARDS + DETAIL POPUP MODAL STYLES
    ========================================================================== */
 
 :root {
@@ -44,10 +44,10 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-color);
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
@@ -363,16 +363,16 @@ body {
   box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
 }
 
-/* Terms Grid - align-items: start ensures cards take their own natural height! */
+/* Terms Grid */
 .terms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  align-items: start;
+  align-items: stretch;
   gap: 24px;
   margin-bottom: 60px;
 }
 
-/* Premium Term Card Component - Clean & Proportional */
+/* Premium Term Card Component - Uniform Pixel-Perfect Heights */
 .term-card {
   background: var(--card-bg);
   backdrop-filter: blur(20px);
@@ -381,6 +381,10 @@ body {
   padding: 24px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 290px;
+  cursor: pointer;
   transition: var(--transition);
   position: relative;
   overflow: hidden;
@@ -457,17 +461,26 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Meaning Text - Max height for long text, smooth scroll */
+/* Line Clamp for Grid Cards - Clean 2-Line Preview */
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .term-meaning {
   font-size: 14px;
   color: var(--text-muted);
-  margin-bottom: 16px;
-  line-height: 1.6;
-  max-height: 180px;
-  overflow-y: auto;
-  padding-right: 4px;
+  margin-bottom: 14px;
+  line-height: 1.55;
+  flex-grow: 1;
 }
 
 .example-box {
@@ -478,15 +491,13 @@ body {
   font-size: 13px;
   color: #cbd5e1;
   font-style: italic;
-  margin-bottom: 18px;
-  max-height: 100px;
-  overflow-y: auto;
+  margin-bottom: 16px;
 }
 
 .card-actions {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: auto;
 }
 
 .btn-action {
@@ -512,29 +523,16 @@ body {
   color: #fff;
 }
 
-/* Modal AI Fill Button */
-.btn-ai-fill {
-  width: 100%;
-  background: rgba(6, 182, 212, 0.15);
-  border: 1px dashed rgba(6, 182, 212, 0.5);
+.btn-detail {
+  background: rgba(6, 182, 212, 0.12);
+  border-color: rgba(6, 182, 212, 0.3);
   color: #67e8f9;
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  transition: var(--transition);
 }
 
-.btn-ai-fill:hover {
+.btn-detail:hover {
   background: rgba(6, 182, 212, 0.3);
+  border-color: var(--accent-cyan);
   color: #fff;
-  border-style: solid;
 }
 
 /* Modal Styles */
@@ -562,6 +560,12 @@ body {
   max-width: 520px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
   animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.detail-modal-card {
+  max-width: 620px;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 30px 70px rgba(6, 182, 212, 0.2);
 }
 
 @keyframes scaleIn {
