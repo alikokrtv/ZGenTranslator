@@ -307,14 +307,18 @@ aiTranslateBtn.addEventListener('click', async () => {
   aiResultCard.classList.add('hidden');
 
   try {
-    const prompt = `Sen Z-Kuşağı argosunu ve internet kültürünü bilen uzman bir dilbilimcisin. Kullanıcı şu kelimeyi sordu: "${query}". 
-Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver (doğrudan JSON üret, markdown tırnakları ekleme):
+    const prompt = `Sen Z-Kuşağı argosunu, sokak dilini, oyun terimlerini ve Türkçe argoyu mükemmel bilen uzman bir dilbilimcisin. 
+Kullanıcının sorduğu terim: "${query}". 
+
+DİKKAT: Eğer bu kelimenin Türkçede/argoda birden fazla farklı anlamı varsa (örneğin hem iri yarı adam hem de gülünç durum gibi), açıklamada 1. ve 2. şeklinde tüm anlamlarını belirt.
+
+Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver:
 {
   "term": "${query}",
-  "translation": "Öz Türkçe Karşılığı",
-  "category": "Tepkiler",
-  "meaning": "Detaylı Türkçe Açıklaması",
-  "example": "Doğal Z kuşağı örnek cümlesi"
+  "translation": "En yaygın Türkçe Karşılığı / Karşılıkları",
+  "category": "Kategorisi",
+  "meaning": "Tüm anlamlarını ve kullanım bağlamlarını içeren detaylı Türkçe açıklama (1. ve 2. varsa belirt)",
+  "example": "En doğal ve yaygın Türkçe Z-kuşağı/sokak örneği"
 }`;
 
     const aiTranslation = await callGeminiApi(prompt);
