@@ -70,7 +70,7 @@ function renderTerms(data) {
     card.innerHTML = `
       <div class="card-header">
         <h2 class="term-title">${escapeHtml(item.term)}</h2>
-        <span class="category-tag">${escapeHtml(item.category)}</span>
+        <span class="category-tag" title="${escapeHtml(item.category)}">${escapeHtml(item.category)}</span>
       </div>
       <div class="translation-badge">👉 ${escapeHtml(item.translation.replace(/\*\*/g, ''))}</div>
       <p class="term-meaning">${escapeHtml(item.meaning.replace(/\*\*/g, ''))}</p>
