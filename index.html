@@ -5,25 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Z-Gen Sözlük | Z Kuşağı Argo, Slang & Terim Çevirici</title>
   
-  <!-- SEO Meta Tags for Google Ranking -->
+  <!-- SEO Meta Tags -->
   <meta name="description" content="Z kuşağı dili ve internet argosu sözlüğü. Rizz, no cap, slay, cooked, mewing, mogging ne demek? Anında öğrenin ve kendi teriminizi ekleyin.">
   <meta name="keywords" content="z kuşağı dili, z kuşağı sözlüğü, rizz ne demek, no cap anlamı, slay ne demek, cooked ne demek, mewing nedir, internet argosu çeviri">
   <meta name="author" content="Ali Kök">
   <meta name="robots" content="index, follow">
   
-  <!-- Open Graph / Facebook / WhatsApp SEO -->
+  <!-- Open Graph / Social -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici">
   <meta property="og:description" content="Gençlerin kullandığı internet argosunu anında Türkçeye çevirin veya yeni terim ekleyin!">
   <meta property="og:url" content="https://zgen-sozluk.netlify.app">
   <meta property="og:image" content="https://zgen-sozluk.netlify.app/generated-icon.png">
 
-  <!-- Twitter Card SEO -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici">
-  <meta name="twitter:description" content="Rizz, no cap, slay, cooked ne demek? Anında çevirin ve terim ekleyin.">
-
-  <!-- Schema.org JSON-LD Structured Data -->
+  <!-- Schema.org JSON-LD -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -40,37 +35,63 @@
   <!-- Google Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Background Glows -->
+  <!-- Animated Neon Glow Blobs -->
   <div class="glow-bg blob-1"></div>
   <div class="glow-bg blob-2"></div>
+  <div class="glow-bg blob-3"></div>
 
-  <!-- Main Container -->
+  <!-- App Container -->
   <div class="app-container">
 
-    <!-- Header Section -->
-    <header class="hero-header">
-      <div class="header-top-bar">
-        <div class="badge-pill">
-          <span class="pulse-dot"></span> Türkiye'nin En Güncel Z Kuşağı Sözlüğü
-        </div>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+      <div class="nav-brand">
+        <span class="pulse-dot"></span>
+        <span class="nav-title">Z-GEN SÖZLÜK</span>
+      </div>
+      <div class="nav-actions">
         <button id="openAddModalBtn" class="btn-add-term">
-          <i class="fa-solid fa-plus"></i> Terim Ekle / Düzenle
+          <i class="fa-solid fa-sparkles"></i> Terim Ekle / Düzenle
         </button>
       </div>
+    </nav>
 
+    <!-- Hero Header -->
+    <header class="hero-header">
+      <div class="hero-badge">
+        <i class="fa-solid fa-fire text-neon"></i> Türkiye'nin 1 Numaralı Z Kuşağı Argo Platformu
+      </div>
       <h1 class="logo-title">
-        <span class="gradient-text">Z-GEN</span> SÖZLÜK
+        NE DEMEK BU <span class="gradient-text">Z-GEN?</span>
       </h1>
       <p class="hero-subtitle">
-        "Rizz", "no cap", "slay", "cooked" ne demek? Z Kuşağı argosunu anında Türkçe öğrenin veya yeni terim ekleyin.
+        "Rizz", "no cap", "slay", "cooked", "mewing" gibi binlerce internet argosunu anında Türkçe anlayın, paylaşın ve yeni terimler ekleyin.
       </p>
+
+      <!-- Live Stats Ribbon -->
+      <div class="stats-ribbon">
+        <div class="stat-item">
+          <span class="stat-num" id="totalTermsCount">35+</span>
+          <span class="stat-lbl">Popüler Terim</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">AI %100</span>
+          <span class="stat-lbl">Canlı Çeviri Engine</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">Açık Katkılı</span>
+          <span class="stat-lbl">Topluluk Sözlüğü</span>
+        </div>
+      </div>
     </header>
 
     <!-- Search Section -->
@@ -80,36 +101,36 @@
         <input 
           type="text" 
           id="searchInput" 
-          placeholder="Kelime veya terim arayın... (Örn: rizz, cooked, slay)"
+          placeholder="Kelime veya terim yazın... (Örn: rizz, cooked, slay)"
           autocomplete="off"
         >
-        <button id="clearSearchBtn" class="clear-btn hidden" title="Aramayı Temizle">
+        <button id="clearSearchBtn" class="clear-btn hidden" title="Temizle">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <!-- Category Filter Chips -->
       <div class="categories-bar" id="categoriesBar">
-        <button class="chip active" data-category="Tümü">Tümü</button>
-        <button class="chip" data-category="İlişkiler">İlişkiler</button>
-        <button class="chip" data-category="Övgü">Övgü</button>
-        <button class="chip" data-category="Tepkiler">Tepkiler</button>
-        <button class="chip" data-category="Sosyal">Sosyal</button>
-        <button class="chip" data-category="Kişilik">Kişilik</button>
-        <button class="chip" data-category="Trend">Trend</button>
-        <button class="chip" data-category="Topluluk">⭐ Katkılarım</button>
+        <button class="chip active" data-category="Tümü"><i class="fa-solid fa-layer-group"></i> Tümü</button>
+        <button class="chip" data-category="İlişkiler"><i class="fa-solid fa-heart"></i> İlişkiler</button>
+        <button class="chip" data-category="Övgü"><i class="fa-solid fa-crown"></i> Övgü</button>
+        <button class="chip" data-category="Tepkiler"><i class="fa-solid fa-bolt"></i> Tepkiler</button>
+        <button class="chip" data-category="Sosyal"><i class="fa-solid fa-users"></i> Sosyal</button>
+        <button class="chip" data-category="Kişilik"><i class="fa-solid fa-user-ninja"></i> Kişilik</button>
+        <button class="chip" data-category="Trend"><i class="fa-solid fa-chart-line"></i> Trend</button>
+        <button class="chip" data-category="Topluluk"><i class="fa-solid fa-star"></i> Katkılarım</button>
       </div>
     </section>
 
     <!-- Terms Grid Container -->
     <main class="terms-grid" id="termsGrid">
-      <!-- Dynamic Term Cards Inserted Here -->
+      <!-- Dynamic Cards -->
     </main>
 
     <!-- No Results & AI Fallback Section -->
     <div id="noResults" class="no-results-card hidden">
       <div class="no-results-icon">
-        <i class="fa-solid fa-robot"></i>
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
       </div>
       <h3>Aradığınız terim sözlükte bulunamadı!</h3>
       <p id="noResultsText">Aradığınız kelimeyi Yapay Zeka (AI) ile anında analiz edip Türkçe anlamına çevirelim mi?</p>
@@ -128,12 +149,14 @@
       <div id="aiResultCard" class="ai-result-box hidden"></div>
     </div>
 
-    <!-- Footer Section -->
+    <!-- Footer -->
     <footer class="footer">
-      <p>Geliştiren: <strong>Ali Kök</strong> &bull; Z-Gen Sözlük projesi</p>
-      <div class="footer-links">
-        <a href="https://github.com/alikokrtv" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
-        <a href="#" id="shareAppBtn"><i class="fa-solid fa-share-nodes"></i> Paylaş</a>
+      <div class="footer-content">
+        <p class="footer-brand">Z-GEN SÖZLÜK &bull; Geliştiren: <strong>Ali Kök</strong></p>
+        <div class="footer-links">
+          <a href="https://github.com/alikokrtv" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
+          <a href="#" id="shareAppBtn"><i class="fa-solid fa-share-nodes"></i> Paylaş</a>
+        </div>
       </div>
     </footer>
 
@@ -147,7 +170,7 @@
         <button id="closeModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
       
-      <!-- AI Auto-Complete Top Banner Button -->
+      <!-- AI Auto-Fill Button -->
       <button type="button" id="aiFillFormBtn" class="btn-ai-fill">
         <i class="fa-solid fa-wand-magic-sparkles"></i> Yapay Zeka (AI) ile Otomatik Tamamla & Düzelt
       </button>
