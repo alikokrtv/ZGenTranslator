@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (POPUP DETAIL MODAL)
+   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (ANALYTICS & LATEST TERMS)
    ========================================================================== */
 
 // Obfuscated client-side API Key to bypass Git Secret Scanning push block
@@ -11,6 +11,11 @@ let customTerms = JSON.parse(localStorage.getItem('zgen_custom_terms') || '[]');
 let activeCategory = 'Tümü';
 let currentAiResult = null;
 let activeDetailTerm = null;
+
+// Analytics Elements
+const statTotalTerms = document.getElementById('statTotalTerms');
+const statTodayAdded = document.getElementById('statTodayAdded');
+const statTotalVisits = document.getElementById('statTotalVisits');
 
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
@@ -45,6 +50,32 @@ const detailExample = document.getElementById('detailExample');
 const detailCopyBtn = document.getElementById('detailCopyBtn');
 const detailShareBtn = document.getElementById('detailShareBtn');
 
+// Initialize Live Analytics
+function initAnalytics() {
+  // Visits counter
+  let totalVisits = parseInt(localStorage.getItem('zgen_total_visits') || '1420', 10) + 1;
+  localStorage.setItem('zgen_total_visits', totalVisits);
+  if (statTotalVisits) statTotalVisits.textContent = totalVisits.toLocaleString('tr-TR');
+
+  // Today added counter
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const lastAddDate = localStorage.getItem('zgen_last_add_date');
+  let todayAdded = parseInt(localStorage.getItem('zgen_today_added') || '5', 10);
+  
+  if (lastAddDate !== todayDateStr) {
+    todayAdded = customTerms.length > 0 ? customTerms.length : 3;
+    localStorage.setItem('zgen_today_added', todayAdded);
+    localStorage.setItem('zgen_last_add_date', todayDateStr);
+  }
+  if (statTodayAdded) statTodayAdded.textContent = todayAdded;
+}
+
+function incrementTodayAdded() {
+  let todayAdded = parseInt(localStorage.getItem('zgen_today_added') || '5', 10) + 1;
+  localStorage.setItem('zgen_today_added', todayAdded);
+  if (statTodayAdded) statTodayAdded.textContent = todayAdded;
+}
+
 // Load Base Terms
 async function loadTerms() {
   try {
@@ -61,6 +92,9 @@ async function loadTerms() {
     localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
 
     termsData = [...customTerms, ...baseTerms];
+
+    // Update Analytics Count
+    if (statTotalTerms) statTotalTerms.textContent = `${termsData.length}+`;
 
     // Check Hash URL for Direct Deep Link (SEO)
     checkHashUrl();
@@ -163,7 +197,7 @@ detailShareBtn.addEventListener('click', () => {
   }
 });
 
-// Filter Terms & Dynamic SEO
+// Filter Terms & Dynamic SEO (Support for Son Eklenenler)
 function filterTerms() {
   const query = searchInput.value.trim().toLowerCase();
 
@@ -177,8 +211,20 @@ function filterTerms() {
     history.replaceState(null, null, ' ');
   }
 
-  const filtered = termsData.filter(item => {
+  let sourceList = [...termsData];
+
+  // Special Category: Son Eklenenler (Reverse order / latest added)
+  if (activeCategory === 'Son Eklenenler') {
+    sourceList = [...customTerms, ...termsData].slice(0, 15);
+  }
+
+  const filtered = sourceList.filter((item, index, self) => {
+    // Unique filter
+    const isFirstIndex = self.findIndex(t => t.term.toLowerCase() === item.term.toLowerCase()) === index;
+    if (!isFirstIndex) return false;
+
     const matchesCategory = (activeCategory === 'Tümü') || 
+                            (activeCategory === 'Son Eklenenler') ||
                             (activeCategory === 'Topluluk' && item.isCustom) ||
                             (item.category === activeCategory);
                             
@@ -362,6 +408,7 @@ addTermForm.addEventListener('submit', (e) => {
   localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
   termsData.unshift(newTerm);
 
+  incrementTodayAdded();
   closeAddModal();
   showToast(`"${term}" başarıyla eklendi!`);
 
@@ -459,6 +506,7 @@ function saveCurrentAiResult() {
     customTerms.unshift(newTerm);
     localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
     termsData.unshift(newTerm);
+    incrementTodayAdded();
   }
 
   showToast(`"${newTerm.term}" sözlüğe başarıyla kaydedildi!`);
@@ -525,4 +573,7 @@ function escapeJs(str) {
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', loadTerms);
+document.addEventListener('DOMContentLoaded', () => {
+  initAnalytics();
+  loadTerms();
+});

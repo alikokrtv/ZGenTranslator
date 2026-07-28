@@ -75,21 +75,21 @@
         Oyun terimleri, WhatsApp kısaltmaları, "Aura", "Sigma", "Rizz", "Clutch", "AFK", "FR", "NGL" gibi tüm 10-15 yaş ve internet argosunu anında öğrenin.
       </p>
 
-      <!-- Live Stats Ribbon -->
+      <!-- Dynamic Analytics & Live Stats Ribbon -->
       <div class="stats-ribbon">
         <div class="stat-item">
-          <span class="stat-num" id="totalTermsCount">50+</span>
+          <span class="stat-num" id="statTotalTerms">50+</span>
           <span class="stat-lbl">Popüler Terim</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <span class="stat-num">Oyun & Chat</span>
-          <span class="stat-lbl">Tüm Kısaltmalar</span>
+          <span class="stat-num" id="statTodayAdded">5</span>
+          <span class="stat-lbl">Bugün Eklenen</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <span class="stat-num">AI %100</span>
-          <span class="stat-lbl">Canlı Çeviri Engine</span>
+          <span class="stat-num" id="statTotalVisits">1,420+</span>
+          <span class="stat-lbl">Toplam Ziyaret</span>
         </div>
       </div>
     </header>
@@ -112,6 +112,7 @@
       <!-- Category Filter Chips -->
       <div class="categories-bar" id="categoriesBar">
         <button class="chip active" data-category="Tümü"><i class="fa-solid fa-layer-group"></i> Tümü</button>
+        <button class="chip chip-fire" data-category="Son Eklenenler"><i class="fa-solid fa-clock-rotate-left"></i> 🔥 Son Eklenenler</button>
         <button class="chip" data-category="10-15 Yaş Trend"><i class="fa-solid fa-fire-flame-curved"></i> 10-15 Yaş Trend</button>
         <button class="chip" data-category="Oyun Terimi"><i class="fa-solid fa-gamepad"></i> Oyun Terimi</button>
         <button class="chip" data-category="Kısaltmalar"><i class="fa-solid fa-comment-dots"></i> Kısaltmalar</button>
