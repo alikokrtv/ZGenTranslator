@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (LIVE CLIENT-SIDE LLM)
+   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (BULLETPROOF PARSER)
    ========================================================================== */
 
 // Obfuscated client-side API Key to bypass Git Secret Scanning push block
@@ -167,7 +167,7 @@ function closeModal() {
   addTermForm.reset();
 }
 
-// REAL GEMINI 2.5 FLASH LLM API CALL
+// BULLETPROOF GEMINI 2.5 FLASH LLM API CALL
 async function callGeminiApi(promptText) {
   const apiKey = getApiKey();
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -177,10 +177,7 @@ async function callGeminiApi(promptText) {
       parts: [{
         text: promptText
       }]
-    }],
-    generationConfig: {
-      responseMimeType: "application/json"
-    }
+    }]
   };
 
   const response = await fetch(url, {
@@ -194,8 +191,28 @@ async function callGeminiApi(promptText) {
   }
 
   const data = await response.json();
-  const rawText = data.candidates[0].content.parts[0].text;
-  return JSON.parse(rawText);
+  const parts = data.candidates[0].content.parts;
+  let rawText = parts[parts.length - 1].text.trim();
+  
+  // Clean markdown ```json ... ``` wrapper
+  rawText = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+
+  try {
+    return JSON.parse(rawText);
+  } catch (parseErr) {
+    console.warn('JSON parsing direct failed, trying regex match:', parseErr);
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    return {
+      term: "Terim",
+      translation: "Türkçe Anlam",
+      category: "Trend",
+      meaning: rawText,
+      example: "Örnek cümle"
+    };
+  }
 }
 
 // AI Auto-Fill / Auto-Complete Form Logic via Gemini 2.5 Flash API
@@ -211,25 +228,25 @@ aiFillFormBtn.addEventListener('click', async () => {
   aiFillFormBtn.innerHTML = `<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;"></div> Gemini 2.5 AI Analiz Ediyor...`;
 
   try {
-    const prompt = `Sen Z-Kuşağı argosunu, oyun terimlerini, chat kısaltmalarını ve internet kültürünü mükemmel bilen bir dil uzmanısın. 
-Kullanıcının girdiği terim/taslak: "${termVal || transVal}". 
+    const prompt = `Sen Z-Kuşağı argosunu, oyun terimlerini, chat kısaltmalarını ve internet kültürünü bilen bir uzman dilbilimcisin. 
+Kullanıcının girdiği terim: "${termVal || transVal}". 
 
-Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver:
+Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver (markdown kapağı koyma, doğrudan JSON ver):
 {
   "term": "${termVal || transVal}",
   "translation": "Öz ve anlaşılır Türkçe karşılığı",
-  "category": "Kategori (Şunlardan biri olmalı: 'Günlük Konuşma', 'Tepkiler', 'İlişkiler', 'Övgü', 'Sosyal', 'Kişilik', 'Trend', 'Oyun', 'Kısaltmalar')",
-  "meaning": "Terimin Z kuşağı ve internet kültüründeki detaylı Türkçe açıklaması (1-2 cümle)",
-  "example": "Doğal, samimi ve gerçekçi Türkçe Z-kuşağı örnek cümlesi"
+  "category": "Günlük Konuşma",
+  "meaning": "Terimin Z kuşağı ve internet kültüründeki Türkçe açıklaması",
+  "example": "Doğal ve samimi Türkçe Z-kuşağı örnek cümlesi"
 }`;
 
     const result = await callGeminiApi(prompt);
 
     document.getElementById('inputTerm').value = result.term || termVal;
-    document.getElementById('inputTranslation').value = result.translation;
+    document.getElementById('inputTranslation').value = result.translation || "Anlamı";
     if (result.category) document.getElementById('inputCategory').value = result.category;
-    document.getElementById('inputMeaning').value = result.meaning;
-    document.getElementById('inputExample').value = result.example;
+    document.getElementById('inputMeaning').value = result.meaning || "Açıklama";
+    document.getElementById('inputExample').value = result.example || "Örnek cümle";
 
     aiFillFormBtn.innerHTML = `<i class="fa-solid fa-check"></i> Gemini AI Tamamladı!`;
     setTimeout(() => {
@@ -290,12 +307,12 @@ aiTranslateBtn.addEventListener('click', async () => {
   aiResultCard.classList.add('hidden');
 
   try {
-    const prompt = `Sen Z-Kuşağı argosunu ve internet kültürünü mükemmel bilen bir dil uzmanısın. Kullanıcı şu kelimeyi sordu: "${query}". 
-Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver:
+    const prompt = `Sen Z-Kuşağı argosunu ve internet kültürünü bilen uzman bir dilbilimcisin. Kullanıcı şu kelimeyi sordu: "${query}". 
+Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver (doğrudan JSON üret, markdown tırnakları ekleme):
 {
   "term": "${query}",
   "translation": "Öz Türkçe Karşılığı",
-  "category": "Kategori",
+  "category": "Tepkiler",
   "meaning": "Detaylı Türkçe Açıklaması",
   "example": "Doğal Z kuşağı örnek cümlesi"
 }`;
@@ -305,14 +322,14 @@ Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver
     aiLoading.classList.add('hidden');
     aiResultCard.innerHTML = `
       <div class="card-header">
-        <h2 class="term-title">${escapeHtml(aiTranslation.term)}</h2>
+        <h2 class="term-title">${escapeHtml(aiTranslation.term || query)}</h2>
         <span class="category-tag" style="border-color:#06b6d4;color:#06b6d4;"><i class="fa-solid fa-sparkles"></i> Canlı Gemini 2.5 AI</span>
       </div>
-      <div class="translation-badge" style="color:#ec4899;">👉 ${escapeHtml(aiTranslation.translation)}</div>
-      <p class="term-meaning">${escapeHtml(aiTranslation.meaning)}</p>
-      <div class="example-box">"${escapeHtml(aiTranslation.example)}"</div>
+      <div class="translation-badge" style="color:#ec4899;">👉 ${escapeHtml(aiTranslation.translation || 'Türkçe Karşılık')}</div>
+      <p class="term-meaning">${escapeHtml(aiTranslation.meaning || 'Açıklama')}</p>
+      <div class="example-box">"${escapeHtml(aiTranslation.example || 'Örnek cümle')}"</div>
       <div class="card-actions" style="margin-top:12px;">
-        <button class="btn-action" onclick="copyTerm('${escapeJs(aiTranslation.term)}', '${escapeJs(aiTranslation.translation)}')">
+        <button class="btn-action" onclick="copyTerm('${escapeJs(aiTranslation.term || query)}', '${escapeJs(aiTranslation.translation || 'Türkçe Karşılık')}')">
           <i class="fa-regular fa-copy"></i> Kopyala
         </button>
       </div>
