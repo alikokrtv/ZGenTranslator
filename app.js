@@ -38,6 +38,16 @@ async function loadTerms() {
   try {
     const res = await fetch('terms.json');
     const baseTerms = await res.json();
+    
+    // Auto-sanitize legacy customTerms in browser storage
+    customTerms = customTerms.map(t => {
+      if (t.category && t.category.toLowerCase().includes('termini')) {
+        t.category = t.category.replace(/termini/gi, 'Terimi');
+      }
+      return t;
+    });
+    localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
+
     termsData = [...customTerms, ...baseTerms];
 
     // Check Hash URL for Direct Deep Link (SEO)
