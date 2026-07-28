@@ -503,6 +503,28 @@ body {
   margin-top: auto;
 }
 
+/* Modal AI Fill Button */
+.btn-ai-fill {
+  width: 100%;
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px dashed rgba(6, 182, 212, 0.5);
+  color: #67e8f9;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+  word-break: break-word;
+  transition: var(--transition);
+}
+
 .btn-action {
   flex: 1;
   background: rgba(255, 255, 255, 0.05);

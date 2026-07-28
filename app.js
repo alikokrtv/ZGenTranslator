@@ -347,6 +347,15 @@ aiFillFormBtn.addEventListener('click', async () => {
     return;
   }
 
+  // Duplicate Check before calling AI
+  const existingTerm = termsData.find(t => t.term.toLowerCase() === (termVal || transVal).toLowerCase());
+  if (existingTerm) {
+    closeAddModal();
+    showToast(`"${existingTerm.term}" zaten sözlükte mevcut!`);
+    openDetailModal(existingTerm);
+    return;
+  }
+
   aiFillFormBtn.innerHTML = `<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;"></div> Gemini 2.5 AI Analiz Ediyor...`;
 
   try {
@@ -393,6 +402,15 @@ addTermForm.addEventListener('submit', (e) => {
   const category = document.getElementById('inputCategory').value;
   const meaning = document.getElementById('inputMeaning').value.trim();
   const example = document.getElementById('inputExample').value.trim();
+
+  // Duplicate Check
+  const existingTerm = termsData.find(t => t.term.toLowerCase() === term.toLowerCase());
+  if (existingTerm) {
+    closeAddModal();
+    showToast(`"${existingTerm.term}" zaten sözlükte mevcut!`);
+    openDetailModal(existingTerm);
+    return;
+  }
 
   const newTerm = {
     id: Date.now(),
