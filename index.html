@@ -3,10 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici</title>
-  <meta name="description" content="Gençlerin kullandığı internet argosunu, slang kelimeleri ve Z kuşağı terimlerini anında Türkçeye çeviren ultra hızlı dijital sözlük.">
+  <title>Z-Gen Sözlük | Z Kuşağı Argo, Slang & Terim Çevirici</title>
   
-  <!-- Google Fonts & Font Awesome Icons -->
+  <!-- SEO Meta Tags for Google Ranking -->
+  <meta name="description" content="Z kuşağı dili ve internet argosu sözlüğü. Rizz, no cap, slay, cooked, mewing, mogging ne demek? Anında öğrenin ve kendi teriminizi ekleyin.">
+  <meta name="keywords" content="z kuşağı dili, z kuşağı sözlüğü, rizz ne demek, no cap anlamı, slay ne demek, cooked ne demek, mewing nedir, internet argosu çeviri">
+  <meta name="author" content="Ali Kök">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Facebook / WhatsApp SEO -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici">
+  <meta property="og:description" content="Gençlerin kullandığı internet argosunu anında Türkçeye çevirin veya yeni terim ekleyin!">
+  <meta property="og:url" content="https://zgen-sozluk.netlify.app">
+  <meta property="og:image" content="https://zgen-sozluk.netlify.app/generated-icon.png">
+
+  <!-- Twitter Card SEO -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici">
+  <meta name="twitter:description" content="Rizz, no cap, slay, cooked ne demek? Anında çevirin ve terim ekleyin.">
+
+  <!-- Schema.org JSON-LD Structured Data for Google Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "DefinedTermSet",
+    "name": "Z-Gen Sözlük - Z Kuşağı Argo ve Terim Sözlüğü",
+    "description": "Z kuşağı internet dili ve slang terimlerinin Türkçe anlamlarını içeren açık sözlük.",
+    "publisher": {
+      "@type": "Person",
+      "name": "Ali Kök"
+    }
+  }
+  </script>
+
+  <!-- Google Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -16,7 +47,7 @@
 </head>
 <body>
 
-  <!-- Background Decorative Blur Blobs -->
+  <!-- Background Glows -->
   <div class="glow-bg blob-1"></div>
   <div class="glow-bg blob-2"></div>
 
@@ -25,14 +56,20 @@
 
     <!-- Header Section -->
     <header class="hero-header">
-      <div class="badge-pill">
-        <span class="pulse-dot"></span> %100 Ücretsiz & Netlify Hazır
+      <div class="header-top-bar">
+        <div class="badge-pill">
+          <span class="pulse-dot"></span> %100 Ücretsiz & Açık Katkılı
+        </div>
+        <button id="openAddModalBtn" class="btn-add-term">
+          <i class="fa-solid fa-plus"></i> Terim Ekle / Düzenle
+        </button>
       </div>
+
       <h1 class="logo-title">
         <span class="gradient-text">Z-GEN</span> SÖZLÜK
       </h1>
       <p class="hero-subtitle">
-        "Rizz", "no cap", "slay", "cooked" ne demek? Z Kuşağı argosunu anında anlaşılır Türkçeye çevirin.
+        "Rizz", "no cap", "slay", "cooked" ne demek? Z Kuşağı argosunu anında Türkçe öğrenin veya yeni terim ekleyin.
       </p>
     </header>
 
@@ -60,12 +97,13 @@
         <button class="chip" data-category="Sosyal">Sosyal</button>
         <button class="chip" data-category="Kişilik">Kişilik</button>
         <button class="chip" data-category="Trend">Trend</button>
+        <button class="chip" data-category="Topluluk">⭐ Katkılarım</button>
       </div>
     </section>
 
     <!-- Terms Grid Container -->
     <main class="terms-grid" id="termsGrid">
-      <!-- Dynamic Term Cards Will Be Inserted Here -->
+      <!-- Dynamic Term Cards Inserted Here -->
     </main>
 
     <!-- No Results & AI Fallback Section -->
@@ -75,9 +113,14 @@
       </div>
       <h3>Aradığınız terim sözlükte bulunamadı!</h3>
       <p id="noResultsText">Aradığınız kelimeyi Yapay Zeka (AI) ile anında analiz edip Türkçe anlamına çevirelim mi?</p>
-      <button id="aiTranslateBtn" class="btn-ai">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> AI ile Anlamını Çevir
-      </button>
+      <div class="no-results-actions">
+        <button id="aiTranslateBtn" class="btn-ai">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> AI ile Anlamını Çevir
+        </button>
+        <button id="addMissingTermBtn" class="btn-secondary-add">
+          <i class="fa-solid fa-plus"></i> Sözlüğe Sen Ekle
+        </button>
+      </div>
       <div id="aiLoading" class="ai-loading hidden">
         <div class="spinner"></div>
         <span>Yapay zeka terimi analiz ediyor...</span>
@@ -87,13 +130,56 @@
 
     <!-- Footer Section -->
     <footer class="footer">
-      <p>Geliştiren: <strong>Ali Kök</strong> &bull; Z-Gen Translator</p>
+      <p>Geliştiren: <strong>Ali Kök</strong> &bull; Z-Gen Sözlük projesi</p>
       <div class="footer-links">
         <a href="https://github.com/alikokrtv" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub</a>
-        <a href="#" id="shareAppBtn"><i class="fa-solid fa-share-nodes"></i> Uygulamayı Paylaş</a>
+        <a href="#" id="shareAppBtn"><i class="fa-solid fa-share-nodes"></i> Paylaş</a>
       </div>
     </footer>
 
+  </div>
+
+  <!-- Add / Edit Term Modal -->
+  <div id="addTermModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-pen-to-square"></i> Yeni Terim Ekle / Düzenle</h3>
+        <button id="closeModalBtn" class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="addTermForm">
+        <div class="form-group">
+          <label for="inputTerm">Terim / Kelime *</label>
+          <input type="text" id="inputTerm" placeholder="Örn: skibidi, rizz" required>
+        </div>
+        <div class="form-group">
+          <label for="inputTranslation">Türkçe Karşılığı *</label>
+          <input type="text" id="inputTranslation" placeholder="Örn: Karizma / Çekicilik" required>
+        </div>
+        <div class="form-group">
+          <label for="inputCategory">Kategori</label>
+          <select id="inputCategory">
+            <option value="Günlük Konuşma">Günlük Konuşma</option>
+            <option value="İlişkiler">İlişkiler</option>
+            <option value="Övgü">Övgü</option>
+            <option value="Tepkiler">Tepkiler</option>
+            <option value="Sosyal">Sosyal</option>
+            <option value="Kişilik">Kişilik</option>
+            <option value="Trend">Trend</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="inputMeaning">Açıklama / Anlamı *</label>
+          <textarea id="inputMeaning" rows="3" placeholder="Terimin ne anlama geldiğini açıklayın..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="inputExample">Örnek Cümle *</label>
+          <input type="text" id="inputExample" placeholder="Örn: Kanka çocukta inanılmaz bir rizz var." required>
+        </div>
+        <button type="submit" class="btn-submit-term">
+          <i class="fa-solid fa-check"></i> Sözlüğe Ekle & Kaydet
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Toast Notification -->

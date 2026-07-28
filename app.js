@@ -1,8 +1,9 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | APPLICATION ENGINE (NETLIFY READY)
+   Z-GEN SÖZLÜK | APPLICATION ENGINE (SEO & USER CONTRIB READY)
    ========================================================================== */
 
 let termsData = [];
+let customTerms = JSON.parse(localStorage.getItem('zgen_custom_terms') || '[]');
 let activeCategory = 'Tümü';
 
 // DOM Elements
@@ -13,17 +14,28 @@ const termsGrid = document.getElementById('termsGrid');
 const noResultsCard = document.getElementById('noResults');
 const noResultsText = document.getElementById('noResultsText');
 const aiTranslateBtn = document.getElementById('aiTranslateBtn');
+const addMissingTermBtn = document.getElementById('addMissingTermBtn');
 const aiLoading = document.getElementById('aiLoading');
 const aiResultCard = document.getElementById('aiResultCard');
 const toast = document.getElementById('toast');
 const toastMsg = document.getElementById('toastMsg');
 const shareAppBtn = document.getElementById('shareAppBtn');
 
-// Load Terms from JSON
+// Modal Elements
+const openAddModalBtn = document.getElementById('openAddModalBtn');
+const addTermModal = document.getElementById('addTermModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const addTermForm = document.getElementById('addTermForm');
+
+// Load Base Terms
 async function loadTerms() {
   try {
     const res = await fetch('terms.json');
-    termsData = await res.json();
+    const baseTerms = await res.json();
+    termsData = [...customTerms, ...baseTerms];
+
+    // Check Hash URL for Direct Deep Link (SEO)
+    checkHashUrl();
     renderTerms(termsData);
   } catch (err) {
     console.error('Terimler yüklenirken hata oluştu:', err);
@@ -31,14 +43,14 @@ async function loadTerms() {
   }
 }
 
-// Render Terms Grid
+// Render Grid
 function renderTerms(data) {
   termsGrid.innerHTML = '';
 
   if (data.length === 0) {
     noResultsCard.classList.remove('hidden');
     const query = searchInput.value.trim();
-    noResultsText.textContent = `"${query}" terimi henüz sözlükte yok. Yapay Zeka (AI) ile anlamını hemen çıkartalım mı?`;
+    noResultsText.textContent = `"${query}" terimi henüz sözlükte yok. Yapay Zeka (AI) ile anlamını çıkaralım veya sözlüğe siz ekleyin!`;
     aiResultCard.classList.add('hidden');
     return;
   }
@@ -48,6 +60,7 @@ function renderTerms(data) {
   data.forEach(item => {
     const card = document.createElement('div');
     card.className = 'term-card';
+    card.id = `term-${item.term.toLowerCase().replace(/\s+/g, '-')}`;
     card.innerHTML = `
       <div class="card-header">
         <h2 class="term-title">${escapeHtml(item.term)}</h2>
@@ -69,18 +82,26 @@ function renderTerms(data) {
   });
 }
 
-// Filter Terms Logic
+// Filter Terms & Update SEO Title / URL Hash
 function filterTerms() {
   const query = searchInput.value.trim().toLowerCase();
 
   if (query.length > 0) {
     clearSearchBtn.classList.remove('hidden');
+    // SEO Dynamic Document Title for Google Ranking
+    document.title = `${searchInput.value.trim()} Ne Demek? | Z-Gen Sözlük`;
+    window.location.hash = query.replace(/\s+/g, '-');
   } else {
     clearSearchBtn.classList.add('hidden');
+    document.title = "Z-Gen Sözlük | Z Kuşağı Argo & Terim Çevirici";
+    history.replaceState(null, null, ' ');
   }
 
   const filtered = termsData.filter(item => {
-    const matchesCategory = (activeCategory === 'Tümü') || (item.category === activeCategory);
+    const matchesCategory = (activeCategory === 'Tümü') || 
+                            (activeCategory === 'Topluluk' && item.isCustom) ||
+                            (item.category === activeCategory);
+                            
     const matchesQuery = item.term.toLowerCase().includes(query) ||
                          item.translation.toLowerCase().includes(query) ||
                          item.meaning.toLowerCase().includes(query);
@@ -88,6 +109,16 @@ function filterTerms() {
   });
 
   renderTerms(filtered);
+}
+
+// Deep Linking Check from URL Hash for Google SEO Direct Pages
+function checkHashUrl() {
+  const hash = window.location.hash.replace('#', '').trim();
+  if (hash) {
+    const term = decodeURIComponent(hash).replace(/-/g, ' ');
+    searchInput.value = term;
+    document.title = `${term} Ne Demek? | Z-Gen Sözlük`;
+  }
 }
 
 // Category Filter Click
@@ -109,6 +140,66 @@ clearSearchBtn.addEventListener('click', () => {
   searchInput.focus();
 });
 
+// Modal Logic
+openAddModalBtn.addEventListener('click', () => openModal());
+addMissingTermBtn.addEventListener('click', () => {
+  openModal(searchInput.value.trim());
+});
+closeModalBtn.addEventListener('click', closeModal);
+
+addTermModal.addEventListener('click', (e) => {
+  if (e.target === addTermModal) closeModal();
+});
+
+function openModal(prefillTerm = '') {
+  addTermModal.classList.remove('hidden');
+  if (prefillTerm) {
+    document.getElementById('inputTerm').value = prefillTerm;
+  }
+}
+
+function closeModal() {
+  addTermModal.classList.add('hidden');
+  addTermForm.reset();
+}
+
+// Submit Add / Edit Term Form
+addTermForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const term = document.getElementById('inputTerm').value.trim();
+  const translation = document.getElementById('inputTranslation').value.trim();
+  const category = document.getElementById('inputCategory').value;
+  const meaning = document.getElementById('inputMeaning').value.trim();
+  const example = document.getElementById('inputExample').value.trim();
+
+  const newTerm = {
+    id: Date.now(),
+    term,
+    translation,
+    category,
+    meaning,
+    example,
+    isCustom: true
+  };
+
+  // Add to custom list & LocalStorage
+  customTerms.unshift(newTerm);
+  localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
+  termsData.unshift(newTerm);
+
+  closeModal();
+  showToast(`"${term}" başarıyla eklendi!`);
+
+  // Switch to custom category view
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  const customChip = document.querySelector('[data-category="Topluluk"]');
+  if (customChip) customChip.classList.add('active');
+  activeCategory = 'Topluluk';
+  
+  filterTerms();
+});
+
 // AI Fallback Generator
 aiTranslateBtn.addEventListener('click', async () => {
   const query = searchInput.value.trim();
@@ -119,9 +210,8 @@ aiTranslateBtn.addEventListener('click', async () => {
   aiResultCard.classList.add('hidden');
 
   try {
-    // Dynamic AI Fallback Result Generator
     const aiTranslation = generateAiFallback(query);
-    await new Promise(resolve => setTimeout(resolve, 1200)); // Smooth loading feel
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     aiLoading.classList.add('hidden');
     aiResultCard.innerHTML = `
@@ -148,38 +238,19 @@ aiTranslateBtn.addEventListener('click', async () => {
   }
 });
 
-// Generate AI Fallback object based on term
+// AI Fallback Matcher
 function generateAiFallback(query) {
-  const termLower = query.toLowerCase();
-  
-  // Custom smart dictionary fallbacks
-  if (termLower.includes('mew') || termLower.includes('mog')) {
-    return {
-      term: query,
-      translation: "Yüz Hatlarını / Karizmayı Öne Çıkarma",
-      meaning: "Sosyal medyada popüler olan çene hattı veya duruşla üstünlük sağlama hareketi.",
-      example: "Ortamda kimseden ses çıkmadı, çocuk direkt mewing yaptı."
-    };
-  } else if (termLower.includes('npc')) {
-    return {
-      term: query,
-      translation: "Sıradan / Kendi Aklı Olmayan",
-      meaning: "Kendi özgün kararlarını vermek yerine sürüye uyan tepkisiz insan tipi.",
-      example: "Sabahtan beri aynı şeyleri tekrarlıyor, tam bir NPC."
-    };
-  }
-
   return {
     term: query,
     translation: "Popüler Z-Kuşağı Argosu",
-    meaning: `"${query}" terimi Z kuşağı arasında trend olan veya yeni türetilmiş bir ifadedir. Genellikle internet kültüründe durumları vurgulamak için kullanılır.`,
+    meaning: `"${query}" terimi Z kuşağı arasında trend olan veya yeni türetilmiş bir ifadedir. İnternet kültüründe sıkça kullanılır.`,
     example: `Herkes son zamanlarda "${query}" kelimesini konuşuyor!`
   };
 }
 
 // Copy Term
 function copyTerm(term, translation) {
-  const text = `Z-Gen Sözlük: "${term}" ➡️ ${translation}\nDetaylar için Z-Gen Sözlük'e bak!`;
+  const text = `Z-Gen Sözlük: "${term}" ➡️ ${translation}\nhttps://zgen-sozluk.netlify.app/#${encodeURIComponent(term.replace(/\s+/g, '-'))}`;
   navigator.clipboard.writeText(text).then(() => {
     showToast(`"${term}" kopyalandı!`);
   });
@@ -187,7 +258,7 @@ function copyTerm(term, translation) {
 
 // Share Term on Twitter/X
 function shareTerm(term, translation) {
-  const tweetText = encodeURIComponent(`" ${term} " ne demek biliyor musunuz? 👉 ${translation}\n\nZ-Gen Sözlük ile Z kuşağı dilini keşfedin! 🚀`);
+  const tweetText = encodeURIComponent(`" ${term} " ne demek biliyor musunuz? 👉 ${translation}\n\nZ-Gen Sözlük ile Z kuşağı dilini keşfedin! 🚀 https://zgen-sozluk.netlify.app/#${encodeURIComponent(term.replace(/\s+/g, '-'))}`);
   window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
 }
 
@@ -197,7 +268,7 @@ shareAppBtn.addEventListener('click', (e) => {
   if (navigator.share) {
     navigator.share({
       title: 'Z-Gen Sözlük',
-      text: 'Z Kuşağı argosunu anında Türkçeye çeviren ultra hızlı sözlük!',
+      text: 'Z Kuşağı argosunu anında Türkçeye çeviren ve kullanıcı katkılı sözlük!',
       url: window.location.href
     });
   } else {
@@ -207,7 +278,7 @@ shareAppBtn.addEventListener('click', (e) => {
   }
 });
 
-// Helper Toast
+// Toast Helper
 function showToast(msg) {
   toastMsg.textContent = msg;
   toast.classList.remove('hidden');
@@ -216,7 +287,7 @@ function showToast(msg) {
   }, 2500);
 }
 
-// Helper Escapes
+// Escapes
 function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
