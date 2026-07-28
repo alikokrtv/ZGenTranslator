@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | CLEAN & ELEGANT CARD LAYOUT (NO SCROLLBAR CLUTTER)
+   Z-GEN SÖZLÜK | ALIGN-ITEMS START GRID (PERFECT INDIVIDUAL CARD HEIGHTS)
    ========================================================================== */
 
 :root {
@@ -44,10 +44,10 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
@@ -363,11 +363,11 @@ body {
   box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
 }
 
-/* Terms Grid */
+/* Terms Grid - align-items: start ensures cards take their own natural height! */
 .terms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  align-items: stretch;
+  align-items: start;
   gap: 24px;
   margin-bottom: 60px;
 }
@@ -459,13 +459,15 @@ body {
   gap: 6px;
 }
 
-/* Meaning Text - Clean, readable without ugly scrollbars */
+/* Meaning Text - Max height for long text, smooth scroll */
 .term-meaning {
   font-size: 14px;
   color: var(--text-muted);
   margin-bottom: 16px;
   line-height: 1.6;
-  flex-grow: 1;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .example-box {
@@ -477,12 +479,14 @@ body {
   color: #cbd5e1;
   font-style: italic;
   margin-bottom: 18px;
+  max-height: 100px;
+  overflow-y: auto;
 }
 
 .card-actions {
   display: flex;
   gap: 8px;
-  margin-top: auto;
+  margin-top: 10px;
 }
 
 .btn-action {

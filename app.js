@@ -72,9 +72,9 @@ function renderTerms(data) {
         <h2 class="term-title">${escapeHtml(item.term)}</h2>
         <span class="category-tag">${escapeHtml(item.category)}</span>
       </div>
-      <div class="translation-badge">👉 ${escapeHtml(item.translation)}</div>
-      <p class="term-meaning">${escapeHtml(item.meaning)}</p>
-      <div class="example-box">"${escapeHtml(item.example)}"</div>
+      <div class="translation-badge">👉 ${escapeHtml(item.translation.replace(/\*\*/g, ''))}</div>
+      <p class="term-meaning">${escapeHtml(item.meaning.replace(/\*\*/g, ''))}</p>
+      <div class="example-box">"${escapeHtml(item.example.replace(/\*\*/g, ''))}"</div>
       <div class="card-actions">
         <button class="btn-action" onclick="copyTerm('${escapeJs(item.term)}', '${escapeJs(item.translation)}')">
           <i class="fa-regular fa-copy"></i> Kopyala
