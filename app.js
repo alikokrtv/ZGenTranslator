@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (BULLETPROOF PARSER)
+   Z-GEN SÖZLÜK | REAL GEMINI AI 2.5 FLASH ENGINE (SAFE STATE SAVER)
    ========================================================================== */
 
 // Obfuscated client-side API Key to bypass Git Secret Scanning push block
@@ -9,6 +9,7 @@ const getApiKey = () => atob(_k);
 let termsData = [];
 let customTerms = JSON.parse(localStorage.getItem('zgen_custom_terms') || '[]');
 let activeCategory = 'Tümü';
+let currentAiResult = null; // In-memory state for safe AI saving without HTML escaping bugs
 
 // DOM Elements
 const searchInput = document.getElementById('searchInput');
@@ -231,7 +232,7 @@ aiFillFormBtn.addEventListener('click', async () => {
     const prompt = `Sen Z-Kuşağı argosunu, oyun terimlerini, chat kısaltmalarını ve internet kültürünü bilen bir uzman dilbilimcisin. 
 Kullanıcının girdiği terim: "${termVal || transVal}". 
 
-Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver (markdown kapağı koyma, doğrudan JSON ver):
+Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver:
 {
   "term": "${termVal || transVal}",
   "translation": "Öz ve anlaşılır Türkçe karşılığı",
@@ -323,20 +324,29 @@ Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver
 
     const aiTranslation = await callGeminiApi(prompt);
 
+    // Save in memory for safe, bug-free saving
+    currentAiResult = {
+      term: aiTranslation.term || query,
+      translation: aiTranslation.translation || 'Türkçe Karşılık',
+      category: aiTranslation.category || 'Trend',
+      meaning: aiTranslation.meaning || 'Açıklama',
+      example: aiTranslation.example || 'Örnek cümle'
+    };
+
     aiLoading.classList.add('hidden');
     aiResultCard.innerHTML = `
       <div class="card-header">
-        <h2 class="term-title">${escapeHtml(aiTranslation.term || query)}</h2>
+        <h2 class="term-title">${escapeHtml(currentAiResult.term)}</h2>
         <span class="category-tag" style="border-color:#06b6d4;color:#06b6d4;"><i class="fa-solid fa-sparkles"></i> Canlı Gemini 2.5 AI</span>
       </div>
-      <div class="translation-badge" style="color:#ec4899;">👉 ${escapeHtml(aiTranslation.translation || 'Türkçe Karşılık')}</div>
-      <p class="term-meaning">${escapeHtml(aiTranslation.meaning || 'Açıklama')}</p>
-      <div class="example-box">"${escapeHtml(aiTranslation.example || 'Örnek cümle')}"</div>
+      <div class="translation-badge" style="color:#ec4899;">👉 ${escapeHtml(currentAiResult.translation)}</div>
+      <p class="term-meaning">${escapeHtml(currentAiResult.meaning)}</p>
+      <div class="example-box">"${escapeHtml(currentAiResult.example)}"</div>
       <div class="card-actions" style="margin-top:14px;gap:10px;">
-        <button class="btn-action" style="background:var(--gradient-main);border:none;color:#fff;" onclick="saveAiResultToDictionary('${escapeJs(aiTranslation.term || query)}', '${escapeJs(aiTranslation.translation || '')}', '${escapeJs(aiTranslation.category || 'Trend')}', '${escapeJs(aiTranslation.meaning || '')}', '${escapeJs(aiTranslation.example || '')}')">
+        <button class="btn-action" style="background:var(--gradient-main);border:none;color:#fff;" onclick="saveCurrentAiResult()">
           <i class="fa-solid fa-plus"></i> Sözlüğe Kaydet & Ekle
         </button>
-        <button class="btn-action" onclick="copyTerm('${escapeJs(aiTranslation.term || query)}', '${escapeJs(aiTranslation.translation || 'Türkçe Karşılık')}')">
+        <button class="btn-action" onclick="copyTerm('${escapeJs(currentAiResult.term)}', '${escapeJs(currentAiResult.translation)}')">
           <i class="fa-regular fa-copy"></i> Kopyala
         </button>
       </div>
@@ -352,29 +362,29 @@ Lütfen bu terimi analiz et ve YALNIZCA aşağıdaki JSON formatında yanıt ver
   }
 });
 
-// Save AI Result directly to Dictionary
-function saveAiResultToDictionary(term, translation, category, meaning, example) {
+// Save Current AI Result safely from memory
+function saveCurrentAiResult() {
+  if (!currentAiResult) return;
+
   const newTerm = {
     id: Date.now(),
-    term,
-    translation: translation || "Türkçe Karşılık",
-    category: category || "Trend",
-    meaning: meaning || "Açıklama",
-    example: example || "Örnek cümle",
+    term: currentAiResult.term,
+    translation: currentAiResult.translation,
+    category: currentAiResult.category,
+    meaning: currentAiResult.meaning,
+    example: currentAiResult.example,
     isCustom: true
   };
 
-  // Avoid duplicates
-  const exists = customTerms.some(t => t.term.toLowerCase() === term.toLowerCase());
+  const exists = customTerms.some(t => t.term.toLowerCase() === newTerm.term.toLowerCase());
   if (!exists) {
     customTerms.unshift(newTerm);
     localStorage.setItem('zgen_custom_terms', JSON.stringify(customTerms));
     termsData.unshift(newTerm);
   }
 
-  showToast(`"${term}" sözlüğe başarıyla kaydedildi!`);
+  showToast(`"${newTerm.term}" sözlüğe başarıyla kaydedildi!`);
 
-  // Switch to All or Custom view
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   const allChip = document.querySelector('[data-category="Tümü"]');
   if (allChip) allChip.classList.add('active');
