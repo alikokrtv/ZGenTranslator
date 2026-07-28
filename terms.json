@@ -1,6 +1,14 @@
 [
   {
     "id": 1,
+    "term": "yarma",
+    "translation": "İri Yarı / Kalıplı Adam",
+    "meaning": "1. Aşırı büyük, geniş vücutlu veya kaslı insanlar için kullanılan argo sıfat. 2. (Mizahi) Gülmekten yaracak kadar komik durum.",
+    "example": "Şu yarmaya bak kanka, koltuğu tek başına kapladı koltuk görünmüyor!",
+    "category": "Kişilik"
+  },
+  {
+    "id": 2,
     "term": "rizz",
     "translation": "Karizma / Çekicilik",
     "meaning": "Karşı tarafı etkileme, tavlama veya flört etme yeteneği.",
@@ -8,7 +16,7 @@
     "category": "İlişkiler"
   },
   {
-    "id": 2,
+    "id": 3,
     "term": "aura",
     "translation": "Karizma Puanı / Hava",
     "meaning": "Bir insanın ortamdaki karizması ve ağırlığı. Harika bir harekette +1000 aura kazanılır, utanç anında aura kaybedilir.",
@@ -16,7 +24,7 @@
     "category": "10-15 Yaş Trend"
   },
   {
-    "id": 3,
+    "id": 4,
     "term": "sigma",
     "translation": "Yalnız & Güçlü Kurt",
     "meaning": "Sosyal kuralları umursamayan, kendi yolunda giden, bağımsız ve aşırı havalı erkek tipi.",
@@ -24,7 +32,7 @@
     "category": "10-15 Yaş Trend"
   },
   {
-    "id": 4,
+    "id": 5,
     "term": "yapping",
     "translation": "Boş Kafa Şişirmek",
     "meaning": "Gereksiz yere uzun uzun konuşup karşı tarafı darlamak.",
@@ -32,7 +40,7 @@
     "category": "10-15 Yaş Trend"
   },
   {
-    "id": 5,
+    "id": 6,
     "term": "glazing",
     "translation": "Aşırı Yağlamak / Yalakalık",
     "meaning": "Birini abartılı şekilde övüp yağ çekmek.",
@@ -40,7 +48,7 @@
     "category": "10-15 Yaş Trend"
   },
   {
-    "id": 6,
+    "id": 7,
     "term": "brainrot",
     "translation": "Zihin Çürümesi / İçerik Bağımlılığı",
     "meaning": "TikTok ve Instagram Reels'deki saçma videoları izlemekten zihnin sulanması durumu.",
@@ -48,7 +56,7 @@
     "category": "10-15 Yaş Trend"
   },
   {
-    "id": 7,
+    "id": 8,
     "term": "looksmaxxing",
     "translation": "Tipi Maksimuma Çıkarma",
     "meaning": "Spor, cilt bakımı ve mewing ile dış görünüşü en üst seviyeye getirme akımı.",
@@ -56,7 +64,7 @@
     "category": "10-15 Yaş Trend"
   },
   {
-    "id": 8,
+    "id": 9,
     "term": "clutch",
     "translation": "Son An Zaferi",
     "meaning": "Oyunlarda veya hayatta imkansız görünen son anda maçı/durumu kurtarmak.",
@@ -64,7 +72,7 @@
     "category": "Oyun"
   },
   {
-    "id": 9,
+    "id": 10,
     "term": "afk",
     "translation": "Klavyeden Uzakta / Yok",
     "meaning": "'Away From Keyboard'. Oyunda veya mesajlaşmada bilgisayar başında olmama durumu.",
@@ -72,7 +80,7 @@
     "category": "Oyun"
   },
   {
-    "id": 10,
+    "id": 11,
     "term": "tilt olmak",
     "translation": "Sinir Krizine Girmek",
     "meaning": "Oyun kaybettikçe veya haksızlığa uğradıkça öfkelenip daha kötü oynamak.",
@@ -80,7 +88,7 @@
     "category": "Oyun"
   },
   {
-    "id": 11,
+    "id": 12,
     "term": "tryhard",
     "translation": "Aşırı Kasan / Hırslı",
     "meaning": "Eğlencelik oyunda bile profesyonel maçmış gibi aşırı çabalayan kişi.",
@@ -88,15 +96,15 @@
     "category": "Oyun"
   },
   {
-    "id": 12,
+    "id": 13,
     "term": "diff",
     "translation": "Fark / Üstünlük",
-    "meaning": "'Difference' kelimesinden gelir. Bir roldeki oyuncunun rakibinden açıkça iyi olduğunu söylemek (Örn: Mid diff).",
+    "meaning": "'Difference' kelimesinden gelir. Bir roldeki oyuncunun rakibinden açıkça iyi olduğunu söylemek.",
     "example": "Adam tek başına taşıdı, resmen jungle diff.",
     "category": "Oyun"
   },
   {
-    "id": 13,
+    "id": 14,
     "term": "smurf",
     "translation": "Düşük Seviyede Oynayan Usta",
     "meaning": "Kıdemli oyuncunun acemi hesap açıp yeni başlayanları ezmesi.",
@@ -104,7 +112,7 @@
     "category": "Oyun"
   },
   {
-    "id": 14,
+    "id": 15,
     "term": "tbh",
     "translation": "Dürüst Olmak Gerekirse",
     "meaning": "'To Be Honest'. Dürüstçe fikrini söylerken kullanılan kısaltma.",
@@ -112,7 +120,7 @@
     "category": "Kısaltmalar"
   },
   {
-    "id": 15,
+    "id": 16,
     "term": "fr",
     "translation": "Valla / Harbi",
     "meaning": "'For Real'. Bir sözü onaylarken harbi/gerçekten anlamında kullanılır.",
@@ -120,7 +128,7 @@
     "category": "Kısaltmalar"
   },
   {
-    "id": 16,
+    "id": 17,
     "term": "ngl",
     "translation": "Yalan Söylemeyeceğim",
     "meaning": "'Not Gonna Lie'. İtiraf ederken kullanılan mesajlaşma kısaltması.",
@@ -128,7 +136,7 @@
     "category": "Kısaltmalar"
   },
   {
-    "id": 17,
+    "id": 18,
     "term": "imo",
     "translation": "Bence / Benim Fikrimce",
     "meaning": "'In My Opinion'. Kendi görüşünü ifade ederken kullanılır.",
@@ -136,7 +144,7 @@
     "category": "Kısaltmalar"
   },
   {
-    "id": 18,
+    "id": 19,
     "term": "irl",
     "translation": "Gerçek Hayatta",
     "meaning": "'In Real Life'. Sanal alem dışındaki gerçek yaşamı kasteder.",
@@ -144,7 +152,7 @@
     "category": "Kısaltmalar"
   },
   {
-    "id": 19,
+    "id": 20,
     "term": "stalking",
     "translation": "Gizlice Hesabını İncelemek",
     "meaning": "Birinin sosyal medya geçmişini, fotoğraflarını çaktırmadan detaylıca araştırmak.",
@@ -152,7 +160,7 @@
     "category": "Sosyal Medya"
   },
   {
-    "id": 20,
+    "id": 21,
     "term": "shadowban",
     "translation": "Gizli Engel / Görünmezlik",
     "meaning": "Sosyal medya platformunun kullanıcıya bildirmeden erişimini kısıtlaması.",
@@ -160,19 +168,11 @@
     "category": "Sosyal Medya"
   },
   {
-    "id": 21,
+    "id": 22,
     "term": "shipping",
     "translation": "Birbirine Yakıştırmak",
     "meaning": "İki kişiyi veya karakteri romantik olarak birbirine çok yakıştırıp sevgili olmalarını istemek.",
     "example": "Dizideki o iki karakteri inanılmaz ship'liyorum.",
-    "category": "Sosyal Medya"
-  },
-  {
-    "id": 22,
-    "term": "tbt",
-    "translation": "Geçmişe Dönüş",
-    "meaning": "'Throwback Thursday'. Perşembe günleri eski fotoğrafları paylaşma geleneği.",
-    "example": "Geçen yazdan kalma tbt fotosu attım.",
     "category": "Sosyal Medya"
   },
   {
